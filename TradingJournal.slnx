@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="TradingJournal.API/TradingJournal.API.csproj" />
+  <Project Path="TradingJournal.Application/TradingJournal.Application.csproj" />
+  <Project Path="TradingJournal.Domain/TradingJournal.Domain.csproj" />
+  <Project Path="TradingJournal.Infrastructure/TradingJournal.Infrastructure.csproj" />
+</Solution>

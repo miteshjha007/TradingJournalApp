@@ -1,0 +1,880 @@
+2026-04-22 20:45:15.452 +05:30 [WRN] Entity 'User' has a global query filter defined and is the required end of a relationship with the entity 'Alert'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-04-22 20:45:16.027 +05:30 [INF] Executed DbCommand (28ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-04-22 20:45:16.392 +05:30 [INF] Executed DbCommand (12ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT 1
+2026-04-22 20:45:16.637 +05:30 [INF] Executed DbCommand (27ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2026-04-22 20:45:16.670 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2026-04-22 20:45:16.682 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-04-22 20:45:16.701 +05:30 [INF] Applying migration '20260422112332_AddAllowedSectionsToUser'.
+2026-04-22 20:45:16.727 +05:30 [INF] Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+ALTER TABLE "Users" ADD "AllowedSections" text[] NOT NULL DEFAULT '{}';
+2026-04-22 20:45:16.740 +05:30 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+ALTER TABLE "Users" ALTER COLUMN "AllowedSections" DROP DEFAULT;
+2026-04-22 20:45:16.748 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20260422112332_AddAllowedSectionsToUser', '10.0.7');
+2026-04-22 20:45:17.412 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted"))
+2026-04-22 20:45:17.646 +05:30 [INF] User profile is available. Using 'C:\Users\coolm\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-22 20:45:17.827 +05:30 [INF] Now listening on: http://localhost:5283
+2026-04-22 20:45:17.831 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-22 20:45:17.833 +05:30 [INF] Hosting environment: Development
+2026-04-22 20:45:17.835 +05:30 [INF] Content root path: D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.API
+2026-04-22 20:45:46.652 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger - null null
+2026-04-22 20:45:46.770 +05:30 [INF] HTTP GET /swagger responded 301 in 49.6390 ms
+2026-04-22 20:45:46.803 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger - 301 0 null 154.6987ms
+2026-04-22 20:45:46.948 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/index.html - null null
+2026-04-22 20:45:47.087 +05:30 [INF] HTTP GET /swagger/index.html responded 200 in 130.9630 ms
+2026-04-22 20:45:47.094 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/index.html - 200 null text/html;charset=utf-8 145.421ms
+2026-04-22 20:45:47.125 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/swagger-ui.css - null null
+2026-04-22 20:45:47.126 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/index.css - null null
+2026-04-22 20:45:47.130 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/swagger-ui-bundle.js - null null
+2026-04-22 20:45:47.135 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/swagger-ui-standalone-preset.js - null null
+2026-04-22 20:45:47.136 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/index.js - null null
+2026-04-22 20:45:47.155 +05:30 [INF] Sending file. Request path: '/index.css'. Physical path: 'N/A'
+2026-04-22 20:45:47.165 +05:30 [INF] HTTP GET /swagger/index.js responded 200 in 1.0556 ms
+2026-04-22 20:45:47.167 +05:30 [INF] HTTP GET /swagger/index.css responded 200 in 25.4855 ms
+2026-04-22 20:45:47.174 +05:30 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2026-04-22 20:45:47.174 +05:30 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2026-04-22 20:45:47.174 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/index.js - 200 null application/javascript;charset=utf-8 37.7568ms
+2026-04-22 20:45:47.181 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/index.css - 200 202 text/css 55.4122ms
+2026-04-22 20:45:47.189 +05:30 [INF] HTTP GET /swagger/swagger-ui-standalone-preset.js responded 200 in 33.8605 ms
+2026-04-22 20:45:47.191 +05:30 [INF] HTTP GET /swagger/swagger-ui.css responded 200 in 56.5051 ms
+2026-04-22 20:45:47.213 +05:30 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2026-04-22 20:45:47.219 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/swagger-ui-standalone-preset.js - 200 230293 text/javascript 83.7679ms
+2026-04-22 20:45:47.223 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/swagger-ui.css - 200 152034 text/css 97.8176ms
+2026-04-22 20:45:47.226 +05:30 [INF] HTTP GET /swagger/swagger-ui-bundle.js responded 200 in 77.8666 ms
+2026-04-22 20:45:47.251 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/swagger-ui-bundle.js - 200 1452753 text/javascript 121.1663ms
+2026-04-22 20:45:48.418 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/v1/swagger.json - null null
+2026-04-22 20:45:48.429 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/favicon-32x32.png - null null
+2026-04-22 20:45:48.451 +05:30 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
+2026-04-22 20:45:48.455 +05:30 [INF] HTTP GET /swagger/favicon-32x32.png responded 200 in 4.7052 ms
+2026-04-22 20:45:48.470 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/favicon-32x32.png - 200 628 image/png 50.1852ms
+2026-04-22 20:45:48.941 +05:30 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 498.7986 ms
+2026-04-22 20:45:48.949 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 531.0731ms
+2026-04-22 20:46:11.471 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/auth/login - null null
+2026-04-22 20:46:11.496 +05:30 [WRN] Failed to determine the https port for redirect.
+2026-04-22 20:46:11.499 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:46:11.503 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 10.6067 ms
+2026-04-22 20:46:11.507 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/auth/login - 204 null null 36.4922ms
+2026-04-22 20:46:11.514 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/auth/login - application/json 61
+2026-04-22 20:46:11.523 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:46:11.639 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.AuthController.Login (TradingJournal.API)'
+2026-04-22 20:46:11.700 +05:30 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Auth.AuthResponseDto]] Login(TradingJournal.Application.DTOs.Auth.LoginDto) on controller TradingJournal.API.Controllers.AuthController (TradingJournal.API).
+2026-04-22 20:46:11.788 +05:30 [INF] Login attempt for email: trader@tradingjournal.com
+2026-04-22 20:46:12.117 +05:30 [INF] Executed DbCommand (23ms) [Parameters=[@email='?'], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."Email" = @email
+LIMIT 1
+2026-04-22 20:46:13.327 +05:30 [INF] Executed DbCommand (40ms) [Parameters=[@p14='?' (DbType = Guid), @p0='?' (DbType = Decimal), @p1='?' (DbType = Object), @p2='?' (DbType = DateTime), @p3='?', @p4='?', @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?', @p8='?', @p9='?', @p10='?', @p11='?' (DbType = DateTime), @p12='?' (DbType = Int32), @p13='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='300']
+UPDATE "Users" SET "AccountBalance" = @p0, "AllowedSections" = @p1, "CreatedAt" = @p2, "Email" = @p3, "FirstName" = @p4, "IsActive" = @p5, "IsDeleted" = @p6, "LastName" = @p7, "PasswordHash" = @p8, "ProfileImageUrl" = @p9, "RefreshToken" = @p10, "RefreshTokenExpiry" = @p11, "Role" = @p12, "UpdatedAt" = @p13
+WHERE "Id" = @p14;
+2026-04-22 20:46:13.439 +05:30 [INF] Successful login for email: trader@tradingjournal.com
+2026-04-22 20:46:13.453 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Auth.AuthResponseDto'.
+2026-04-22 20:46:13.505 +05:30 [INF] Executed action TradingJournal.API.Controllers.AuthController.Login (TradingJournal.API) in 1788.8005ms
+2026-04-22 20:46:13.509 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.AuthController.Login (TradingJournal.API)'
+2026-04-22 20:46:13.514 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 1992.1843 ms
+2026-04-22 20:46:13.526 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/auth/login - 200 null application/json; charset=utf-8 2011.7358ms
+2026-04-22 20:46:13.644 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/summary - null null
+2026-04-22 20:46:13.652 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:46:13.654 +05:30 [INF] HTTP OPTIONS /api/dashboard/summary responded 204 in 2.8394 ms
+2026-04-22 20:46:13.658 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/summary - 204 null null 14.1766ms
+2026-04-22 20:46:13.667 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/dashboard/summary - null null
+2026-04-22 20:46:13.674 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:46:13.815 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API)'
+2026-04-22 20:46:13.833 +05:30 [INF] Route matched with {action = "GetSummary", controller = "Dashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Dashboard.DashboardSummaryDto]] GetSummary() on controller TradingJournal.API.Controllers.DashboardController (TradingJournal.API).
+2026-04-22 20:46:13.863 +05:30 [INF] Fetching dashboard summary for user: "95870ccb-6248-4140-95c9-f85b1e77a34b"
+2026-04-22 20:46:14.449 +05:30 [INF] Executed DbCommand (12ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM "Trades" AS t
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t."InstrumentId" = i0."Id"
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+ORDER BY t."TradeDate"
+2026-04-22 20:46:14.776 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@p='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."Id" = @p
+LIMIT 1
+2026-04-22 20:46:14.921 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT a."Id", a."CreatedAt", a."DailyLossLimit", a."Email", a."EmailAlertEnabled", a."IsActive", a."IsDeleted", a."MaxDrawdownPercent", a."MaxTradesPerDay", a."UpdatedAt", a."UserId"
+FROM "Alerts" AS a
+WHERE a."UserId" = @userId
+LIMIT 1
+2026-04-22 20:46:15.104 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+FROM "Instruments" AS i
+WHERE NOT (i."IsDeleted") AND i."UserId" = @userId
+2026-04-22 20:46:15.158 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Dashboard.DashboardSummaryDto'.
+2026-04-22 20:46:15.182 +05:30 [INF] Executed action TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API) in 1343.9209ms
+2026-04-22 20:46:15.186 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API)'
+2026-04-22 20:46:15.188 +05:30 [INF] HTTP GET /api/dashboard/summary responded 200 in 1514.2946 ms
+2026-04-22 20:46:15.193 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/dashboard/summary - 200 null application/json; charset=utf-8 1525.7016ms
+2026-04-22 20:50:58.954 +05:30 [WRN] Entity 'User' has a global query filter defined and is the required end of a relationship with the entity 'Alert'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-04-22 20:50:59.612 +05:30 [INF] Executed DbCommand (26ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-04-22 20:50:59.922 +05:30 [INF] Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT 1
+2026-04-22 20:51:00.079 +05:30 [INF] Executed DbCommand (17ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2026-04-22 20:51:00.102 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2026-04-22 20:51:00.110 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-04-22 20:51:00.118 +05:30 [INF] No migrations were applied. The database is already up to date.
+2026-04-22 20:51:00.411 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted"))
+2026-04-22 20:51:00.532 +05:30 [INF] User profile is available. Using 'C:\Users\coolm\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-22 20:51:00.613 +05:30 [INF] Now listening on: http://localhost:5283
+2026-04-22 20:51:00.617 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-22 20:51:00.619 +05:30 [INF] Hosting environment: Development
+2026-04-22 20:51:00.620 +05:30 [INF] Content root path: D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.API
+2026-04-22 20:51:04.714 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/index.html - null null
+2026-04-22 20:51:05.108 +05:30 [INF] HTTP GET /swagger/index.html responded 200 in 301.0970 ms
+2026-04-22 20:51:05.124 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/index.html - 200 null text/html;charset=utf-8 415.7864ms
+2026-04-22 20:51:05.349 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/index.js - null null
+2026-04-22 20:51:05.427 +05:30 [INF] HTTP GET /swagger/index.js responded 200 in 4.5525 ms
+2026-04-22 20:51:05.445 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/index.js - 200 null application/javascript;charset=utf-8 96.4236ms
+2026-04-22 20:51:07.469 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/v1/swagger.json - null null
+2026-04-22 20:51:07.929 +05:30 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 453.1926 ms
+2026-04-22 20:51:07.938 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 468.5758ms
+2026-04-22 20:51:10.652 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/auth/login - null null
+2026-04-22 20:51:10.680 +05:30 [WRN] Failed to determine the https port for redirect.
+2026-04-22 20:51:10.686 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:10.692 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 15.2930 ms
+2026-04-22 20:51:10.697 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/auth/login - 204 null null 44.3808ms
+2026-04-22 20:51:19.190 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/auth/login - null null
+2026-04-22 20:51:19.202 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:19.203 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 2.6785 ms
+2026-04-22 20:51:19.207 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/auth/login - 204 null null 17.4103ms
+2026-04-22 20:51:19.216 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/auth/login - application/json 59
+2026-04-22 20:51:19.223 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:19.291 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.AuthController.Login (TradingJournal.API)'
+2026-04-22 20:51:19.322 +05:30 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Auth.AuthResponseDto]] Login(TradingJournal.Application.DTOs.Auth.LoginDto) on controller TradingJournal.API.Controllers.AuthController (TradingJournal.API).
+2026-04-22 20:51:19.379 +05:30 [INF] Login attempt for email: admin@tradingjournal.com
+2026-04-22 20:51:19.639 +05:30 [INF] Executed DbCommand (18ms) [Parameters=[@email='?'], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."Email" = @email
+LIMIT 1
+2026-04-22 20:51:20.564 +05:30 [INF] Executed DbCommand (27ms) [Parameters=[@p14='?' (DbType = Guid), @p0='?' (DbType = Decimal), @p1='?' (DbType = Object), @p2='?' (DbType = DateTime), @p3='?', @p4='?', @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?', @p8='?', @p9='?', @p10='?', @p11='?' (DbType = DateTime), @p12='?' (DbType = Int32), @p13='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='300']
+UPDATE "Users" SET "AccountBalance" = @p0, "AllowedSections" = @p1, "CreatedAt" = @p2, "Email" = @p3, "FirstName" = @p4, "IsActive" = @p5, "IsDeleted" = @p6, "LastName" = @p7, "PasswordHash" = @p8, "ProfileImageUrl" = @p9, "RefreshToken" = @p10, "RefreshTokenExpiry" = @p11, "Role" = @p12, "UpdatedAt" = @p13
+WHERE "Id" = @p14;
+2026-04-22 20:51:20.665 +05:30 [INF] Successful login for email: admin@tradingjournal.com
+2026-04-22 20:51:20.675 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Auth.AuthResponseDto'.
+2026-04-22 20:51:20.761 +05:30 [INF] Executed action TradingJournal.API.Controllers.AuthController.Login (TradingJournal.API) in 1425.4124ms
+2026-04-22 20:51:20.766 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.AuthController.Login (TradingJournal.API)'
+2026-04-22 20:51:20.774 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 1552.3416 ms
+2026-04-22 20:51:20.819 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/auth/login - 200 null application/json; charset=utf-8 1603.0772ms
+2026-04-22 20:51:20.985 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/summary - null null
+2026-04-22 20:51:21.008 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:21.010 +05:30 [INF] HTTP OPTIONS /api/dashboard/summary responded 204 in 2.8899 ms
+2026-04-22 20:51:21.017 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/summary - 204 null null 32.749ms
+2026-04-22 20:51:21.030 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/dashboard/summary - null null
+2026-04-22 20:51:21.043 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:21.249 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API)'
+2026-04-22 20:51:21.271 +05:30 [INF] Route matched with {action = "GetSummary", controller = "Dashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Dashboard.DashboardSummaryDto]] GetSummary() on controller TradingJournal.API.Controllers.DashboardController (TradingJournal.API).
+2026-04-22 20:51:21.291 +05:30 [INF] Fetching dashboard summary for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:51:21.815 +05:30 [INF] Executed DbCommand (6ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM "Trades" AS t
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t."InstrumentId" = i0."Id"
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+ORDER BY t."TradeDate"
+2026-04-22 20:51:21.940 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@p='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."Id" = @p
+LIMIT 1
+2026-04-22 20:51:22.091 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT a."Id", a."CreatedAt", a."DailyLossLimit", a."Email", a."EmailAlertEnabled", a."IsActive", a."IsDeleted", a."MaxDrawdownPercent", a."MaxTradesPerDay", a."UpdatedAt", a."UserId"
+FROM "Alerts" AS a
+WHERE a."UserId" = @userId
+LIMIT 1
+2026-04-22 20:51:22.223 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+FROM "Instruments" AS i
+WHERE NOT (i."IsDeleted") AND i."UserId" = @userId
+2026-04-22 20:51:22.242 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Dashboard.DashboardSummaryDto'.
+2026-04-22 20:51:22.263 +05:30 [INF] Executed action TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API) in 985.7647ms
+2026-04-22 20:51:22.267 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API)'
+2026-04-22 20:51:22.270 +05:30 [INF] HTTP GET /api/dashboard/summary responded 200 in 1227.5171 ms
+2026-04-22 20:51:22.275 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/dashboard/summary - 200 null application/json; charset=utf-8 1245.6867ms
+2026-04-22 20:51:36.640 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/instruments - null null
+2026-04-22 20:51:36.647 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:36.649 +05:30 [INF] HTTP OPTIONS /api/instruments responded 204 in 2.6187 ms
+2026-04-22 20:51:36.654 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/instruments - 204 null null 13.5824ms
+2026-04-22 20:51:36.660 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/instruments - null null
+2026-04-22 20:51:36.669 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:36.692 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.InstrumentsController.GetAll (TradingJournal.API)'
+2026-04-22 20:51:36.708 +05:30 [INF] Route matched with {action = "GetAll", controller = "Instruments"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[TradingJournal.Application.DTOs.Instruments.InstrumentDto]]] GetAll() on controller TradingJournal.API.Controllers.InstrumentsController (TradingJournal.API).
+2026-04-22 20:51:36.716 +05:30 [INF] Fetching all instruments for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:51:36.807 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+FROM "Instruments" AS i
+WHERE NOT (i."IsDeleted") AND i."UserId" = @userId
+2026-04-22 20:51:36.880 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM "Trades" AS t
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t."InstrumentId" = i0."Id"
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+ORDER BY t."TradeDate"
+2026-04-22 20:51:36.886 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[TradingJournal.Application.DTOs.Instruments.InstrumentDto, TradingJournal.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-22 20:51:36.892 +05:30 [INF] Executed action TradingJournal.API.Controllers.InstrumentsController.GetAll (TradingJournal.API) in 180.4193ms
+2026-04-22 20:51:36.895 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.InstrumentsController.GetAll (TradingJournal.API)'
+2026-04-22 20:51:36.897 +05:30 [INF] HTTP GET /api/instruments responded 200 in 229.5981 ms
+2026-04-22 20:51:36.902 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/instruments - 200 null application/json; charset=utf-8 241.8199ms
+2026-04-22 20:51:43.527 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/instruments - null null
+2026-04-22 20:51:43.531 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/trades?page=1&pageSize=20 - null null
+2026-04-22 20:51:43.533 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:43.539 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:43.541 +05:30 [INF] HTTP OPTIONS /api/instruments responded 204 in 7.3490 ms
+2026-04-22 20:51:43.542 +05:30 [INF] HTTP OPTIONS /api/trades responded 204 in 3.3731 ms
+2026-04-22 20:51:43.547 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/instruments - 204 null null 19.9454ms
+2026-04-22 20:51:43.552 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/trades?page=1&pageSize=20 - 204 null null 21.668ms
+2026-04-22 20:51:43.558 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/instruments - null null
+2026-04-22 20:51:43.564 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/trades?page=1&pageSize=20 - null null
+2026-04-22 20:51:43.569 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:43.574 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:43.580 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.InstrumentsController.GetAll (TradingJournal.API)'
+2026-04-22 20:51:43.580 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.TradesController.GetAll (TradingJournal.API)'
+2026-04-22 20:51:43.583 +05:30 [INF] Route matched with {action = "GetAll", controller = "Instruments"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[TradingJournal.Application.DTOs.Instruments.InstrumentDto]]] GetAll() on controller TradingJournal.API.Controllers.InstrumentsController (TradingJournal.API).
+2026-04-22 20:51:43.590 +05:30 [INF] Fetching all instruments for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:51:43.605 +05:30 [INF] Route matched with {action = "GetAll", controller = "Trades"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Trades.PagedTradesDto]] GetAll(TradingJournal.Application.DTOs.Trades.TradeFilterDto) on controller TradingJournal.API.Controllers.TradesController (TradingJournal.API).
+2026-04-22 20:51:43.641 +05:30 [INF] Fetching trades for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:51:43.695 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+FROM "Instruments" AS i
+WHERE NOT (i."IsDeleted") AND i."UserId" = @userId
+2026-04-22 20:51:43.791 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT count(*)::int
+FROM "Trades" AS t
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+2026-04-22 20:51:43.828 +05:30 [INF] Executed DbCommand (5ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM "Trades" AS t
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t."InstrumentId" = i0."Id"
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+ORDER BY t."TradeDate"
+2026-04-22 20:51:43.836 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[TradingJournal.Application.DTOs.Instruments.InstrumentDto, TradingJournal.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-22 20:51:43.842 +05:30 [INF] Executed action TradingJournal.API.Controllers.InstrumentsController.GetAll (TradingJournal.API) in 252.8944ms
+2026-04-22 20:51:43.846 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.InstrumentsController.GetAll (TradingJournal.API)'
+2026-04-22 20:51:43.850 +05:30 [INF] HTTP GET /api/instruments responded 200 in 280.5303 ms
+2026-04-22 20:51:43.855 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/instruments - 200 null application/json; charset=utf-8 297.3551ms
+2026-04-22 20:51:43.941 +05:30 [INF] Executed DbCommand (5ms) [Parameters=[@userId='?' (DbType = Guid), @p2='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='300']
+SELECT t0."Id", t0."CreatedAt", t0."EntryPrice", t0."ExitPrice", t0."InstrumentId", t0."IsDeleted", t0."LotSize", t0."Notes", t0."ProfitLoss", t0."Result", t0."RiskPercentage", t0."RiskRewardRatio", t0."StopLoss", t0."Tags", t0."TakeProfit", t0."TradeDate", t0."TradeDurationMinutes", t0."TradeType", t0."TradingAccountId", t0."UpdatedAt", t0."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM (
+    SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId"
+    FROM "Trades" AS t
+    WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+    ORDER BY t."TradeDate" DESC
+    LIMIT @p2 OFFSET @p
+) AS t0
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t0."InstrumentId" = i0."Id"
+ORDER BY t0."TradeDate" DESC
+2026-04-22 20:51:43.953 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Trades.PagedTradesDto'.
+2026-04-22 20:51:43.964 +05:30 [INF] Executed action TradingJournal.API.Controllers.TradesController.GetAll (TradingJournal.API) in 353.3697ms
+2026-04-22 20:51:43.968 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.TradesController.GetAll (TradingJournal.API)'
+2026-04-22 20:51:43.972 +05:30 [INF] HTTP GET /api/trades responded 200 in 397.5237 ms
+2026-04-22 20:51:43.977 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/trades?page=1&pageSize=20 - 200 null application/json; charset=utf-8 413.1239ms
+2026-04-22 20:51:46.685 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/ai-insights - null null
+2026-04-22 20:51:46.692 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/performance - null null
+2026-04-22 20:51:46.692 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/drawdown - null null
+2026-04-22 20:51:46.695 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:46.700 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:46.706 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:46.708 +05:30 [INF] HTTP OPTIONS /api/dashboard/ai-insights responded 204 in 13.3043 ms
+2026-04-22 20:51:46.709 +05:30 [INF] HTTP OPTIONS /api/dashboard/performance responded 204 in 9.2244 ms
+2026-04-22 20:51:46.711 +05:30 [INF] HTTP OPTIONS /api/dashboard/drawdown responded 204 in 5.1806 ms
+2026-04-22 20:51:46.716 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/ai-insights - 204 null null 30.9619ms
+2026-04-22 20:51:46.721 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/performance - 204 null null 29.5715ms
+2026-04-22 20:51:46.725 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/drawdown - 204 null null 33.2791ms
+2026-04-22 20:51:46.733 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/dashboard/ai-insights - null null
+2026-04-22 20:51:46.741 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/dashboard/performance - null null
+2026-04-22 20:51:46.748 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/dashboard/drawdown - null null
+2026-04-22 20:51:46.754 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:46.759 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:46.765 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:46.768 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.DashboardController.GetAiInsights (TradingJournal.API)'
+2026-04-22 20:51:46.770 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.DashboardController.GetPerformance (TradingJournal.API)'
+2026-04-22 20:51:46.771 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.DashboardController.GetDrawdown (TradingJournal.API)'
+2026-04-22 20:51:46.785 +05:30 [INF] Route matched with {action = "GetAiInsights", controller = "Dashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Analytics.AiAnalysisDto]] GetAiInsights() on controller TradingJournal.API.Controllers.DashboardController (TradingJournal.API).
+2026-04-22 20:51:46.787 +05:30 [INF] Route matched with {action = "GetPerformance", controller = "Dashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Dashboard.PerformanceMetricsDto]] GetPerformance() on controller TradingJournal.API.Controllers.DashboardController (TradingJournal.API).
+2026-04-22 20:51:46.790 +05:30 [INF] Route matched with {action = "GetDrawdown", controller = "Dashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Dashboard.DrawdownDto]] GetDrawdown() on controller TradingJournal.API.Controllers.DashboardController (TradingJournal.API).
+2026-04-22 20:51:46.792 +05:30 [INF] Fetching AI insights for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:51:46.805 +05:30 [INF] Fetching performance metrics for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:51:46.805 +05:30 [INF] Fetching drawdown for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:51:46.902 +05:30 [INF] Executed DbCommand (5ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM "Trades" AS t
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t."InstrumentId" = i0."Id"
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+ORDER BY t."TradeDate"
+2026-04-22 20:51:46.945 +05:30 [INF] Executed DbCommand (7ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM "Trades" AS t
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t."InstrumentId" = i0."Id"
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+ORDER BY t."TradeDate"
+2026-04-22 20:51:46.966 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Dashboard.PerformanceMetricsDto'.
+2026-04-22 20:51:46.968 +05:30 [INF] Executed DbCommand (7ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM "Trades" AS t
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t."InstrumentId" = i0."Id"
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+ORDER BY t."TradeDate"
+2026-04-22 20:51:46.975 +05:30 [INF] Executed action TradingJournal.API.Controllers.DashboardController.GetPerformance (TradingJournal.API) in 181.285ms
+2026-04-22 20:51:46.980 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.DashboardController.GetPerformance (TradingJournal.API)'
+2026-04-22 20:51:46.985 +05:30 [INF] HTTP GET /api/dashboard/performance responded 200 in 226.1934 ms
+2026-04-22 20:51:46.993 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/dashboard/performance - 200 null application/json; charset=utf-8 251.6182ms
+2026-04-22 20:51:47.009 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+FROM "Instruments" AS i
+WHERE NOT (i."IsDeleted") AND i."UserId" = @userId
+2026-04-22 20:51:47.018 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Analytics.AiAnalysisDto'.
+2026-04-22 20:51:47.035 +05:30 [INF] Executed action TradingJournal.API.Controllers.DashboardController.GetAiInsights (TradingJournal.API) in 245.6739ms
+2026-04-22 20:51:47.041 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.DashboardController.GetAiInsights (TradingJournal.API)'
+2026-04-22 20:51:47.044 +05:30 [INF] HTTP GET /api/dashboard/ai-insights responded 200 in 290.5143 ms
+2026-04-22 20:51:47.049 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/dashboard/ai-insights - 200 null application/json; charset=utf-8 315.927ms
+2026-04-22 20:51:47.067 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@p='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."Id" = @p
+LIMIT 1
+2026-04-22 20:51:47.153 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT a."Id", a."CreatedAt", a."DailyLossLimit", a."Email", a."EmailAlertEnabled", a."IsActive", a."IsDeleted", a."MaxDrawdownPercent", a."MaxTradesPerDay", a."UpdatedAt", a."UserId"
+FROM "Alerts" AS a
+WHERE a."UserId" = @userId
+LIMIT 1
+2026-04-22 20:51:47.162 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Dashboard.DrawdownDto'.
+2026-04-22 20:51:47.170 +05:30 [INF] Executed action TradingJournal.API.Controllers.DashboardController.GetDrawdown (TradingJournal.API) in 372.2454ms
+2026-04-22 20:51:47.176 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.DashboardController.GetDrawdown (TradingJournal.API)'
+2026-04-22 20:51:47.181 +05:30 [INF] HTTP GET /api/dashboard/drawdown responded 200 in 415.5008 ms
+2026-04-22 20:51:47.186 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/dashboard/drawdown - 200 null application/json; charset=utf-8 437.8514ms
+2026-04-22 20:51:56.135 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/calendar?year=2026&month=4 - null null
+2026-04-22 20:51:56.141 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:56.142 +05:30 [INF] HTTP OPTIONS /api/dashboard/calendar responded 204 in 1.7045 ms
+2026-04-22 20:51:56.146 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/calendar?year=2026&month=4 - 204 null null 11.7647ms
+2026-04-22 20:51:56.154 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/dashboard/calendar?year=2026&month=4 - null null
+2026-04-22 20:51:56.159 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:56.161 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.DashboardController.GetCalendar (TradingJournal.API)'
+2026-04-22 20:51:56.176 +05:30 [INF] Route matched with {action = "GetCalendar", controller = "Dashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[TradingJournal.Application.DTOs.Dashboard.CalendarDayDto]]] GetCalendar(Int32, Int32) on controller TradingJournal.API.Controllers.DashboardController (TradingJournal.API).
+2026-04-22 20:51:56.182 +05:30 [INF] Fetching calendar data for user: "0a478092-7251-4b11-a785-05efbf8ad1f6", Year: 2026, Month: 4
+2026-04-22 20:51:56.280 +05:30 [ERR] Failed executing DbCommand (13ms) [Parameters=[@userId='?' (DbType = Guid), @from='?' (DbType = DateTime), @to='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='300']
+SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM "Trades" AS t
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t."InstrumentId" = i0."Id"
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId AND t."TradeDate" >= @from AND t."TradeDate" <= @to
+ORDER BY t."TradeDate"
+2026-04-22 20:51:56.329 +05:30 [ERR] An exception occurred while iterating over the results of a query for context type 'TradingJournal.Infrastructure.Data.ApplicationDbContext'.
+System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options, IDbTypeResolver dbTypeResolver)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(ReloadableState reloadableState, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options, IDbTypeResolver dbTypeResolver)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(ReloadableState reloadableState, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-04-22 20:51:56.345 +05:30 [ERR] Error fetching calendar data for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options, IDbTypeResolver dbTypeResolver)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(ReloadableState reloadableState, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at TradingJournal.Infrastructure.Repositories.TradeRepository.GetByDateRangeAsync(Guid userId, DateTime from, DateTime to) in D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.Infrastructure\Repositories\Repositories.cs:line 110
+   at TradingJournal.Application.Services.DashboardService.GetCalendarDataAsync(Guid userId, Int32 year, Int32 month) in D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.Application\Services\DashboardService.cs:line 117
+   at TradingJournal.API.Controllers.DashboardController.GetCalendar(Int32 year, Int32 month) in D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.API\Controllers\DashboardController.cs:line 53
+2026-04-22 20:51:56.373 +05:30 [INF] Executing ObjectResult, writing value of type '<>f__AnonymousType0`1[[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-22 20:51:56.383 +05:30 [INF] Executed action TradingJournal.API.Controllers.DashboardController.GetCalendar (TradingJournal.API) in 203.1541ms
+2026-04-22 20:51:56.386 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.DashboardController.GetCalendar (TradingJournal.API)'
+2026-04-22 20:51:56.388 +05:30 [ERR] HTTP GET /api/dashboard/calendar responded 500 in 229.7253 ms
+2026-04-22 20:51:56.392 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/dashboard/calendar?year=2026&month=4 - 500 null application/json; charset=utf-8 238.3253ms
+2026-04-22 20:51:57.450 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/notes?page=1&pageSize=12 - null null
+2026-04-22 20:51:57.456 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:57.458 +05:30 [INF] HTTP OPTIONS /api/notes responded 204 in 1.7184 ms
+2026-04-22 20:51:57.462 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/notes?page=1&pageSize=12 - 204 null null 11.6685ms
+2026-04-22 20:51:57.469 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/notes?page=1&pageSize=12 - null null
+2026-04-22 20:51:57.475 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:51:57.477 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.NotesController.GetAll (TradingJournal.API)'
+2026-04-22 20:51:57.490 +05:30 [INF] Route matched with {action = "GetAll", controller = "Notes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Notes.PagedNotesDto]] GetAll(TradingJournal.Application.DTOs.Notes.NoteFilterDto) on controller TradingJournal.API.Controllers.NotesController (TradingJournal.API).
+2026-04-22 20:51:57.500 +05:30 [INF] Fetching notes for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:51:57.584 +05:30 [INF] Executed DbCommand (5ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT count(*)::int
+FROM "Notes" AS n
+WHERE NOT (n."IsDeleted") AND n."UserId" = @userId
+2026-04-22 20:51:57.672 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@userId='?' (DbType = Guid), @p2='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='300']
+SELECT n."Id", n."Content", n."CreatedAt", n."IsDeleted", n."IsPinned", n."Tags", n."Title", n."UpdatedAt", n."UserId"
+FROM "Notes" AS n
+WHERE NOT (n."IsDeleted") AND n."UserId" = @userId
+ORDER BY n."IsPinned" DESC, n."CreatedAt" DESC
+LIMIT @p2 OFFSET @p
+2026-04-22 20:51:57.680 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Notes.PagedNotesDto'.
+2026-04-22 20:51:57.691 +05:30 [INF] Executed action TradingJournal.API.Controllers.NotesController.GetAll (TradingJournal.API) in 196.3058ms
+2026-04-22 20:51:57.694 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.NotesController.GetAll (TradingJournal.API)'
+2026-04-22 20:51:57.696 +05:30 [INF] HTTP GET /api/notes responded 200 in 221.3501 ms
+2026-04-22 20:51:57.700 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/notes?page=1&pageSize=12 - 200 null application/json; charset=utf-8 231.0457ms
+2026-04-22 20:52:18.950 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/notes - null null
+2026-04-22 20:52:18.963 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:52:18.969 +05:30 [INF] HTTP OPTIONS /api/notes responded 204 in 5.8055 ms
+2026-04-22 20:52:18.976 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/notes - 204 null null 25.2287ms
+2026-04-22 20:52:18.987 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/notes - application/json 86
+2026-04-22 20:52:18.996 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:52:19.001 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.NotesController.Create (TradingJournal.API)'
+2026-04-22 20:52:19.027 +05:30 [INF] Route matched with {action = "Create", controller = "Notes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Notes.NoteDto]] Create(TradingJournal.Application.DTOs.Notes.CreateNoteDto) on controller TradingJournal.API.Controllers.NotesController (TradingJournal.API).
+2026-04-22 20:52:19.055 +05:30 [INF] Creating new note for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:52:19.395 +05:30 [INF] Executed DbCommand (15ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?', @p2='?' (DbType = DateTime), @p3='?' (DbType = Boolean), @p4='?' (DbType = Boolean), @p5='?', @p6='?', @p7='?' (DbType = DateTime), @p8='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+INSERT INTO "Notes" ("Id", "Content", "CreatedAt", "IsDeleted", "IsPinned", "Tags", "Title", "UpdatedAt", "UserId")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8);
+2026-04-22 20:52:19.415 +05:30 [INF] Successfully created note "28645500-c398-4aaa-bfe7-1df194f59c8c" for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:52:19.426 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'TradingJournal.Application.DTOs.Notes.NoteDto'.
+2026-04-22 20:52:19.491 +05:30 [INF] Executed action TradingJournal.API.Controllers.NotesController.Create (TradingJournal.API) in 456.8888ms
+2026-04-22 20:52:19.498 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.NotesController.Create (TradingJournal.API)'
+2026-04-22 20:52:19.502 +05:30 [INF] HTTP POST /api/notes responded 201 in 506.2785 ms
+2026-04-22 20:52:19.508 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/notes - 201 null application/json; charset=utf-8 520.745ms
+2026-04-22 20:52:19.519 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/notes?page=1&pageSize=12 - null null
+2026-04-22 20:52:19.524 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:52:19.527 +05:30 [INF] HTTP OPTIONS /api/notes responded 204 in 2.3709 ms
+2026-04-22 20:52:19.532 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/notes?page=1&pageSize=12 - 204 null null 13.398ms
+2026-04-22 20:52:19.540 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/notes?page=1&pageSize=12 - null null
+2026-04-22 20:52:19.547 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:52:19.550 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.NotesController.GetAll (TradingJournal.API)'
+2026-04-22 20:52:19.553 +05:30 [INF] Route matched with {action = "GetAll", controller = "Notes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Notes.PagedNotesDto]] GetAll(TradingJournal.Application.DTOs.Notes.NoteFilterDto) on controller TradingJournal.API.Controllers.NotesController (TradingJournal.API).
+2026-04-22 20:52:19.562 +05:30 [INF] Fetching notes for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:52:19.647 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT count(*)::int
+FROM "Notes" AS n
+WHERE NOT (n."IsDeleted") AND n."UserId" = @userId
+2026-04-22 20:52:19.746 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@userId='?' (DbType = Guid), @p2='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='300']
+SELECT n."Id", n."Content", n."CreatedAt", n."IsDeleted", n."IsPinned", n."Tags", n."Title", n."UpdatedAt", n."UserId"
+FROM "Notes" AS n
+WHERE NOT (n."IsDeleted") AND n."UserId" = @userId
+ORDER BY n."IsPinned" DESC, n."CreatedAt" DESC
+LIMIT @p2 OFFSET @p
+2026-04-22 20:52:19.753 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Notes.PagedNotesDto'.
+2026-04-22 20:52:19.758 +05:30 [INF] Executed action TradingJournal.API.Controllers.NotesController.GetAll (TradingJournal.API) in 200.3528ms
+2026-04-22 20:52:19.761 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.NotesController.GetAll (TradingJournal.API)'
+2026-04-22 20:52:19.763 +05:30 [INF] HTTP GET /api/notes responded 200 in 216.4840 ms
+2026-04-22 20:52:19.768 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/notes?page=1&pageSize=12 - 200 null application/json; charset=utf-8 227.9994ms
+2026-04-22 20:52:23.501 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/instruments - null null
+2026-04-22 20:52:23.506 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:52:23.508 +05:30 [INF] HTTP OPTIONS /api/instruments responded 204 in 1.7187 ms
+2026-04-22 20:52:23.512 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/instruments - 204 null null 11.4952ms
+2026-04-22 20:52:23.519 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/instruments - null null
+2026-04-22 20:52:23.525 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:52:23.528 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.InstrumentsController.GetAll (TradingJournal.API)'
+2026-04-22 20:52:23.532 +05:30 [INF] Route matched with {action = "GetAll", controller = "Instruments"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[TradingJournal.Application.DTOs.Instruments.InstrumentDto]]] GetAll() on controller TradingJournal.API.Controllers.InstrumentsController (TradingJournal.API).
+2026-04-22 20:52:23.538 +05:30 [INF] Fetching all instruments for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:52:23.609 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+FROM "Instruments" AS i
+WHERE NOT (i."IsDeleted") AND i."UserId" = @userId
+2026-04-22 20:52:23.679 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM "Trades" AS t
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t."InstrumentId" = i0."Id"
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+ORDER BY t."TradeDate"
+2026-04-22 20:52:23.685 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[TradingJournal.Application.DTOs.Instruments.InstrumentDto, TradingJournal.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-22 20:52:23.689 +05:30 [INF] Executed action TradingJournal.API.Controllers.InstrumentsController.GetAll (TradingJournal.API) in 152.5838ms
+2026-04-22 20:52:23.692 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.InstrumentsController.GetAll (TradingJournal.API)'
+2026-04-22 20:52:23.694 +05:30 [INF] HTTP GET /api/instruments responded 200 in 169.1714 ms
+2026-04-22 20:52:23.698 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/instruments - 200 null application/json; charset=utf-8 178.7166ms
+2026-04-22 20:52:39.667 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/risk-calculate - null null
+2026-04-22 20:52:39.675 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:52:39.678 +05:30 [INF] HTTP OPTIONS /api/dashboard/risk-calculate responded 204 in 3.0091 ms
+2026-04-22 20:52:39.683 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/risk-calculate - 204 null null 15.7029ms
+2026-04-22 20:52:39.694 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/dashboard/risk-calculate - application/json 39
+2026-04-22 20:52:39.701 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:52:39.704 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.DashboardController.CalculateRisk (TradingJournal.API)'
+2026-04-22 20:52:39.718 +05:30 [INF] Route matched with {action = "CalculateRisk", controller = "Dashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Analytics.RiskResultDto]] CalculateRisk(TradingJournal.Application.DTOs.Analytics.RiskCalculationDto) on controller TradingJournal.API.Controllers.DashboardController (TradingJournal.API).
+2026-04-22 20:52:39.739 +05:30 [INF] Calculating risk for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 20:52:39.745 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Analytics.RiskResultDto'.
+2026-04-22 20:52:39.752 +05:30 [INF] Executed action TradingJournal.API.Controllers.DashboardController.CalculateRisk (TradingJournal.API) in 29.8247ms
+2026-04-22 20:52:39.756 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.DashboardController.CalculateRisk (TradingJournal.API)'
+2026-04-22 20:52:39.758 +05:30 [INF] HTTP POST /api/dashboard/risk-calculate responded 200 in 57.5736 ms
+2026-04-22 20:52:39.762 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/dashboard/risk-calculate - 200 null application/json; charset=utf-8 67.7171ms
+2026-04-22 20:52:54.226 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/admin/users - null null
+2026-04-22 20:52:54.233 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:52:54.235 +05:30 [INF] HTTP OPTIONS /api/admin/users responded 204 in 1.8781 ms
+2026-04-22 20:52:54.240 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/admin/users - 204 null null 13.262ms
+2026-04-22 20:52:54.246 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/admin/users - null null
+2026-04-22 20:52:54.251 +05:30 [INF] CORS policy execution successful.
+2026-04-22 20:52:54.254 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.AdminController.GetAllUsers (TradingJournal.API)'
+2026-04-22 20:52:54.264 +05:30 [INF] Route matched with {action = "GetAllUsers", controller = "Admin"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[TradingJournal.Application.DTOs.Auth.UserInfoDto]]] GetAllUsers() on controller TradingJournal.API.Controllers.AdminController (TradingJournal.API).
+2026-04-22 20:52:54.271 +05:30 [INF] Admin fetching all users.
+2026-04-22 20:52:54.344 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted")
+2026-04-22 20:52:54.352 +05:30 [INF] Successfully fetched 2 users.
+2026-04-22 20:52:54.355 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[TradingJournal.Application.DTOs.Auth.UserInfoDto, TradingJournal.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-22 20:52:54.359 +05:30 [INF] Executed action TradingJournal.API.Controllers.AdminController.GetAllUsers (TradingJournal.API) in 90.5106ms
+2026-04-22 20:52:54.362 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.AdminController.GetAllUsers (TradingJournal.API)'
+2026-04-22 20:52:54.364 +05:30 [INF] HTTP GET /api/admin/users responded 200 in 113.1273 ms
+2026-04-22 20:52:54.369 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/admin/users - 200 null application/json; charset=utf-8 123.1723ms
+2026-04-22 21:19:54.289 +05:30 [WRN] Entity 'User' has a global query filter defined and is the required end of a relationship with the entity 'Alert'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-04-22 21:19:54.660 +05:30 [INF] Executed DbCommand (16ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-04-22 21:19:54.871 +05:30 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT 1
+2026-04-22 21:19:54.963 +05:30 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2026-04-22 21:19:54.979 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2026-04-22 21:19:54.983 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-04-22 21:19:54.988 +05:30 [INF] No migrations were applied. The database is already up to date.
+2026-04-22 21:19:55.212 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted"))
+2026-04-22 21:19:55.308 +05:30 [INF] User profile is available. Using 'C:\Users\coolm\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-22 21:19:55.388 +05:30 [INF] Now listening on: http://localhost:5283
+2026-04-22 21:19:55.389 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-22 21:19:55.389 +05:30 [INF] Hosting environment: Development
+2026-04-22 21:19:55.389 +05:30 [INF] Content root path: D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.API
+2026-04-22 21:20:42.581 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/index.html - null null
+2026-04-22 21:20:42.732 +05:30 [INF] HTTP GET /swagger/index.html responded 200 in 111.1620 ms
+2026-04-22 21:20:42.735 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/index.html - 200 null text/html;charset=utf-8 156.157ms
+2026-04-22 21:20:42.829 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/swagger-ui.css - null null
+2026-04-22 21:20:42.829 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/index.css - null null
+2026-04-22 21:20:42.833 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/swagger-ui-bundle.js - null null
+2026-04-22 21:20:42.834 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/swagger-ui-standalone-preset.js - null null
+2026-04-22 21:20:42.834 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/index.js - null null
+2026-04-22 21:20:42.837 +05:30 [INF] HTTP GET /swagger/index.js responded 200 in 1.7645 ms
+2026-04-22 21:20:42.837 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/index.js - 200 null application/javascript;charset=utf-8 2.6064ms
+2026-04-22 21:20:42.851 +05:30 [INF] Sending file. Request path: '/index.css'. Physical path: 'N/A'
+2026-04-22 21:20:42.851 +05:30 [INF] HTTP GET /swagger/index.css responded 200 in 21.8348 ms
+2026-04-22 21:20:42.851 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/index.css - 200 202 text/css 22.8435ms
+2026-04-22 21:20:42.866 +05:30 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2026-04-22 21:20:42.866 +05:30 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2026-04-22 21:20:42.869 +05:30 [INF] HTTP GET /swagger/swagger-ui-standalone-preset.js responded 200 in 35.1317 ms
+2026-04-22 21:20:42.869 +05:30 [INF] HTTP GET /swagger/swagger-ui.css responded 200 in 39.4937 ms
+2026-04-22 21:20:42.872 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/swagger-ui-standalone-preset.js - 200 230293 text/javascript 38.2582ms
+2026-04-22 21:20:42.874 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/swagger-ui.css - 200 152034 text/css 43.1283ms
+2026-04-22 21:20:42.920 +05:30 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2026-04-22 21:20:42.920 +05:30 [INF] HTTP GET /swagger/swagger-ui-bundle.js responded 200 in 87.2626 ms
+2026-04-22 21:20:42.921 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/swagger-ui-bundle.js - 200 1452753 text/javascript 87.9331ms
+2026-04-22 21:20:43.629 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/v1/swagger.json - null null
+2026-04-22 21:20:43.639 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/swagger/favicon-32x32.png - null null
+2026-04-22 21:20:43.642 +05:30 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
+2026-04-22 21:20:43.642 +05:30 [INF] HTTP GET /swagger/favicon-32x32.png responded 200 in 2.6107 ms
+2026-04-22 21:20:43.642 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/favicon-32x32.png - 200 628 image/png 3.5723ms
+2026-04-22 21:20:43.884 +05:30 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 253.8339 ms
+2026-04-22 21:20:43.884 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 255.0352ms
+2026-04-22 21:20:47.238 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/summary - null null
+2026-04-22 21:20:47.243 +05:30 [WRN] Failed to determine the https port for redirect.
+2026-04-22 21:20:47.244 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:20:47.247 +05:30 [INF] HTTP OPTIONS /api/dashboard/summary responded 204 in 5.5323 ms
+2026-04-22 21:20:47.248 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/summary - 204 null null 9.7478ms
+2026-04-22 21:20:47.250 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/dashboard/summary - null null
+2026-04-22 21:20:47.251 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:20:47.414 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API)'
+2026-04-22 21:20:47.471 +05:30 [INF] Route matched with {action = "GetSummary", controller = "Dashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Dashboard.DashboardSummaryDto]] GetSummary() on controller TradingJournal.API.Controllers.DashboardController (TradingJournal.API).
+2026-04-22 21:20:47.490 +05:30 [INF] Fetching dashboard summary for user: "0a478092-7251-4b11-a785-05efbf8ad1f6"
+2026-04-22 21:20:47.815 +05:30 [INF] Executed DbCommand (15ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM "Trades" AS t
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t."InstrumentId" = i0."Id"
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+ORDER BY t."TradeDate"
+2026-04-22 21:20:47.903 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@p='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."Id" = @p
+LIMIT 1
+2026-04-22 21:20:48.174 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT a."Id", a."CreatedAt", a."DailyLossLimit", a."Email", a."EmailAlertEnabled", a."IsActive", a."IsDeleted", a."MaxDrawdownPercent", a."MaxTradesPerDay", a."UpdatedAt", a."UserId"
+FROM "Alerts" AS a
+WHERE a."UserId" = @userId
+LIMIT 1
+2026-04-22 21:20:48.253 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+FROM "Instruments" AS i
+WHERE NOT (i."IsDeleted") AND i."UserId" = @userId
+2026-04-22 21:20:48.269 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Dashboard.DashboardSummaryDto'.
+2026-04-22 21:20:48.313 +05:30 [INF] Executed action TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API) in 835.7703ms
+2026-04-22 21:20:48.314 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API)'
+2026-04-22 21:20:48.315 +05:30 [INF] HTTP GET /api/dashboard/summary responded 200 in 1064.4047 ms
+2026-04-22 21:20:48.326 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/dashboard/summary - 200 null application/json; charset=utf-8 1076.032ms
+2026-04-22 21:20:54.066 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/admin/users - null null
+2026-04-22 21:20:54.070 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:20:54.071 +05:30 [INF] HTTP OPTIONS /api/admin/users responded 204 in 1.8864 ms
+2026-04-22 21:20:54.071 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/admin/users - 204 null null 4.5851ms
+2026-04-22 21:20:54.079 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/admin/users - null null
+2026-04-22 21:20:54.080 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:20:54.092 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.AdminController.GetAllUsers (TradingJournal.API)'
+2026-04-22 21:20:54.112 +05:30 [INF] Route matched with {action = "GetAllUsers", controller = "Admin"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[TradingJournal.Application.DTOs.Auth.UserInfoDto]]] GetAllUsers() on controller TradingJournal.API.Controllers.AdminController (TradingJournal.API).
+2026-04-22 21:20:54.118 +05:30 [INF] Admin fetching all users.
+2026-04-22 21:20:54.292 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted")
+2026-04-22 21:20:54.297 +05:30 [INF] Successfully fetched 2 users.
+2026-04-22 21:20:54.298 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[TradingJournal.Application.DTOs.Auth.UserInfoDto, TradingJournal.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-22 21:20:54.314 +05:30 [INF] Executed action TradingJournal.API.Controllers.AdminController.GetAllUsers (TradingJournal.API) in 200.9271ms
+2026-04-22 21:20:54.314 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.AdminController.GetAllUsers (TradingJournal.API)'
+2026-04-22 21:20:54.314 +05:30 [INF] HTTP GET /api/admin/users responded 200 in 234.7634 ms
+2026-04-22 21:20:54.314 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/admin/users - 200 null application/json; charset=utf-8 235.4416ms
+2026-04-22 21:21:08.856 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/admin/users/95870ccb-6248-4140-95c9-f85b1e77a34b - null null
+2026-04-22 21:21:08.857 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:21:08.857 +05:30 [INF] HTTP OPTIONS /api/admin/users/95870ccb-6248-4140-95c9-f85b1e77a34b responded 204 in 0.3591 ms
+2026-04-22 21:21:08.857 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/admin/users/95870ccb-6248-4140-95c9-f85b1e77a34b - 204 null null 1.284ms
+2026-04-22 21:21:08.865 +05:30 [INF] Request starting HTTP/1.1 PUT http://localhost:5283/api/admin/users/95870ccb-6248-4140-95c9-f85b1e77a34b - application/json 177
+2026-04-22 21:21:08.865 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:21:08.876 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.AdminController.UpdateUser (TradingJournal.API)'
+2026-04-22 21:21:08.895 +05:30 [INF] Route matched with {action = "UpdateUser", controller = "Admin"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Auth.UserInfoDto]] UpdateUser(System.Guid, TradingJournal.Application.DTOs.Auth.AdminUpdateUserDto) on controller TradingJournal.API.Controllers.AdminController (TradingJournal.API).
+2026-04-22 21:21:08.939 +05:30 [INF] Admin updating user: "95870ccb-6248-4140-95c9-f85b1e77a34b"
+2026-04-22 21:21:08.989 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@p='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."Id" = @p
+LIMIT 1
+2026-04-22 21:21:09.240 +05:30 [INF] Executed DbCommand (31ms) [Parameters=[@p14='?' (DbType = Guid), @p0='?' (DbType = Decimal), @p1='?' (DbType = Object), @p2='?' (DbType = DateTime), @p3='?', @p4='?', @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?', @p8='?', @p9='?', @p10='?', @p11='?' (DbType = DateTime), @p12='?' (DbType = Int32), @p13='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='300']
+UPDATE "Users" SET "AccountBalance" = @p0, "AllowedSections" = @p1, "CreatedAt" = @p2, "Email" = @p3, "FirstName" = @p4, "IsActive" = @p5, "IsDeleted" = @p6, "LastName" = @p7, "PasswordHash" = @p8, "ProfileImageUrl" = @p9, "RefreshToken" = @p10, "RefreshTokenExpiry" = @p11, "Role" = @p12, "UpdatedAt" = @p13
+WHERE "Id" = @p14;
+2026-04-22 21:21:09.250 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Auth.UserInfoDto'.
+2026-04-22 21:21:09.251 +05:30 [INF] Executed action TradingJournal.API.Controllers.AdminController.UpdateUser (TradingJournal.API) in 354.9287ms
+2026-04-22 21:21:09.251 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.AdminController.UpdateUser (TradingJournal.API)'
+2026-04-22 21:21:09.251 +05:30 [INF] HTTP PUT /api/admin/users/95870ccb-6248-4140-95c9-f85b1e77a34b responded 200 in 386.0384 ms
+2026-04-22 21:21:09.251 +05:30 [INF] Request finished HTTP/1.1 PUT http://localhost:5283/api/admin/users/95870ccb-6248-4140-95c9-f85b1e77a34b - 200 null application/json; charset=utf-8 386.5446ms
+2026-04-22 21:21:09.255 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/admin/users - null null
+2026-04-22 21:21:09.256 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:21:09.256 +05:30 [INF] HTTP OPTIONS /api/admin/users responded 204 in 0.3191 ms
+2026-04-22 21:21:09.256 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/admin/users - 204 null null 0.8185ms
+2026-04-22 21:21:09.259 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/admin/users - null null
+2026-04-22 21:21:09.259 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:21:09.260 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.AdminController.GetAllUsers (TradingJournal.API)'
+2026-04-22 21:21:09.261 +05:30 [INF] Route matched with {action = "GetAllUsers", controller = "Admin"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[TradingJournal.Application.DTOs.Auth.UserInfoDto]]] GetAllUsers() on controller TradingJournal.API.Controllers.AdminController (TradingJournal.API).
+2026-04-22 21:21:09.267 +05:30 [INF] Admin fetching all users.
+2026-04-22 21:21:09.333 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted")
+2026-04-22 21:21:09.339 +05:30 [INF] Successfully fetched 2 users.
+2026-04-22 21:21:09.339 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[TradingJournal.Application.DTOs.Auth.UserInfoDto, TradingJournal.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-22 21:21:09.339 +05:30 [INF] Executed action TradingJournal.API.Controllers.AdminController.GetAllUsers (TradingJournal.API) in 78.2421ms
+2026-04-22 21:21:09.339 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.AdminController.GetAllUsers (TradingJournal.API)'
+2026-04-22 21:21:09.339 +05:30 [INF] HTTP GET /api/admin/users responded 200 in 80.3448 ms
+2026-04-22 21:21:09.340 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/admin/users - 200 null application/json; charset=utf-8 80.8589ms
+2026-04-22 21:21:28.873 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/auth/login - null null
+2026-04-22 21:21:28.874 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:21:28.874 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.4911 ms
+2026-04-22 21:21:28.874 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/auth/login - 204 null null 1.2663ms
+2026-04-22 21:21:28.878 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/auth/login - application/json 61
+2026-04-22 21:21:28.880 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:21:28.880 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.AuthController.Login (TradingJournal.API)'
+2026-04-22 21:21:28.892 +05:30 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Auth.AuthResponseDto]] Login(TradingJournal.Application.DTOs.Auth.LoginDto) on controller TradingJournal.API.Controllers.AuthController (TradingJournal.API).
+2026-04-22 21:21:28.900 +05:30 [INF] Login attempt for email: trader@tradingjournal.com
+2026-04-22 21:21:28.959 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@email='?'], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."Email" = @email
+LIMIT 1
+2026-04-22 21:21:29.306 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@p14='?' (DbType = Guid), @p0='?' (DbType = Decimal), @p1='?' (DbType = Object), @p2='?' (DbType = DateTime), @p3='?', @p4='?', @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?', @p8='?', @p9='?', @p10='?', @p11='?' (DbType = DateTime), @p12='?' (DbType = Int32), @p13='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='300']
+UPDATE "Users" SET "AccountBalance" = @p0, "AllowedSections" = @p1, "CreatedAt" = @p2, "Email" = @p3, "FirstName" = @p4, "IsActive" = @p5, "IsDeleted" = @p6, "LastName" = @p7, "PasswordHash" = @p8, "ProfileImageUrl" = @p9, "RefreshToken" = @p10, "RefreshTokenExpiry" = @p11, "Role" = @p12, "UpdatedAt" = @p13
+WHERE "Id" = @p14;
+2026-04-22 21:21:29.321 +05:30 [INF] Successful login for email: trader@tradingjournal.com
+2026-04-22 21:21:29.322 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Auth.AuthResponseDto'.
+2026-04-22 21:21:29.327 +05:30 [INF] Executed action TradingJournal.API.Controllers.AuthController.Login (TradingJournal.API) in 434.4073ms
+2026-04-22 21:21:29.327 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.AuthController.Login (TradingJournal.API)'
+2026-04-22 21:21:29.327 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 447.1512 ms
+2026-04-22 21:21:29.327 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/auth/login - 200 null application/json; charset=utf-8 449.5563ms
+2026-04-22 21:21:29.395 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/summary - null null
+2026-04-22 21:21:29.398 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:21:29.398 +05:30 [INF] HTTP OPTIONS /api/dashboard/summary responded 204 in 0.4504 ms
+2026-04-22 21:21:29.398 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/summary - 204 null null 3.6039ms
+2026-04-22 21:21:29.410 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/dashboard/summary - null null
+2026-04-22 21:21:29.411 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:21:29.412 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API)'
+2026-04-22 21:21:29.412 +05:30 [INF] Route matched with {action = "GetSummary", controller = "Dashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Dashboard.DashboardSummaryDto]] GetSummary() on controller TradingJournal.API.Controllers.DashboardController (TradingJournal.API).
+2026-04-22 21:21:29.416 +05:30 [INF] Fetching dashboard summary for user: "95870ccb-6248-4140-95c9-f85b1e77a34b"
+2026-04-22 21:21:29.481 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM "Trades" AS t
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t."InstrumentId" = i0."Id"
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+ORDER BY t."TradeDate"
+2026-04-22 21:21:29.653 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@p='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."Id" = @p
+LIMIT 1
+2026-04-22 21:21:29.720 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT a."Id", a."CreatedAt", a."DailyLossLimit", a."Email", a."EmailAlertEnabled", a."IsActive", a."IsDeleted", a."MaxDrawdownPercent", a."MaxTradesPerDay", a."UpdatedAt", a."UserId"
+FROM "Alerts" AS a
+WHERE a."UserId" = @userId
+LIMIT 1
+2026-04-22 21:21:29.810 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+FROM "Instruments" AS i
+WHERE NOT (i."IsDeleted") AND i."UserId" = @userId
+2026-04-22 21:21:29.822 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Dashboard.DashboardSummaryDto'.
+2026-04-22 21:21:29.825 +05:30 [INF] Executed action TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API) in 412.1411ms
+2026-04-22 21:21:29.825 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API)'
+2026-04-22 21:21:29.825 +05:30 [INF] HTTP GET /api/dashboard/summary responded 200 in 414.1370 ms
+2026-04-22 21:21:29.825 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/dashboard/summary - 200 null application/json; charset=utf-8 414.681ms
+2026-04-22 21:23:48.218 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/summary - null null
+2026-04-22 21:23:48.218 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:23:48.219 +05:30 [INF] HTTP OPTIONS /api/dashboard/summary responded 204 in 0.3668 ms
+2026-04-22 21:23:48.219 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/dashboard/summary - 204 null null 0.7858ms
+2026-04-22 21:23:48.222 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/dashboard/summary - null null
+2026-04-22 21:23:48.222 +05:30 [INF] CORS policy execution successful.
+2026-04-22 21:23:48.223 +05:30 [INF] Executing endpoint 'TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API)'
+2026-04-22 21:23:48.223 +05:30 [INF] Route matched with {action = "GetSummary", controller = "Dashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[TradingJournal.Application.DTOs.Dashboard.DashboardSummaryDto]] GetSummary() on controller TradingJournal.API.Controllers.DashboardController (TradingJournal.API).
+2026-04-22 21:23:48.226 +05:30 [INF] Fetching dashboard summary for user: "95870ccb-6248-4140-95c9-f85b1e77a34b"
+2026-04-22 21:23:48.293 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT t."Id", t."CreatedAt", t."EntryPrice", t."ExitPrice", t."InstrumentId", t."IsDeleted", t."LotSize", t."Notes", t."ProfitLoss", t."Result", t."RiskPercentage", t."RiskRewardRatio", t."StopLoss", t."Tags", t."TakeProfit", t."TradeDate", t."TradeDurationMinutes", t."TradeType", t."TradingAccountId", t."UpdatedAt", t."UserId", i0."Id", i0."CreatedAt", i0."Description", i0."IsDeleted", i0."MaxLot", i0."Name", i0."Notes", i0."SafeLotSize", i0."Symbol", i0."UpdatedAt", i0."UserId", i0."VolatilityLevel"
+FROM "Trades" AS t
+INNER JOIN (
+    SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+    FROM "Instruments" AS i
+    WHERE NOT (i."IsDeleted")
+) AS i0 ON t."InstrumentId" = i0."Id"
+WHERE NOT (t."IsDeleted") AND t."UserId" = @userId
+ORDER BY t."TradeDate"
+2026-04-22 21:23:48.374 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@p='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT u."Id", u."AccountBalance", u."AllowedSections", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."ProfileImageUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."Id" = @p
+LIMIT 1
+2026-04-22 21:23:48.433 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT a."Id", a."CreatedAt", a."DailyLossLimit", a."Email", a."EmailAlertEnabled", a."IsActive", a."IsDeleted", a."MaxDrawdownPercent", a."MaxTradesPerDay", a."UpdatedAt", a."UserId"
+FROM "Alerts" AS a
+WHERE a."UserId" = @userId
+LIMIT 1
+2026-04-22 21:23:48.498 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='300']
+SELECT i."Id", i."CreatedAt", i."Description", i."IsDeleted", i."MaxLot", i."Name", i."Notes", i."SafeLotSize", i."Symbol", i."UpdatedAt", i."UserId", i."VolatilityLevel"
+FROM "Instruments" AS i
+WHERE NOT (i."IsDeleted") AND i."UserId" = @userId
+2026-04-22 21:23:48.499 +05:30 [INF] Executing OkObjectResult, writing value of type 'TradingJournal.Application.DTOs.Dashboard.DashboardSummaryDto'.
+2026-04-22 21:23:48.499 +05:30 [INF] Executed action TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API) in 276.4378ms
+2026-04-22 21:23:48.499 +05:30 [INF] Executed endpoint 'TradingJournal.API.Controllers.DashboardController.GetSummary (TradingJournal.API)'
+2026-04-22 21:23:48.500 +05:30 [INF] HTTP GET /api/dashboard/summary responded 200 in 277.8034 ms
+2026-04-22 21:23:48.500 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/dashboard/summary - 200 null application/json; charset=utf-8 278.1963ms
