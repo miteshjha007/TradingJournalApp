@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using TradingJournal.API.Middleware;
 using TradingJournal.Infrastructure.Extensions;
+using TradingJournal.API.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Host.UseSerilog();
 // Services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSignalR();
 
 // Swagger with JWT (Swashbuckle 6.x)
 builder.Services.AddSwaggerGen(c =>
@@ -70,6 +72,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
             ClockSkew = TimeSpan.Zero
         };
+        
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/chat"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
@@ -78,7 +94,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
-        policy.WithOrigins("http://localhost:4200", "http://localhost:4201")
+        policy.WithOrigins("http://localhost:4200", "http://localhost:4201", "http://localhost:57615", "http://192.168.1.8")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials());
@@ -117,5 +133,6 @@ app.UseCors("AllowAngular");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();

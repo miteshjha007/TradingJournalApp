@@ -66,6 +66,107 @@ namespace TradingJournal.Infrastructure.Migrations
                     b.ToTable("Alerts");
                 });
 
+            modelBuilder.Entity("TradingJournal.Domain.Entities.Announcement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AdminId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.HasIndex("CreatedAt")
+                        .IsDescending();
+
+                    b.ToTable("Announcements");
+                });
+
+            modelBuilder.Entity("TradingJournal.Domain.Entities.ForumMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ChannelType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("EditedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ParentMessageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ReceiverId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SenderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("ChannelType");
+
+                    b.HasIndex("CreatedAt")
+                        .IsDescending();
+
+                    b.HasIndex("ParentMessageId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("ForumMessages");
+                });
+
             modelBuilder.Entity("TradingJournal.Domain.Entities.Instrument", b =>
                 {
                     b.Property<Guid>("Id")
@@ -252,18 +353,45 @@ namespace TradingJournal.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal>("DailyDrawdownLimitPct")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<bool>("Has5xLotRule")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsDefault")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsPropFirm")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("MaxAllowedLotSize")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("MaxOverallLossPct")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("MaxRiskPerTradePctOfDailyLimit")
+                        .HasColumnType("decimal(5,2)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal>("ProfitSplitPct")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("ProfitTargetPct")
+                        .HasColumnType("decimal(5,2)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("UseDynamicEquity")
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -350,6 +478,35 @@ namespace TradingJournal.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TradingJournal.Domain.Entities.Announcement", b =>
+                {
+                    b.HasOne("TradingJournal.Domain.Entities.User", "Admin")
+                        .WithMany("Announcements")
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
+                });
+
+            modelBuilder.Entity("TradingJournal.Domain.Entities.ForumMessage", b =>
+                {
+                    b.HasOne("TradingJournal.Domain.Entities.User", "Author")
+                        .WithMany("ForumMessages")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TradingJournal.Domain.Entities.ForumMessage", "ParentMessage")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentMessageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Author");
+
+                    b.Navigation("ParentMessage");
+                });
+
             modelBuilder.Entity("TradingJournal.Domain.Entities.Instrument", b =>
                 {
                     b.HasOne("TradingJournal.Domain.Entities.User", "User")
@@ -408,6 +565,11 @@ namespace TradingJournal.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TradingJournal.Domain.Entities.ForumMessage", b =>
+                {
+                    b.Navigation("Replies");
+                });
+
             modelBuilder.Entity("TradingJournal.Domain.Entities.Instrument", b =>
                 {
                     b.Navigation("Trades");
@@ -421,6 +583,10 @@ namespace TradingJournal.Infrastructure.Migrations
             modelBuilder.Entity("TradingJournal.Domain.Entities.User", b =>
                 {
                     b.Navigation("Alerts");
+
+                    b.Navigation("Announcements");
+
+                    b.Navigation("ForumMessages");
 
                     b.Navigation("Instruments");
 

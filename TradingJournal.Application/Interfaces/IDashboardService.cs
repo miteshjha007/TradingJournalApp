@@ -11,6 +11,7 @@ public interface IDashboardService
     Task<DrawdownDto> GetDrawdownAsync(Guid userId);
     Task<AiAnalysisDto> GetAiInsightsAsync(Guid userId);
     Task<RiskResultDto> CalculateRiskAsync(RiskCalculationDto dto, Guid userId);
+    Task<PropRiskResultDto> CalculatePropRiskAsync(PropRiskCalculationDto dto, Guid userId);
     Task<AlertDto?> GetAlertAsync(Guid userId);
     Task<AlertDto> UpsertAlertAsync(CreateAlertDto dto, Guid userId);
 }

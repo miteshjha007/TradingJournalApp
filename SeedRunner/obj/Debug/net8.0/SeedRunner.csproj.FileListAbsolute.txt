@@ -1,0 +1,6 @@
+D:\Mitesh\StockMarket\TradingJournalApp\SeedRunner\obj\Debug\net8.0\SeedRunner.csproj.AssemblyReference.cache
+D:\Mitesh\StockMarket\TradingJournalApp\SeedRunner\obj\Debug\net8.0\SeedRunner.GeneratedMSBuildEditorConfig.editorconfig
+D:\Mitesh\StockMarket\TradingJournalApp\SeedRunner\obj\Debug\net8.0\SeedRunner.AssemblyInfoInputs.cache
+D:\Mitesh\StockMarket\TradingJournalApp\SeedRunner\obj\Debug\net8.0\SeedRunner.AssemblyInfo.cs
+D:\Mitesh\StockMarket\TradingJournalApp\SeedRunner\obj\Debug\net8.0\SeedRunner.csproj.CoreCompileInputs.cache
+D:\Mitesh\StockMarket\TradingJournalApp\SeedRunner\obj\Debug\net8.0\SeedRunner.sourcelink.json

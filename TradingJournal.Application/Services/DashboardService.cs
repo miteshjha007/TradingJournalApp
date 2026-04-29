@@ -10,24 +10,25 @@ public class DashboardService : IDashboardService
 {
     private readonly ITradeRepository _tradeRepository;
     private readonly IInstrumentRepository _instrumentRepository;
-    private readonly IUserRepository _userRepository;
     private readonly IAlertRepository _alertRepository;
+    private readonly ITradingAccountService _accountService;
 
-    public DashboardService(ITradeRepository tradeRepository,
+    public DashboardService(
+        ITradeRepository tradeRepository,
         IInstrumentRepository instrumentRepository,
-        IUserRepository userRepository,
-        IAlertRepository alertRepository)
+        IAlertRepository alertRepository,
+        ITradingAccountService accountService)
     {
         _tradeRepository = tradeRepository;
         _instrumentRepository = instrumentRepository;
-        _userRepository = userRepository;
         _alertRepository = alertRepository;
+        _accountService = accountService;
     }
 
     public async Task<DashboardSummaryDto> GetSummaryAsync(Guid userId)
     {
         var allTrades = await _tradeRepository.GetByUserIdAsync(userId);
-        var user = await _userRepository.GetByIdAsync(userId);
+        var account = await _accountService.GetDefaultAccountAsync(userId);
         var alert = await _alertRepository.GetByUserIdAsync(userId);
         var instruments = await _instrumentRepository.GetByUserIdAsync(userId);
 
@@ -55,7 +56,7 @@ public class DashboardService : IDashboardService
 
         // Equity curve
         var sortedTrades = allTrades.OrderBy(t => t.TradeDate).ToList();
-        var balance = user?.AccountBalance ?? 10000;
+        var balance = account?.Balance ?? 10000;
         var equityCurve = new List<EquityCurvePointDto>();
         var runningBalance = balance;
         foreach (var t in sortedTrades)
@@ -103,7 +104,7 @@ public class DashboardService : IDashboardService
             TodayTradeCount = todayTrades.Count,
             DailyLossLimitBreached = alert != null && todayPL < -alert.DailyLossLimit,
             DailyLossLimit = alert?.DailyLossLimit ?? 0,
-            AccountBalance = user?.AccountBalance ?? 10000,
+            AccountBalance = balance,
             MonthlyPL = monthlyPL,
             EquityCurve = equityCurve,
             InstrumentPerformance = instrPerf
@@ -166,9 +167,9 @@ public class DashboardService : IDashboardService
     public async Task<DrawdownDto> GetDrawdownAsync(Guid userId)
     {
         var trades = await _tradeRepository.GetByUserIdAsync(userId);
-        var user = await _userRepository.GetByIdAsync(userId);
+        var account = await _accountService.GetDefaultAccountAsync(userId);
         var alert = await _alertRepository.GetByUserIdAsync(userId);
-        var balance = user?.AccountBalance ?? 10000;
+        var balance = account?.Balance ?? 10000;
 
         var sortedTrades = trades.OrderBy(t => t.TradeDate).ToList();
         var maxDD = CalculateMaxDrawdown(sortedTrades, balance);
@@ -368,6 +369,141 @@ public class DashboardService : IDashboardService
             RiskLevel = riskLevel,
             Warning = warning
         };
+    }
+
+    public async Task<PropRiskResultDto> CalculatePropRiskAsync(PropRiskCalculationDto dto, Guid userId)
+    {
+        var account = await _accountService.GetDefaultAccountAsync(userId);
+        var balance = account?.Balance ?? dto.AccountBalance;
+        
+        // Use account configurations or fallback to DTO defaults
+        var ddLimitPct = account?.DailyDrawdownLimitPct > 0 ? account.DailyDrawdownLimitPct : dto.DailyDrawdownLimit;
+        var maxOverallLossPct = account?.MaxOverallLossPct > 0 ? account.MaxOverallLossPct : 6.0m;
+        var useDynamicEquity = account?.UseDynamicEquity ?? true;
+        var has5xRule = account?.Has5xLotRule ?? true;
+        var maxAllowedLotSize = account?.MaxAllowedLotSize > 0 ? account.MaxAllowedLotSize : 5.0m;
+        var maxRiskPerTradePct = account?.MaxRiskPerTradePctOfDailyLimit > 0 ? account.MaxRiskPerTradePctOfDailyLimit : 40.0m;
+        
+        var symbol = dto.InstrumentSymbol?.ToUpper().Trim() ?? string.Empty;
+        var category = "Forex";
+
+        // Resolve pip value and category from instrument or symbol
+        decimal pipValuePer001Lot = 0.10m; // default: Forex USD-quote pair
+
+        if (dto.InstrumentId.HasValue)
+        {
+            var instrument = await _instrumentRepository.GetByIdAsync(dto.InstrumentId.Value, userId);
+            if (instrument != null)
+            {
+                symbol = instrument.Symbol?.ToUpper() ?? symbol;
+            }
+        }
+
+        (pipValuePer001Lot, category) = GetPipValueAndCategory(symbol);
+
+        // Daily Drawdown Check with Dynamic Equity support
+        var baseDdLimitAmount = balance * ddLimitPct / 100m;
+        
+        // If Dynamic Equity is enabled, profitable days increase your limit
+        var dynamicLimitAmount = baseDdLimitAmount;
+        if (useDynamicEquity && dto.TodayLoss > 0) // if TodayLoss is positive, it means profit
+        {
+            dynamicLimitAmount += dto.TodayLoss;
+        }
+
+        // TodayLoss in DTO is negative if loss, positive if profit
+        var actualLossAmount = dto.TodayLoss < 0 ? Math.Abs(dto.TodayLoss) : 0;
+        
+        var ddRemaining = Math.Max(0, dynamicLimitAmount - actualLossAmount);
+        var ddBreached = actualLossAmount >= dynamicLimitAmount;
+
+        // 40% Rule check (Risk per trade shouldn't exceed X% of daily limit)
+        var maxRiskDollar = dynamicLimitAmount * (maxRiskPerTradePct / 100m);
+        var requestedRiskAmount = balance * dto.RiskPercent / 100m;
+        var riskAmount = Math.Min(requestedRiskAmount, maxRiskDollar);
+
+        decimal suggestedLot = 0.01m;
+        if (dto.StopLossPips > 0)
+        {
+            var denominator = dto.StopLossPips * pipValuePer001Lot * 100m;
+            suggestedLot = denominator > 0 ? riskAmount / denominator : 0.01m;
+        }
+
+        suggestedLot = Math.Round(Math.Max(0.001m, suggestedLot), 3);
+        
+        // Enforce Hard Max Allowed Lot Size
+        if (suggestedLot > maxAllowedLotSize)
+            suggestedLot = maxAllowedLotSize;
+
+        var maxLossIfSLHit = suggestedLot * 100m * dto.StopLossPips * pipValuePer001Lot;
+
+        // 5x Rule: subsequent lots must be <= 5x the first trade lot
+        decimal fiveXMax = 0m;
+        bool violatesFiveX = false;
+        
+        if (has5xRule && dto.FirstTradeLotSize.HasValue && dto.FirstTradeLotSize.Value > 0)
+        {
+            fiveXMax = dto.FirstTradeLotSize.Value * 5m;
+            violatesFiveX = suggestedLot > fiveXMax;
+            if (violatesFiveX) suggestedLot = Math.Round(fiveXMax, 3);
+        }
+
+        // Cap suggested lot so loss won't exceed remaining daily drawdown
+        if (ddRemaining > 0 && dto.StopLossPips > 0)
+        {
+            var maxLotForDD = ddRemaining / (dto.StopLossPips * pipValuePer001Lot * 100m);
+            if (suggestedLot > maxLotForDD)
+                suggestedLot = Math.Round(maxLotForDD, 3);
+        }
+
+        // Determine Warnings
+        var warnings = new List<string>();
+        if (has5xRule && violatesFiveX) warnings.Add($"⚠️ 5x Rule: capped lot from original to {fiveXMax:F3} (5× first trade).");
+        if (ddBreached) warnings.Add("🔴 Daily drawdown limit reached. No more trades today.");
+        else if (ddRemaining < maxLossIfSLHit) warnings.Add($"⚠️ Trade risk (${maxLossIfSLHit:F2}) exceeds daily drawdown remaining (${ddRemaining:F2}).");
+        
+        if (requestedRiskAmount > maxRiskDollar) 
+            warnings.Add($"⚠️ {maxRiskPerTradePct}% Rule: Risk capped at ${maxRiskDollar:F2} ({maxRiskPerTradePct}% of daily limit).");
+
+        var isSafe = !ddBreached && (!has5xRule || !violatesFiveX) && maxLossIfSLHit <= riskAmount * 1.1m;
+
+        return new PropRiskResultDto
+        {
+            SuggestedLotSize = suggestedLot,
+            PipValuePer001Lot = pipValuePer001Lot,
+            RiskAmountDollar = Math.Round(maxLossIfSLHit, 2), // The actual risk with the suggested lot
+            MaxLossIfSLHit = Math.Round(maxLossIfSLHit, 2),
+            FiveXRuleMaxLot = Math.Round(fiveXMax, 3),
+            ViolatesFiveXRule = violatesFiveX,
+            DailyDrawdownLimitAmount = Math.Round(dynamicLimitAmount, 2),
+            DailyDrawdownRemaining = Math.Round(ddRemaining, 2),
+            DailyDrawdownBreached = ddBreached,
+            RiskLevel = requestedRiskAmount > maxRiskDollar ? "Aggressive" : "Moderate",
+            Warning = string.Join(" ", warnings),
+            IsSafe = isSafe,
+            InstrumentCategory = category
+        };
+    }
+
+    private static (decimal pipValue, string category) GetPipValueAndCategory(string symbol)
+    {
+        // Metals
+        if (symbol.Contains("XAUUSD") || symbol.Contains("GOLD")) return (1.00m, "Metals");
+        if (symbol.Contains("XAGUSD") || symbol.Contains("SILVER")) return (0.50m, "Metals");
+
+        // Crypto
+        if (symbol.Contains("BTC")) return (0.001m, "Crypto");
+        if (symbol.Contains("ETH")) return (0.01m, "Crypto");
+        if (symbol.Contains("XRP") || symbol.Contains("LTC") || symbol.Contains("BCH")) return (0.01m, "Crypto");
+
+        // JPY crosses (pip value lower due to yen denomination)
+        if (symbol.Contains("JPY")) return (0.09m, "Forex-JPY");
+
+        // Exotic pairs (wider spreads)
+        if (symbol.Contains("MXN") || symbol.Contains("TRY") || symbol.Contains("ZAR")) return (0.01m, "Forex-Exotic");
+
+        // Default: Forex USD-quote (EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF...)
+        return (0.10m, "Forex");
     }
 
     public async Task<AlertDto?> GetAlertAsync(Guid userId)

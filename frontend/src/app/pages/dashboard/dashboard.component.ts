@@ -19,6 +19,13 @@ Chart.register(...registerables);
           Limit: {{ dashboard()?.dailyLossLimit | currency }} | Today's Loss: {{ dashboard()?.todayPL | currency }}
         </div>
       }
+      
+      <!-- Prop Firm Kill Switch -->
+      @if (dashboard()?.isPropFirm && (dashboard()?.todayPL ?? 0) < -(dashboard()?.dailyLossLimit ?? 0) * 0.8) {
+        <div class="alert-banner critical" style="background:#ef4444; color:white; border:2px solid #b91c1c;">
+          🛑 DANGER: You are approaching your Prop Firm Daily Drawdown Limit! Stop trading immediately.
+        </div>
+      }
 
       <!-- Drawdown Warning -->
       @if (drawdownWarning()) {
@@ -91,6 +98,41 @@ Chart.register(...registerables);
             </div>
           </div>
         </div>
+
+        <!-- Prop Firm Widgets -->
+        @if (dashboard()?.isPropFirm) {
+          <div class="section-card" style="margin-top:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+              <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;"><span style="font-size:1.5rem;">🏦</span> Prop Firm Dashboard</h3>
+              <div style="background:var(--accent); color:white; padding:0.4rem 1rem; border-radius:20px; font-weight:600; font-size:0.9rem;">
+                Estimated Payout: <span style="font-size:1.1rem;">{{ getEstimatedPayout() | currency }}</span> 
+                <span style="font-size:0.75rem; opacity:0.8;">({{ dashboard()?.profitSplit }}% Split)</span>
+              </div>
+            </div>
+            
+            <div class="period-grid">
+              <div class="period-card" style="position:relative; overflow:hidden;">
+                <span class="period-label">Profit Target ({{ dashboard()?.profitTarget }}%)</span>
+                <span class="period-value" [class.positive-text]="(dashboard()?.totalProfitLoss ?? 0) > 0">
+                  {{ dashboard()?.totalProfitLoss | currency }} / {{ getProfitTargetDollar() | currency }}
+                </span>
+                <div style="width:100%; background:var(--border); height:6px; border-radius:3px; margin-top:0.5rem;">
+                  <div [style.width]="getProfitProgress() + '%'" style="background:var(--accent); height:100%; border-radius:3px; max-width:100%;"></div>
+                </div>
+              </div>
+              
+              <div class="period-card" style="position:relative; overflow:hidden;">
+                <span class="period-label">Daily Loss Buffer ({{ dashboard()?.dailyLossLimit | currency }})</span>
+                <span class="period-value" [class.negative-text]="(dashboard()?.todayPL ?? 0) < 0">
+                  {{ dashboard()?.todayPL | currency }}
+                </span>
+                <div style="width:100%; background:var(--border); height:6px; border-radius:3px; margin-top:0.5rem;">
+                  <div [style.width]="getDailyLossProgress() + '%'" [style.background]="getDailyLossProgress() > 80 ? '#ef4444' : '#f59e0b'" style="height:100%; border-radius:3px; max-width:100%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
 
         <!-- Period Summary -->
         <div class="period-grid">
@@ -173,6 +215,32 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {}
+
+  getProfitTargetDollar(): number {
+    const db = this.dashboard();
+    if (!db) return 0;
+    return db.accountBalance * (db.profitTarget / 100);
+  }
+
+  getProfitProgress(): number {
+    const db = this.dashboard();
+    if (!db || db.totalProfitLoss <= 0) return 0;
+    const target = this.getProfitTargetDollar();
+    return target > 0 ? (db.totalProfitLoss / target) * 100 : 0;
+  }
+
+  getDailyLossProgress(): number {
+    const db = this.dashboard();
+    if (!db || db.todayPL >= 0) return 0;
+    const limit = db.dailyLossLimit;
+    return limit > 0 ? (Math.abs(db.todayPL) / limit) * 100 : 0;
+  }
+
+  getEstimatedPayout(): number {
+    const db = this.dashboard();
+    if (!db || db.totalProfitLoss <= 0) return 0;
+    return db.totalProfitLoss * (db.profitSplit / 100);
+  }
 
   private initCharts(): void {
     const data = this.dashboard();

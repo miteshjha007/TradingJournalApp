@@ -20,11 +20,16 @@ export const routes: Routes = [
       { path: 'analytics', loadComponent: () => import('./pages/analytics/analytics.component').then(m => m.AnalyticsComponent) },
       { path: 'calendar', loadComponent: () => import('./pages/calendar/calendar.component').then(m => m.CalendarComponent) },
       { path: 'risk-tool', loadComponent: () => import('./pages/risk-tool/risk-tool.component').then(m => m.RiskToolComponent) },
+      { path: 'accounts', loadComponent: () => import('./pages/accounts/accounts.component').then(m => m.AccountsComponent) },
       { path: 'alerts', loadComponent: () => import('./pages/alerts/alerts.component').then(m => m.AlertsComponent) },
       {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent)
+      },
+      {
+        path: 'forum',
+        loadComponent: () => import('./pages/forum/forum.component').then(m => m.ForumComponent)
       }
     ]
   },

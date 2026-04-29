@@ -21,14 +21,20 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITradeRepository, TradeRepository>();
         services.AddScoped<INoteRepository, NoteRepository>();
         services.AddScoped<IAlertRepository, AlertRepository>();
+        services.AddScoped<ITradingAccountRepository, TradingAccountRepository>();
+        services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
+        services.AddScoped<IForumMessageRepository, ForumMessageRepository>();
 
-        // Services
+        // Application Services
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IInstrumentService, InstrumentService>();
         services.AddScoped<ITradeService, TradeService>();
         services.AddScoped<INoteService, NoteService>();
         services.AddScoped<IDashboardService, DashboardService>();
+        services.AddScoped<ITradingAccountService, TradingAccountService>();
+        services.AddScoped<IAnnouncementService, AnnouncementService>();
+        services.AddScoped<IForumMessageService, ForumMessageService>();
 
         return services;
     }

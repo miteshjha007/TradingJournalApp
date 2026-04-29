@@ -54,6 +54,9 @@ public class TradeDto
     public string? Notes { get; set; }
     public string? Tags { get; set; }
     public DateTime CreatedAt { get; set; }
+    
+    // Prop Firm Rule Violations
+    public List<string> RuleViolations { get; set; } = new();
 }
 
 public class TradeFilterDto

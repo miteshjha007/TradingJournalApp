@@ -1,0 +1,89 @@
+<!-- Announcements Channel -->
+<div class="channel-layout">
+
+  <!-- Channel Header -->
+  <div class="channel-header">
+    <div class="channel-title">
+      <span>📢</span>
+      <div>
+        <h2>Global Announcements</h2>
+        <p>Admin broadcasts to all traders</p>
+      </div>
+    </div>
+    <button *ngIf="isAdmin" (click)="openModal()" class="btn btn-primary btn-sm">
+      + Post Announcement
+    </button>
+  </div>
+
+  <!-- Announcements List -->
+  <div class="channel-body">
+    <div *ngIf="loading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading announcements...</p>
+    </div>
+
+    <div *ngIf="!loading && chatService.activeAnnouncements().length === 0" class="empty-state">
+      <div class="empty-icon">📢</div>
+      <h3>No announcements yet</h3>
+      <p>Admins can post updates visible to all traders.</p>
+    </div>
+
+    <div *ngFor="let msg of chatService.activeAnnouncements()" class="announcement-card">
+      <div class="announcement-top">
+        <div class="announcement-meta">
+          <span class="priority-badge" [class.info]="msg.priority === AnnouncementPriority.Info"
+                [class.important]="msg.priority === AnnouncementPriority.Important"
+                [class.urgent]="msg.priority === AnnouncementPriority.Urgent">
+            <ng-container *ngIf="msg.priority === AnnouncementPriority.Info">ℹ️ Info</ng-container>
+            <ng-container *ngIf="msg.priority === AnnouncementPriority.Important">⚠️ Important</ng-container>
+            <ng-container *ngIf="msg.priority === AnnouncementPriority.Urgent">🚨 Urgent</ng-container>
+          </span>
+          <h3 class="announcement-title">{{ msg.title }}</h3>
+        </div>
+        <div class="announcement-actions">
+          <span class="msg-time">{{ msg.createdAt | date:'mediumDate' }}</span>
+          <button *ngIf="isAdmin" (click)="deleteAnnouncement(msg.id)" class="btn-icon danger" title="Delete">🗑️</button>
+        </div>
+      </div>
+      <p class="announcement-body">{{ msg.content }}</p>
+      <div class="announcement-footer">
+        <span class="author-chip">Posted by {{ msg.adminName }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Post Modal -->
+<div *ngIf="showModal" class="modal-backdrop" (click)="closeModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>📢 Post Announcement</h2>
+      <button class="close-btn" (click)="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Title *</label>
+        <input type="text" class="form-input" [(ngModel)]="newAnnouncement.title" placeholder="Announcement title" />
+      </div>
+      <div class="form-group">
+        <label>Priority</label>
+        <select class="form-input" [(ngModel)]="newAnnouncement.priority">
+          <option [ngValue]="AnnouncementPriority.Info">ℹ️ Info</option>
+          <option [ngValue]="AnnouncementPriority.Important">⚠️ Important</option>
+          <option [ngValue]="AnnouncementPriority.Urgent">🚨 Urgent</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Message *</label>
+        <textarea class="form-input" [(ngModel)]="newAnnouncement.content" rows="4" placeholder="Enter your message..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closeModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="postAnnouncement()"
+              [disabled]="!newAnnouncement.title || !newAnnouncement.content">
+        Post Announcement
+      </button>
+    </div>
+  </div>
+</div>

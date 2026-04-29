@@ -95,21 +95,32 @@ import { Trade, CreateTrade, TradeFilter, Instrument } from '../../models/models
                   <td>{{ trade.exitPrice | number:'1.2-5' }}</td>
                   <td>{{ trade.stopLoss | number:'1.2-5' }}</td>
                   <td>{{ trade.takeProfit | number:'1.2-5' }}</td>
-                  <td class="pl-cell" [class.positive-text]="trade.profitLoss > 0" [class.negative-text]="trade.profitLoss < 0">
-                    {{ trade.profitLoss | number:'1.2-2' }}
+                  <td class="pl-cell" [class.positive-text]="(trade.profitLoss || 0) > 0" [class.negative-text]="(trade.profitLoss || 0) < 0">
+                    {{ trade.profitLoss || 0 | number:'1.2-2' }}
                   </td>
-                  <td>{{ trade.riskRewardRatio | number:'1.2-2' }}</td>
-                  <td><span class="result-badge" [class]="'result-' + trade.result.toLowerCase()">{{ trade.result }}</span></td>
+                  <td>{{ trade.riskRewardRatio || 0 | number:'1.2-2' }}</td>
+                  <td><span class="result-badge" [class]="'result-' + (trade.result || '').toLowerCase()">{{ trade.result || 'Pending' }}</span></td>
                   <td class="tags-cell">
                     @if (trade.tags) {
                       @for (tag of trade.tags.split(','); track tag) {
                         <span class="tag">{{ tag.trim() }}</span>
                       }
                     }
+                    @if (trade.ruleViolations && trade.ruleViolations.length > 0) {
+                      <div style="margin-top:0.4rem; display:flex; flex-direction:column; gap:0.2rem;">
+                        @for (violation of trade.ruleViolations; track violation) {
+                          <span class="tag" style="background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.3); font-size:0.7rem;">
+                            ⚠️ {{ violation }}
+                          </span>
+                        }
+                      </div>
+                    }
                   </td>
                   <td class="actions-cell">
                     <button class="btn-icon" (click)="openModal(trade)">✏️</button>
-                    <button class="btn-icon danger" (click)="deleteTrade(trade.id)">🗑️</button>
+                    @if (trade.id) {
+                      <button class="btn-icon danger" (click)="deleteTrade(trade.id)">🗑️</button>
+                    }
                   </td>
                 </tr>
               }
@@ -266,7 +277,7 @@ export class TradesComponent implements OnInit {
   exportUrl(): string { return this.api.exportTrades(this.filter); }
 
   openModal(trade?: Trade): void {
-    if (trade) {
+    if (trade && trade.id) {
       this.editingId.set(trade.id);
       this.form.patchValue({
         instrumentId: trade.instrumentId,

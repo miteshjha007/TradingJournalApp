@@ -21,6 +21,8 @@ public class User : BaseEntity
     public ICollection<Note> Notes { get; set; } = new List<Note>();
     public ICollection<Alert> Alerts { get; set; } = new List<Alert>();
     public ICollection<TradingAccount> TradingAccounts { get; set; } = new List<TradingAccount>();
+    public ICollection<Announcement> Announcements { get; set; } = new List<Announcement>();
+    public ICollection<ForumMessage> ForumMessages { get; set; } = new List<ForumMessage>();
     
     // Permissions
     public List<string> AllowedSections { get; set; } = new();

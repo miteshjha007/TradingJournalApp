@@ -7,13 +7,41 @@ import {
   Trade, CreateTrade, TradeFilter, PagedTrades,
   Note, CreateNote, NoteFilter, PagedNotes,
   DashboardSummary, CalendarDay, PerformanceMetrics, DrawdownInfo,
-  AiAnalysis, RiskCalculation, RiskResult, Alert,
-  UserInfo, AdminCreateUser
+  AiAnalysis, RiskCalculation, RiskResult, PropRiskCalculation, PropRiskResult, Alert,
+  UserInfo, AdminCreateUser, TradingAccount, CreateTradingAccount,
+  Announcement, CreateAnnouncement, ForumMessage, CreateForumMessage, DirectMessage, UnreadCount
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   constructor(private http: HttpClient) {}
+
+  // Account endpoints
+  getAccounts(targetUserId?: string): Observable<TradingAccount[]> {
+    let params = new HttpParams();
+    if (targetUserId) params = params.set('targetUserId', targetUserId);
+    return this.http.get<TradingAccount[]>(`${environment.apiUrl}/accounts`, { params });
+  }
+  
+  getAccount(id: string, targetUserId?: string): Observable<TradingAccount> {
+    let params = new HttpParams();
+    if (targetUserId) params = params.set('targetUserId', targetUserId);
+    return this.http.get<TradingAccount>(`${environment.apiUrl}/accounts/${id}`, { params });
+  }
+
+  createAccount(data: CreateTradingAccount): Observable<TradingAccount> {
+    return this.http.post<TradingAccount>(`${environment.apiUrl}/accounts`, data);
+  }
+
+  updateAccount(id: string, data: CreateTradingAccount): Observable<TradingAccount> {
+    return this.http.put<TradingAccount>(`${environment.apiUrl}/accounts/${id}`, data);
+  }
+
+  deleteAccount(id: string, targetUserId?: string): Observable<void> {
+    let params = new HttpParams();
+    if (targetUserId) params = params.set('targetUserId', targetUserId);
+    return this.http.delete<void>(`${environment.apiUrl}/accounts/${id}`, { params });
+  }
 
   // Instruments
   getInstruments(): Observable<Instrument[]> {
@@ -106,6 +134,9 @@ export class ApiService {
   calculateRisk(data: RiskCalculation): Observable<RiskResult> {
     return this.http.post<RiskResult>(`${environment.apiUrl}/dashboard/risk-calculate`, data);
   }
+  calculatePropRisk(data: PropRiskCalculation): Observable<PropRiskResult> {
+    return this.http.post<PropRiskResult>(`${environment.apiUrl}/dashboard/prop-risk-calculate`, data);
+  }
   getAlert(): Observable<Alert> {
     return this.http.get<Alert>(`${environment.apiUrl}/dashboard/alerts`);
   }
@@ -122,5 +153,52 @@ export class ApiService {
   }
   adminUpdateUser(id: string, data: any): Observable<UserInfo> {
     return this.http.put<UserInfo>(`${environment.apiUrl}/admin/users/${id}`, data);
+  }
+
+  // ----------------------------------------------------
+  // Chat Forum (Announcements & Public/DM)
+  // ----------------------------------------------------
+  getAnnouncements(page: number = 1, pageSize: number = 50): Observable<{ announcements: Announcement[], totalCount: number }> {
+    return this.http.get<{ announcements: Announcement[], totalCount: number }>(`${environment.apiUrl}/announcements?page=${page}&pageSize=${pageSize}`);
+  }
+
+  createAnnouncement(data: CreateAnnouncement): Observable<Announcement> {
+    return this.http.post<Announcement>(`${environment.apiUrl}/announcements`, data);
+  }
+
+  deleteAnnouncement(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/announcements/${id}`);
+  }
+
+  getPublicForumMessages(page: number = 1, pageSize: number = 50): Observable<{ messages: ForumMessage[], totalCount: number }> {
+    return this.http.get<{ messages: ForumMessage[], totalCount: number }>(`${environment.apiUrl}/forum/public?page=${page}&pageSize=${pageSize}`);
+  }
+
+  postForumMessage(data: CreateForumMessage): Observable<ForumMessage> {
+    return this.http.post<ForumMessage>(`${environment.apiUrl}/forum/public`, data);
+  }
+
+  deleteForumMessage(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/forum/public/${id}`);
+  }
+
+  getDirectMessages(otherUserId: string): Observable<DirectMessage[]> {
+    return this.http.get<DirectMessage[]>(`${environment.apiUrl}/forum/dm/${otherUserId}`);
+  }
+
+  sendDirectMessage(data: CreateForumMessage): Observable<DirectMessage> {
+    return this.http.post<DirectMessage>(`${environment.apiUrl}/forum/dm`, data);
+  }
+
+  markAsRead(senderId: string): Observable<void> {
+    return this.http.put<void>(`${environment.apiUrl}/forum/dm/read/${senderId}`, {});
+  }
+
+  getUnreadCount(): Observable<UnreadCount> {
+    return this.http.get<UnreadCount>(`${environment.apiUrl}/forum/dm/unread`);
+  }
+
+  getForumUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/forum/users`);
   }
 }

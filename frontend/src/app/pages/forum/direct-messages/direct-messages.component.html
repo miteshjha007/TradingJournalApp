@@ -1,0 +1,75 @@
+<!-- Direct Messages Channel -->
+<div class="dm-layout">
+
+  <!-- Left: Users List -->
+  <div class="dm-sidebar">
+    <div class="dm-sidebar-header">
+      <h3>💌 Conversations</h3>
+      <p>Select a user to message</p>
+    </div>
+    <div class="dm-user-list">
+      <div *ngIf="users.length === 0" class="empty-state" style="padding: 2rem 1rem;">
+        <p>No users found</p>
+      </div>
+      <button *ngFor="let user of users" (click)="selectUser(user)" class="dm-user-item"
+        [class.active]="selectedUser?.id === user.id">
+        <div class="dm-avatar">{{ user.name.charAt(0).toUpperCase() }}</div>
+        <div class="dm-user-info">
+          <span class="dm-user-name">{{ user.name }}</span>
+          <span class="dm-user-email">{{ user.email }}</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Right: Chat Panel -->
+  <div class="dm-chat-panel">
+    <ng-container *ngIf="selectedUser; else noConversation">
+
+      <!-- Chat Header -->
+      <div class="dm-chat-header">
+        <div class="dm-avatar">{{ selectedUser.name.charAt(0).toUpperCase() }}</div>
+        <div>
+          <div class="dm-user-name">{{ selectedUser.name }}</div>
+          <div class="dm-user-email">Direct Message</div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div #scrollContainer class="dm-messages chat-scroll">
+        <div *ngIf="loading" class="loading-state">
+          <div class="loading-spinner"></div>
+        </div>
+
+        <div *ngIf="!loading && chatService.activeDirectMessages().length === 0" class="empty-state">
+          <div class="empty-icon">💌</div>
+          <h3>Start the conversation</h3>
+          <p>Say hello to {{ selectedUser.name }}!</p>
+        </div>
+
+        <div *ngFor="let msg of chatService.activeDirectMessages()" class="bubble-wrap"
+          [class.sent]="msg.senderId === currentUserId" [class.received]="msg.senderId !== currentUserId">
+          <div class="bubble">{{ msg.content }}</div>
+          <div class="bubble-time">{{ msg.createdAt | date:'shortTime' }}</div>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="chat-input-area">
+        <div class="chat-input-box">
+          <textarea [(ngModel)]="messageContent" placeholder="Message {{ selectedUser.name }}..." rows="1"
+            class="chat-textarea" (keydown.enter)="handleKeydown($event)"></textarea>
+          <button (click)="sendMessage()" class="send-btn" [disabled]="!messageContent.trim()">➤</button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #noConversation>
+      <div class="empty-state" style="height:100%">
+        <div class="empty-icon">💌</div>
+        <h3>No conversation selected</h3>
+        <p>Choose a user from the left panel to start chatting.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

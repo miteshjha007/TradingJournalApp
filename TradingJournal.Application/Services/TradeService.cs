@@ -10,11 +10,13 @@ public class TradeService : ITradeService
 {
     private readonly ITradeRepository _tradeRepository;
     private readonly IInstrumentRepository _instrumentRepository;
+    private readonly ITradingAccountRepository _accountRepository;
 
-    public TradeService(ITradeRepository tradeRepository, IInstrumentRepository instrumentRepository)
+    public TradeService(ITradeRepository tradeRepository, IInstrumentRepository instrumentRepository, ITradingAccountRepository accountRepository)
     {
         _tradeRepository = tradeRepository;
         _instrumentRepository = instrumentRepository;
+        _accountRepository = accountRepository;
     }
 
     public async Task<PagedTradesDto> GetAllAsync(Guid userId, TradeFilterDto filter)
@@ -24,9 +26,11 @@ public class TradeService : ITradeService
             filter.FromDate, filter.ToDate,
             filter.InstrumentId, filter.Result, filter.TradeType);
 
+        var accounts = await _accountRepository.GetByUserIdAsync(userId);
+
         return new PagedTradesDto
         {
-            Trades = trades.Select(MapToDto).ToList(),
+            Trades = trades.Select(t => MapToDtoWithViolations(t, accounts)).ToList(),
             TotalCount = total,
             Page = filter.Page,
             PageSize = filter.PageSize,
@@ -37,7 +41,9 @@ public class TradeService : ITradeService
     public async Task<TradeDto?> GetByIdAsync(Guid id, Guid userId)
     {
         var trade = await _tradeRepository.GetByIdAsync(id, userId);
-        return trade != null ? MapToDto(trade) : null;
+        if (trade == null) return null;
+        var accounts = await _accountRepository.GetByUserIdAsync(userId);
+        return MapToDtoWithViolations(trade, accounts);
     }
 
     public async Task<TradeDto> CreateAsync(CreateTradeDto dto, Guid userId)
@@ -144,6 +150,30 @@ public class TradeService : ITradeService
         var reward = Math.Abs(tp - entry);
         if (risk == 0) return 0;
         return Math.Round(reward / risk, 2);
+    }
+
+    private TradeDto MapToDtoWithViolations(Trade trade, List<TradingAccount> accounts)
+    {
+        var dto = MapToDto(trade);
+        var account = trade.TradingAccountId.HasValue 
+            ? accounts.FirstOrDefault(a => a.Id == trade.TradingAccountId.Value)
+            : accounts.FirstOrDefault(a => a.IsDefault);
+
+        if (account != null && account.IsPropFirm)
+        {
+            if (trade.LotSize > account.MaxAllowedLotSize)
+                dto.RuleViolations.Add($"Max Lot Size Exceeded (>{account.MaxAllowedLotSize})");
+                
+            // Note: A true 40% rule calculation would require historical daily limit tracking.
+            // Here we use a simplified warning if they risked more than the absolute % limit of the balance
+            var maxRiskDollar = account.Balance * account.DailyDrawdownLimitPct / 100m * account.MaxRiskPerTradePctOfDailyLimit / 100m;
+            var tradeRiskDollar = account.Balance * trade.RiskPercentage / 100m;
+            
+            if (tradeRiskDollar > maxRiskDollar)
+                dto.RuleViolations.Add($"Violated {account.MaxRiskPerTradePctOfDailyLimit}% Rule (Risk > ${maxRiskDollar:F2})");
+        }
+
+        return dto;
     }
 
     private TradeDto MapToDto(Trade trade) => new TradeDto

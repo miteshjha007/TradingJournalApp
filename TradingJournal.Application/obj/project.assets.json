@@ -25,31 +25,6 @@
           "bin/placeholder/TradingJournal.Domain.dll": {}
         }
       }
-    },
-    "net10.0/win-x64": {
-      "BCrypt.Net-Next/4.1.0": {
-        "type": "package",
-        "compile": {
-          "lib/net10.0/BCrypt.Net-Next.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net10.0/BCrypt.Net-Next.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "TradingJournal.Domain/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v10.0",
-        "compile": {
-          "bin/placeholder/TradingJournal.Domain.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/TradingJournal.Domain.dll": {}
-        }
-      }
     }
   },
   "libraries": {
@@ -96,19 +71,21 @@
   },
   "packageFolders": {
     "C:\\Users\\coolm\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Mitesh\\TradingJournalApp\\TradingJournal.Application\\TradingJournal.Application.csproj",
+      "projectUniqueName": "D:\\Mitesh\\StockMarket\\TradingJournalApp\\TradingJournal.Application\\TradingJournal.Application.csproj",
       "projectName": "TradingJournal.Application",
-      "projectPath": "D:\\Mitesh\\TradingJournalApp\\TradingJournal.Application\\TradingJournal.Application.csproj",
+      "projectPath": "D:\\Mitesh\\StockMarket\\TradingJournalApp\\TradingJournal.Application\\TradingJournal.Application.csproj",
       "packagesPath": "C:\\Users\\coolm\\.nuget\\packages\\",
-      "outputPath": "D:\\Mitesh\\TradingJournalApp\\TradingJournal.Application\\obj\\",
+      "outputPath": "D:\\Mitesh\\StockMarket\\TradingJournalApp\\TradingJournal.Application\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
         "C:\\Users\\coolm\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -126,8 +103,8 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "D:\\Mitesh\\TradingJournalApp\\TradingJournal.Domain\\TradingJournal.Domain.csproj": {
-              "projectPath": "D:\\Mitesh\\TradingJournalApp\\TradingJournal.Domain\\TradingJournal.Domain.csproj"
+            "D:\\Mitesh\\StockMarket\\TradingJournalApp\\TradingJournal.Domain\\TradingJournal.Domain.csproj": {
+              "projectPath": "D:\\Mitesh\\StockMarket\\TradingJournalApp\\TradingJournal.Domain\\TradingJournal.Domain.csproj"
             }
           }
         }
@@ -164,26 +141,12 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-            "version": "[10.0.6, 10.0.6]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Runtime.win-x64",
-            "version": "[10.0.6, 10.0.6]"
-          },
-          {
-            "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
-            "version": "[10.0.6, 10.0.6]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.202/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -458,11 +421,6 @@
           "System.Xml.XPath": "(,4.3.32767]",
           "System.Xml.XPath.XDocument": "(,5.0.32767]"
         }
-      }
-    },
-    "runtimes": {
-      "win-x64": {
-        "#import": []
       }
     }
   }

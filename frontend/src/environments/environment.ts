@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://192.168.1.8/TradingJournalAPI/api'
+  apiUrl: 'http://localhost:5283/api'
 };

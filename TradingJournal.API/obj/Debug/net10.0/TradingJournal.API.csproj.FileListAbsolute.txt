@@ -147,3 +147,5 @@ D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.API\obj\Debug\net10.0\ref
 D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.API\obj\Debug\net10.0\TradingJournal.API.pdb
 D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.API\obj\Debug\net10.0\TradingJournal.API.genruntimeconfig.cache
 D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.API\obj\Debug\net10.0\ref\TradingJournal.API.dll
+D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.API\obj\Debug\net10.0\TradingJournal.API.sourcelink.json
+D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.API\bin\Debug\net10.0\web.config

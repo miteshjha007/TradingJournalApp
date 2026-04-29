@@ -9,6 +9,17 @@ public class TradingAccount : BaseEntity
     public string? Broker { get; set; }
     public bool IsDefault { get; set; } = false;
 
+    // Prop Firm Configurations
+    public bool IsPropFirm { get; set; } = false;
+    public decimal DailyDrawdownLimitPct { get; set; } = 3.0m;
+    public decimal MaxOverallLossPct { get; set; } = 6.0m;
+    public decimal ProfitTargetPct { get; set; } = 10.0m;
+    public decimal ProfitSplitPct { get; set; } = 80.0m;
+    public decimal MaxRiskPerTradePctOfDailyLimit { get; set; } = 40.0m; // The 40% rule
+    public decimal MaxAllowedLotSize { get; set; } = 5.0m;
+    public bool UseDynamicEquity { get; set; } = true;
+    public bool Has5xLotRule { get; set; } = true;
+
     // Navigation
     public User User { get; set; } = null!;
     public ICollection<Trade> Trades { get; set; } = new List<Trade>();

@@ -17,3 +17,4 @@ D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.Infrastructure\obj\Debug\
 D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.Infrastructure\obj\Debug\net10.0\TradingJournal.Infrastructure.pdb
 D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.Infrastructure\obj\Debug\net10.0\TradingJournal.Infrastructure.genruntimeconfig.cache
 D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.Infrastructure\obj\Debug\net10.0\ref\TradingJournal.Infrastructure.dll
+D:\Mitesh\StockMarket\TradingJournalApp\TradingJournal.Infrastructure\obj\Debug\net10.0\TradingJournal.Infrastructure.sourcelink.json

@@ -14,6 +14,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Note> Notes => Set<Note>();
     public DbSet<Alert> Alerts => Set<Alert>();
     public DbSet<TradingAccount> TradingAccounts => Set<TradingAccount>();
+    public DbSet<Announcement> Announcements => Set<Announcement>();
+    public DbSet<ForumMessage> ForumMessages => Set<ForumMessage>();
 
     protected override void OnModelCreating(ModelBuilder mb)
     {
@@ -25,6 +27,8 @@ public class ApplicationDbContext : DbContext
         mb.Entity<Trade>().HasQueryFilter(e => !e.IsDeleted);
         mb.Entity<Note>().HasQueryFilter(e => !e.IsDeleted);
         mb.Entity<TradingAccount>().HasQueryFilter(e => !e.IsDeleted);
+        mb.Entity<Announcement>().HasQueryFilter(e => !e.IsDeleted);
+        mb.Entity<ForumMessage>().HasQueryFilter(e => !e.IsDeleted);
 
         // User
         mb.Entity<User>(e =>
@@ -92,7 +96,46 @@ public class ApplicationDbContext : DbContext
             e.HasKey(x => x.Id);
             e.HasIndex(x => x.UserId);
             e.Property(x => x.Balance).HasColumnType("decimal(18,2)");
+            e.Property(x => x.DailyDrawdownLimitPct).HasColumnType("decimal(5,2)");
+            e.Property(x => x.MaxOverallLossPct).HasColumnType("decimal(5,2)");
+            e.Property(x => x.ProfitTargetPct).HasColumnType("decimal(5,2)");
+            e.Property(x => x.ProfitSplitPct).HasColumnType("decimal(5,2)");
+            e.Property(x => x.MaxRiskPerTradePctOfDailyLimit).HasColumnType("decimal(5,2)");
+            e.Property(x => x.MaxAllowedLotSize).HasColumnType("decimal(18,4)");
             e.HasOne(x => x.User).WithMany(u => u.TradingAccounts).HasForeignKey(x => x.UserId);
+        });
+
+        // Announcement
+        mb.Entity<Announcement>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => x.AdminId);
+            e.HasIndex(x => x.CreatedAt).IsDescending();
+            e.Property(x => x.Title).HasMaxLength(255).IsRequired();
+            e.Property(x => x.Priority).HasConversion<int>();
+            e.HasOne(x => x.Admin).WithMany(u => u.Announcements).HasForeignKey(x => x.AdminId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ForumMessage
+        mb.Entity<ForumMessage>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => x.AuthorId);
+            e.HasIndex(x => x.ReceiverId);
+            e.HasIndex(x => x.SenderId);
+            e.HasIndex(x => x.ChannelType);
+            e.HasIndex(x => x.CreatedAt).IsDescending();
+            e.Property(x => x.ChannelType).HasConversion<int>();
+            
+            e.HasOne(x => x.Author)
+             .WithMany(u => u.ForumMessages)
+             .HasForeignKey(x => x.AuthorId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(x => x.ParentMessage)
+             .WithMany(m => m.Replies)
+             .HasForeignKey(x => x.ParentMessageId)
+             .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

@@ -14,6 +14,7 @@ const ALL_SECTIONS = [
   { key: 'Notes', icon: '📌' },
   { key: 'Risk Tool', icon: '⚖️' },
   { key: 'Alerts', icon: '🔔' },
+  { key: 'Forum', icon: '💬' },
 ];
 
 @Component({

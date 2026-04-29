@@ -1,0 +1,30 @@
+<div class="forum-shell">
+  <!-- Header -->
+  <div class="forum-header">
+    <div>
+      <h1 class="page-title-h1">💬 Community Forum</h1>
+      <p class="page-desc">Connect with other traders, read announcements, and share your journey.</p>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="forum-tabs">
+    <button class="forum-tab" [class.active]="activeTab === 'announcements'" (click)="setTab('announcements')">
+      📢 Announcements
+    </button>
+    <button class="forum-tab" [class.active]="activeTab === 'public'" (click)="setTab('public')">
+      🌐 Public Forum
+    </button>
+    <button class="forum-tab" [class.active]="activeTab === 'dm'" (click)="setTab('dm')">
+      💌 Direct Messages
+      <span *ngIf="chatService.globalUnreadCount() > 0" class="unread-dot">{{ chatService.globalUnreadCount() }}</span>
+    </button>
+  </div>
+
+  <!-- Panel Container -->
+  <div class="forum-panel">
+    <app-announcements *ngIf="activeTab === 'announcements'"></app-announcements>
+    <app-public-forum *ngIf="activeTab === 'public'"></app-public-forum>
+    <app-direct-messages *ngIf="activeTab === 'dm'"></app-direct-messages>
+  </div>
+</div>

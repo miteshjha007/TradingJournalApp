@@ -17,6 +17,12 @@ public class DashboardSummaryDto
     public bool DailyLossLimitBreached { get; set; }
     public decimal DailyLossLimit { get; set; }
     public decimal AccountBalance { get; set; }
+    
+    // Prop Firm metrics
+    public bool IsPropFirm { get; set; }
+    public decimal ProfitTarget { get; set; }
+    public decimal ProfitSplit { get; set; }
+
     public List<MonthlyPLDto> MonthlyPL { get; set; } = new();
     public List<EquityCurvePointDto> EquityCurve { get; set; } = new();
     public List<InstrumentPerformanceDto> InstrumentPerformance { get; set; } = new();

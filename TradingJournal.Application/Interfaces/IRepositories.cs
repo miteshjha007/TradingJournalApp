@@ -47,3 +47,13 @@ public interface IAlertRepository
     Task<Alert?> GetByUserIdAsync(Guid userId);
     Task<Alert> UpsertAsync(Alert alert);
 }
+
+public interface ITradingAccountRepository
+{
+    Task<List<TradingAccount>> GetByUserIdAsync(Guid userId);
+    Task<TradingAccount?> GetByIdAsync(Guid id, Guid userId);
+    Task<TradingAccount> CreateAsync(TradingAccount account);
+    Task<TradingAccount> UpdateAsync(TradingAccount account);
+    Task DeleteAsync(Guid id, Guid userId);
+    Task<TradingAccount?> GetDefaultByUserIdAsync(Guid userId);
+}

@@ -1,0 +1,77 @@
+<!-- Public Forum Channel -->
+<div class="channel-layout">
+
+  <!-- Header -->
+  <div class="channel-header">
+    <div class="channel-title">
+      <span>🌐</span>
+      <div>
+        <h2>Public Forum</h2>
+        <p>Share strategies, insights, and market talk</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div #scrollContainer class="channel-body chat-scroll">
+    <div *ngIf="loading" class="loading-state">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <div *ngIf="!loading && chatService.activeForumMessages().length === 0" class="empty-state">
+      <div class="empty-icon">💬</div>
+      <h3>No messages yet</h3>
+      <p>Be the first to say something!</p>
+    </div>
+
+    <div *ngFor="let msg of chatService.activeForumMessages()" class="forum-message">
+      <!-- Avatar -->
+      <div class="msg-avatar">{{ msg.authorInitials }}</div>
+
+      <div class="msg-content-wrap">
+        <!-- Meta -->
+        <div class="msg-meta">
+          <span class="msg-author" [class.is-me]="msg.authorId === currentUserId">
+            {{ msg.authorId === currentUserId ? 'You' : msg.authorName }}
+          </span>
+          <span class="msg-time">{{ msg.createdAt | date:'shortTime' }}</span>
+          <span *ngIf="msg.isEdited" class="msg-edited">(edited)</span>
+        </div>
+
+        <!-- Reply Context -->
+        <div *ngIf="msg.parentMessageId" class="reply-context">
+          ↩ Reply
+        </div>
+
+        <!-- Content -->
+        <div class="msg-text">{{ msg.content }}</div>
+
+        <!-- Actions -->
+        <div class="msg-actions">
+          <button (click)="setReply(msg)" class="action-btn">↩ Reply</button>
+          <button *ngIf="msg.authorId === currentUserId || isAdmin"
+                  (click)="deleteMessage(msg.id)" class="action-btn danger">🗑 Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reply Banner -->
+  <div *ngIf="replyingTo" class="reply-banner">
+    <span>↩ Replying to <strong>{{ replyingTo.authorName }}</strong>: {{ replyingTo.content | slice:0:60 }}...</span>
+    <button (click)="setReply(null)" class="close-reply">✕</button>
+  </div>
+
+  <!-- Input -->
+  <div class="chat-input-area">
+    <div class="chat-input-box">
+      <textarea
+        [(ngModel)]="messageContent"
+        placeholder="Write a message... (Enter to send, Shift+Enter for new line)"
+        rows="1"
+        class="chat-textarea"
+        (keydown.enter)="handleKeydown($event)"></textarea>
+      <button (click)="sendMessage()" class="send-btn" [disabled]="!messageContent.trim()">➤</button>
+    </div>
+  </div>
+</div>

@@ -128,6 +128,23 @@ public class DashboardController : ControllerBase
         }
     }
 
+    /// <summary>Calculate prop-firm specific lot size (5x rule, drawdown, pip value)</summary>
+    [HttpPost("prop-risk-calculate")]
+    public async Task<ActionResult<PropRiskResultDto>> CalculatePropRisk([FromBody] PropRiskCalculationDto dto)
+    {
+        try
+        {
+            _logger.LogInformation("Calculating prop risk for user: {UserId}", UserId);
+            var result = await _dashboardService.CalculatePropRiskAsync(dto, UserId);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error calculating prop risk for user: {UserId}", UserId);
+            return StatusCode(500, new { error = "An error occurred while calculating prop firm risk." });
+        }
+    }
+
     /// <summary>Get alert settings</summary>
     [HttpGet("alerts")]
     public async Task<ActionResult<AlertDto?>> GetAlert()
