@@ -1,0 +1,6 @@
+D:\Mitesh\TradingJournalApp\publish\TradingJournal.Application.dll
+D:\Mitesh\TradingJournalApp\publish\TradingJournal.Application.deps.json
+D:\Mitesh\TradingJournalApp\publish\TradingJournal.Application.pdb
+D:\Mitesh\TradingJournalApp\publish\BCrypt.Net-Next.dll
+D:\Mitesh\TradingJournalApp\publish\TradingJournal.Domain.dll
+D:\Mitesh\TradingJournalApp\publish\TradingJournal.Domain.pdb

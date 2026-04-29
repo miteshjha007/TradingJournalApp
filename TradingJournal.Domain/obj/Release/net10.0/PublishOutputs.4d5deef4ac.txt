@@ -1,0 +1,3 @@
+D:\Mitesh\TradingJournalApp\publish\TradingJournal.Domain.dll
+D:\Mitesh\TradingJournalApp\publish\TradingJournal.Domain.deps.json
+D:\Mitesh\TradingJournalApp\publish\TradingJournal.Domain.pdb

@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "gvj6mwT4XTM=",
+  "dgSpecHash": "SOLvsGLaXQk=",
   "success": true,
-  "projectFilePath": "D:\\Mitesh\\StockMarket\\TradingJournalApp\\TradingJournal.Domain\\TradingJournal.Domain.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "D:\\Mitesh\\TradingJournalApp\\TradingJournal.Domain\\TradingJournal.Domain.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\coolm\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\10.0.6\\microsoft.netcore.app.runtime.win-x64.10.0.6.nupkg.sha512",
+    "C:\\Users\\coolm\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\10.0.6\\microsoft.windowsdesktop.app.runtime.win-x64.10.0.6.nupkg.sha512",
+    "C:\\Users\\coolm\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\10.0.6\\microsoft.aspnetcore.app.runtime.win-x64.10.0.6.nupkg.sha512"
+  ],
   "logs": []
 }

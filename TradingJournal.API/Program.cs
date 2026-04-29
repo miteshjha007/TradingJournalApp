@@ -97,8 +97,20 @@ await app.Services.MigrateAndSeedAsync();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseSerilogRequestLogging();
 
+
+var pathBase = "/TradingJournalAPI";
+
+app.UsePathBase(pathBase);
+
 app.UseSwagger();
-app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Trading Journal API v1"));
+
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint($"{pathBase}/swagger/v1/swagger.json", "Trading Journal API v1");
+    c.RoutePrefix = "swagger";
+});
+//app.UseSwagger();
+//app.UseSwaggerUI(c => c.SwaggerEndpoint("/TradingJournalAPI/swagger/v1/swagger.json", "Trading Journal API v1"));
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAngular");

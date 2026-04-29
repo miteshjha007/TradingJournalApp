@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Mitesh\\Projects\\TradingJournalApp\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{2BB43292-D609-B1C2-9E80-7A7148EB0270}|TradingJournal.API\\TradingJournal.API.csproj|d:\\mitesh\\projects\\tradingjournalapp\\tradingjournal.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2BB43292-D609-B1C2-9E80-7A7148EB0270}|TradingJournal.API\\TradingJournal.API.csproj|solutionrelative:tradingjournal.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2BB43292-D609-B1C2-9E80-7A7148EB0270}|TradingJournal.API\\TradingJournal.API.csproj|d:\\mitesh\\projects\\tradingjournalapp\\tradingjournal.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{2BB43292-D609-B1C2-9E80-7A7148EB0270}|TradingJournal.API\\TradingJournal.API.csproj|solutionrelative:tradingjournal.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.API\\appsettings.json",
+              "RelativeDocumentMoniker": "TradingJournal.API\\appsettings.json",
+              "ToolTip": "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.API\\appsettings.json",
+              "RelativeToolTip": "TradingJournal.API\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-04-23T07:10:57.222Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.API\\Program.cs",
+              "RelativeDocumentMoniker": "TradingJournal.API\\Program.cs",
+              "ToolTip": "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.API\\Program.cs",
+              "RelativeToolTip": "TradingJournal.API\\Program.cs",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAAAG8AAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-23T06:57:18.242Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

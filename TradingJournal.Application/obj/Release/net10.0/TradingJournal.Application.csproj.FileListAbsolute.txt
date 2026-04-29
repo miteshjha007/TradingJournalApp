@@ -1,0 +1,16 @@
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\bin\Release\net10.0\TradingJournal.Application.deps.json
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\bin\Release\net10.0\TradingJournal.Application.dll
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\bin\Release\net10.0\TradingJournal.Application.pdb
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\bin\Release\net10.0\TradingJournal.Domain.dll
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\bin\Release\net10.0\TradingJournal.Domain.pdb
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\obj\Release\net10.0\TradingJournal.Application.csproj.AssemblyReference.cache
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\obj\Release\net10.0\TradingJournal.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\obj\Release\net10.0\TradingJournal.Application.AssemblyInfoInputs.cache
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\obj\Release\net10.0\TradingJournal.Application.AssemblyInfo.cs
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\obj\Release\net10.0\TradingJournal.Application.csproj.CoreCompileInputs.cache
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\obj\Release\net10.0\TradingJournal.Application.sourcelink.json
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\obj\Release\net10.0\TradingJ.AE92BF48.Up2Date
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\obj\Release\net10.0\TradingJournal.Application.dll
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\obj\Release\net10.0\refint\TradingJournal.Application.dll
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\obj\Release\net10.0\TradingJournal.Application.pdb
+D:\Mitesh\TradingJournalApp\TradingJournal.Application\obj\Release\net10.0\ref\TradingJournal.Application.dll
