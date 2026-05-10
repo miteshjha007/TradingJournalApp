@@ -11,6 +11,11 @@ public class TradingAccount : BaseEntity
 
     // Prop Firm Configurations
     public bool IsPropFirm { get; set; } = false;
+    public string? PropFirmName { get; set; }   // e.g. "Funding Pips", "FTMO", "The5ers"
+    public string? PropFirmPlan { get; set; }   // e.g. "$10,000 — 2 Step"
+    public int MinTradingDays { get; set; } = 0; // Minimum days required to pass challenge
+    public bool NewsTradeAllowed { get; set; } = true;
+    public bool WeekendHoldingAllowed { get; set; } = false;
     public decimal DailyDrawdownLimitPct { get; set; } = 3.0m;
     public decimal MaxOverallLossPct { get; set; } = 6.0m;
     public decimal ProfitTargetPct { get; set; } = 10.0m;

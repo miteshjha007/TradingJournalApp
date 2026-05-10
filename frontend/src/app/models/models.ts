@@ -97,6 +97,11 @@ export interface TradingAccount {
   broker?: string;
   isDefault: boolean;
   isPropFirm: boolean;
+  propFirmName?: string;
+  propFirmPlan?: string;
+  minTradingDays: number;
+  newsTradeAllowed: boolean;
+  weekendHoldingAllowed: boolean;
   dailyDrawdownLimitPct: number;
   maxOverallLossPct: number;
   profitTargetPct: number;
@@ -116,6 +121,11 @@ export interface CreateTradingAccount {
   broker?: string;
   isDefault: boolean;
   isPropFirm: boolean;
+  propFirmName?: string;
+  propFirmPlan?: string;
+  minTradingDays: number;
+  newsTradeAllowed: boolean;
+  weekendHoldingAllowed: boolean;
   dailyDrawdownLimitPct: number;
   maxOverallLossPct: number;
   profitTargetPct: number;
@@ -124,6 +134,60 @@ export interface CreateTradingAccount {
   maxAllowedLotSize: number;
   useDynamicEquity: boolean;
   has5xLotRule: boolean;
+}
+
+// Prop Firm Rule Engine Models
+export interface PropFirmStatus {
+  firmName: string;
+  planName: string;
+  accountBalance: number;
+  // Daily Drawdown
+  dailyLossUsed: number;
+  dailyLossLimit: number;
+  dailyLossUsedPct: number;
+  remainingDailyBudget: number;
+  // Overall Drawdown
+  totalDrawdown: number;
+  maxDrawdownLimit: number;
+  totalDrawdownPct: number;
+  remainingOverallBudget: number;
+  // Profit Target
+  profitEarned: number;
+  profitTarget: number;
+  profitEarnedPct: number;
+  estimatedPayout: number;
+  // Trading Days
+  tradingDaysCompleted: number;
+  minTradingDaysRequired: number;
+  // Rule Flags
+  newsTradeAllowed: boolean;
+  weekendHoldingAllowed: boolean;
+  has5xLotRule: boolean;
+  useDynamicEquity: boolean;
+  // Status
+  accountStatus: 'SAFE' | 'WARNING' | 'CRITICAL' | 'BREACHED_DAILY' | 'BREACHED_OVERALL' | 'PASSED';
+  dailyLimitBreached: boolean;
+  overallLimitBreached: boolean;
+  profitTargetReached: boolean;
+  activeWarnings: string[];
+  statusColor: string;
+}
+
+export interface PropFirmPreset {
+  firmName: string;
+  planName: string;
+  accountSize: number;
+  dailyDrawdownLimitPct: number;
+  maxOverallLossPct: number;
+  profitTargetPct: number;
+  profitSplitPct: number;
+  minTradingDays: number;
+  maxAllowedLotSize: number;
+  has5xLotRule: boolean;
+  useDynamicEquity: boolean;
+  newsTradeAllowed: boolean;
+  weekendHoldingAllowed: boolean;
+  maxRiskPerTradePctOfDailyLimit: number;
 }
 
 export interface AiInsight { category: string; severity: string; title: string; message: string; recommendation: string; icon: string; }

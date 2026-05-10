@@ -1,7 +1,8 @@
 import { Component, OnInit, signal, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule, DecimalPipe, CurrencyPipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { DashboardSummary } from '../../models/models';
+import { ToastService } from '../../services/toast.service';
+import { DashboardSummary, PropFirmStatus } from '../../models/models';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -99,37 +100,123 @@ Chart.register(...registerables);
           </div>
         </div>
 
-        <!-- Prop Firm Widgets -->
-        @if (dashboard()?.isPropFirm) {
-          <div class="section-card" style="margin-top:1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-              <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;"><span style="font-size:1.5rem;">🏦</span> Prop Firm Dashboard</h3>
-              <div style="background:var(--accent); color:white; padding:0.4rem 1rem; border-radius:20px; font-weight:600; font-size:0.9rem;">
-                Estimated Payout: <span style="font-size:1.1rem;">{{ getEstimatedPayout() | currency }}</span> 
-                <span style="font-size:0.75rem; opacity:0.8;">({{ dashboard()?.profitSplit }}% Split)</span>
+        <!-- Prop Firm Live Rule Engine Card -->
+        @if (propFirmStatus()) {
+          <div class="prop-firm-engine-card" [style.border-color]="propFirmStatus()!.statusColor + '44'">
+            <!-- Header -->
+            <div class="pfe-header">
+              <div class="pfe-title-row">
+                <span style="font-size:1.4rem">🏦</span>
+                <div>
+                  <div class="pfe-firm-name">{{ propFirmStatus()!.firmName }}</div>
+                  <div class="pfe-plan-name">{{ propFirmStatus()!.planName }}</div>
+                </div>
+              </div>
+              <div class="pfe-status-badge" [style.background]="propFirmStatus()!.statusColor">
+                @switch (propFirmStatus()!.accountStatus) {
+                  @case ('SAFE')            { <span>&#x1F7E2; SAFE TO TRADE</span> }
+                  @case ('WARNING')         { <span>&#x1F7E1; WARNING</span> }
+                  @case ('CRITICAL')        { <span>&#x1F7E0; CRITICAL</span> }
+                  @case ('BREACHED_DAILY')  { <span>&#x1F534; STOP &mdash; DAILY LIMIT</span> }
+                  @case ('BREACHED_OVERALL'){ <span>&#x1F534; ACCOUNT AT RISK</span> }
+                  @case ('PASSED')          { <span>&#x1F389; CHALLENGE PASSED!</span> }
+                }
               </div>
             </div>
-            
-            <div class="period-grid">
-              <div class="period-card" style="position:relative; overflow:hidden;">
-                <span class="period-label">Profit Target ({{ dashboard()?.profitTarget }}%)</span>
-                <span class="period-value" [class.positive-text]="(dashboard()?.totalProfitLoss ?? 0) > 0">
-                  {{ dashboard()?.totalProfitLoss | currency }} / {{ getProfitTargetDollar() | currency }}
-                </span>
-                <div style="width:100%; background:var(--border); height:6px; border-radius:3px; margin-top:0.5rem;">
-                  <div [style.width]="getProfitProgress() + '%'" style="background:var(--accent); height:100%; border-radius:3px; max-width:100%;"></div>
-                </div>
+
+            <!-- Active Warnings -->
+            @if (propFirmStatus()!.activeWarnings.length > 0) {
+              <div class="pfe-warnings">
+                @for (w of propFirmStatus()!.activeWarnings; track w) {
+                  <div class="pfe-warning-item" [style.border-left-color]="propFirmStatus()!.statusColor">{{ w }}</div>
+                }
               </div>
-              
-              <div class="period-card" style="position:relative; overflow:hidden;">
-                <span class="period-label">Daily Loss Buffer ({{ dashboard()?.dailyLossLimit | currency }})</span>
-                <span class="period-value" [class.negative-text]="(dashboard()?.todayPL ?? 0) < 0">
-                  {{ dashboard()?.todayPL | currency }}
-                </span>
-                <div style="width:100%; background:var(--border); height:6px; border-radius:3px; margin-top:0.5rem;">
-                  <div [style.width]="getDailyLossProgress() + '%'" [style.background]="getDailyLossProgress() > 80 ? '#ef4444' : '#f59e0b'" style="height:100%; border-radius:3px; max-width:100%;"></div>
+            }
+
+            <!-- Progress Bars Grid -->
+            <div class="pfe-bars-grid">
+              <!-- Daily Loss -->
+              <div class="pfe-bar-item">
+                <div class="pfe-bar-header">
+                  <span>&#x1F4C9; Daily Loss Used</span>
+                  <span class="pfe-bar-value" [style.color]="propFirmStatus()!.dailyLossUsedPct >= 70 ? propFirmStatus()!.statusColor : ''">
+                    &#36;{{ propFirmStatus()!.dailyLossUsed | number:'1.2-2' }} / &#36;{{ propFirmStatus()!.dailyLossLimit | number:'1.2-2' }}
+                  </span>
                 </div>
+                <div class="pfe-progress-track">
+                  <div class="pfe-progress-fill"
+                    [style.width]="min100(propFirmStatus()!.dailyLossUsedPct) + '%'"
+                    [style.background]="getBarColor(propFirmStatus()!.dailyLossUsedPct)">
+                  </div>
+                </div>
+                <div class="pfe-bar-sub">{{ propFirmStatus()!.dailyLossUsedPct | number:'1.1-1' }}% used &nbsp;&middot;&nbsp; &#36;{{ propFirmStatus()!.remainingDailyBudget | number:'1.2-2' }} remaining</div>
               </div>
+
+              <!-- Overall Drawdown -->
+              <div class="pfe-bar-item">
+                <div class="pfe-bar-header">
+                  <span>&#x1F4CA; Overall Drawdown</span>
+                  <span class="pfe-bar-value" [style.color]="propFirmStatus()!.totalDrawdownPct >= 70 ? propFirmStatus()!.statusColor : ''">
+                    &#36;{{ propFirmStatus()!.totalDrawdown | number:'1.2-2' }} / &#36;{{ propFirmStatus()!.maxDrawdownLimit | number:'1.2-2' }}
+                  </span>
+                </div>
+                <div class="pfe-progress-track">
+                  <div class="pfe-progress-fill"
+                    [style.width]="min100(propFirmStatus()!.totalDrawdownPct) + '%'"
+                    [style.background]="getBarColor(propFirmStatus()!.totalDrawdownPct)">
+                  </div>
+                </div>
+                <div class="pfe-bar-sub">{{ propFirmStatus()!.totalDrawdownPct | number:'1.1-1' }}% used &nbsp;&middot;&nbsp; &#36;{{ propFirmStatus()!.remainingOverallBudget | number:'1.2-2' }} remaining</div>
+              </div>
+
+              <!-- Profit Target -->
+              <div class="pfe-bar-item">
+                <div class="pfe-bar-header">
+                  <span>&#x1F3AF; Profit Target</span>
+                  <span class="pfe-bar-value positive-text">
+                    &#36;{{ propFirmStatus()!.profitEarned | number:'1.2-2' }} / &#36;{{ propFirmStatus()!.profitTarget | number:'1.2-2' }}
+                  </span>
+                </div>
+                <div class="pfe-progress-track">
+                  <div class="pfe-progress-fill"
+                    [style.width]="min100(propFirmStatus()!.profitEarnedPct) + '%'"
+                    style="background: #10b981">
+                  </div>
+                </div>
+                <div class="pfe-bar-sub">{{ propFirmStatus()!.profitEarnedPct | number:'1.1-1' }}% achieved &nbsp;&middot;&nbsp; Est. payout: &#36;{{ propFirmStatus()!.estimatedPayout | number:'1.2-2' }}</div>
+              </div>
+
+              <!-- Trading Days -->
+              @if (propFirmStatus()!.minTradingDaysRequired > 0) {
+                <div class="pfe-bar-item">
+                  <div class="pfe-bar-header">
+                    <span>📅 Trading Days</span>
+                    <span class="pfe-bar-value">{{ propFirmStatus()!.tradingDaysCompleted }} / {{ propFirmStatus()!.minTradingDaysRequired }} days</span>
+                  </div>
+                  <div class="pfe-progress-track">
+                    <div class="pfe-progress-fill"
+                      [style.width]="min100((propFirmStatus()!.tradingDaysCompleted / propFirmStatus()!.minTradingDaysRequired) * 100) + '%'"
+                      style="background:#6366f1">
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Rule Flags Row -->
+            <div class="pfe-flags">
+              <span class="pfe-flag" [class.flag-ok]="propFirmStatus()!.newsTradeAllowed" [class.flag-no]="!propFirmStatus()!.newsTradeAllowed">
+                {{ propFirmStatus()!.newsTradeAllowed ? 'News Trading OK' : 'No News Trading' }}
+              </span>
+              <span class="pfe-flag" [class.flag-ok]="propFirmStatus()!.weekendHoldingAllowed" [class.flag-no]="!propFirmStatus()!.weekendHoldingAllowed">
+                {{ propFirmStatus()!.weekendHoldingAllowed ? 'Weekend Hold OK' : 'No Weekend Hold' }}
+              </span>
+              <span class="pfe-flag" [class.flag-ok]="!propFirmStatus()!.has5xLotRule" [class.flag-no]="propFirmStatus()!.has5xLotRule">
+                {{ propFirmStatus()!.has5xLotRule ? '5x Lot Rule ON' : 'No 5x Rule' }}
+              </span>
+              <span class="pfe-flag" [class.flag-ok]="propFirmStatus()!.useDynamicEquity">
+                {{ propFirmStatus()!.useDynamicEquity ? 'Dynamic Equity' : 'Static Equity' }}
+              </span>
             </div>
           </div>
         }
@@ -195,12 +282,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   @ViewChild('monthlyChart') monthlyChartRef!: ElementRef;
 
   dashboard = signal<DashboardSummary | null>(null);
+  propFirmStatus = signal<PropFirmStatus | null>(null);
   loading = signal(true);
   drawdownWarning = signal(false);
   private equityChartInstance: Chart | null = null;
   private monthlyChartInstance: Chart | null = null;
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, private toast: ToastService) {}
 
   ngOnInit(): void {
     this.api.getDashboard().subscribe({
@@ -211,6 +299,27 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         setTimeout(() => this.initCharts(), 100);
       },
       error: () => this.loading.set(false)
+    });
+
+    // Load prop firm status and fire toast warnings
+    this.api.getPropFirmStatus().subscribe({
+      next: (status) => {
+        this.propFirmStatus.set(status);
+        if (!status) return;
+
+        if (status.accountStatus === 'BREACHED_OVERALL') {
+          this.toast.show('error', '🔴 ACCOUNT AT RISK: Overall drawdown limit breached!', 'Prop Firm Alert', 0);
+        } else if (status.accountStatus === 'BREACHED_DAILY') {
+          this.toast.show('error', '🔴 STOP TRADING: Daily drawdown limit breached!', 'Prop Firm Alert', 0);
+        } else if (status.accountStatus === 'PASSED') {
+          this.toast.show('success', '🎉 Challenge PASSED! Request your payout now!', 'Congratulations!', 8000);
+        } else if (status.accountStatus === 'CRITICAL') {
+          this.toast.show('warning', `🟠 CRITICAL: ${status.dailyLossUsedPct.toFixed(1)}% daily limit used — trade carefully!`, 'Prop Firm Alert', 6000);
+        } else if (status.accountStatus === 'WARNING') {
+          this.toast.warning(`⚠️ ${status.dailyLossUsedPct.toFixed(1)}% of daily drawdown used. Remaining: $${status.remainingDailyBudget.toFixed(2)}`, 'Prop Firm Warning');
+        }
+      },
+      error: () => {} // Non-critical — silently ignore
     });
   }
 
@@ -240,6 +349,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const db = this.dashboard();
     if (!db || db.totalProfitLoss <= 0) return 0;
     return db.totalProfitLoss * (db.profitSplit / 100);
+  }
+
+  /** Cap progress bar width at 100% */
+  min100(val: number): number { return Math.min(val, 100); }
+
+  /** Traffic-light color for progress bars */
+  getBarColor(pct: number): string {
+    if (pct >= 90) return '#dc2626';
+    if (pct >= 70) return '#f97316';
+    if (pct >= 50) return '#f59e0b';
+    return '#10b981';
   }
 
   private initCharts(): void {

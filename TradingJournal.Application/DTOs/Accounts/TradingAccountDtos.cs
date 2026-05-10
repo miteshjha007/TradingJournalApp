@@ -9,9 +9,14 @@ public class TradingAccountDto
     public string Currency { get; set; } = "USD";
     public string? Broker { get; set; }
     public bool IsDefault { get; set; }
-    
+
     // Prop Firm Configurations
     public bool IsPropFirm { get; set; }
+    public string? PropFirmName { get; set; }
+    public string? PropFirmPlan { get; set; }
+    public int MinTradingDays { get; set; }
+    public bool NewsTradeAllowed { get; set; }
+    public bool WeekendHoldingAllowed { get; set; }
     public decimal DailyDrawdownLimitPct { get; set; }
     public decimal MaxOverallLossPct { get; set; }
     public decimal ProfitTargetPct { get; set; }
@@ -20,7 +25,7 @@ public class TradingAccountDto
     public decimal MaxAllowedLotSize { get; set; }
     public bool UseDynamicEquity { get; set; }
     public bool Has5xLotRule { get; set; }
-    
+
     public DateTime CreatedAt { get; set; }
 }
 
@@ -32,8 +37,13 @@ public class CreateTradingAccountDto
     public string Currency { get; set; } = "USD";
     public string? Broker { get; set; }
     public bool IsDefault { get; set; }
-    
+
     public bool IsPropFirm { get; set; }
+    public string? PropFirmName { get; set; }
+    public string? PropFirmPlan { get; set; }
+    public int MinTradingDays { get; set; } = 0;
+    public bool NewsTradeAllowed { get; set; } = true;
+    public bool WeekendHoldingAllowed { get; set; } = false;
     public decimal DailyDrawdownLimitPct { get; set; } = 3.0m;
     public decimal MaxOverallLossPct { get; set; } = 6.0m;
     public decimal ProfitTargetPct { get; set; } = 10.0m;

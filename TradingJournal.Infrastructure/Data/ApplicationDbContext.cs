@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<TradingAccount> TradingAccounts => Set<TradingAccount>();
     public DbSet<Announcement> Announcements => Set<Announcement>();
     public DbSet<ForumMessage> ForumMessages => Set<ForumMessage>();
+    public DbSet<PropFirmPreset> PropFirmPresets => Set<PropFirmPreset>();
 
     protected override void OnModelCreating(ModelBuilder mb)
     {
@@ -95,6 +96,9 @@ public class ApplicationDbContext : DbContext
         {
             e.HasKey(x => x.Id);
             e.HasIndex(x => x.UserId);
+            e.Property(x => x.Name).HasMaxLength(100).IsRequired();
+            e.Property(x => x.PropFirmName).HasMaxLength(100);
+            e.Property(x => x.PropFirmPlan).HasMaxLength(150);
             e.Property(x => x.Balance).HasColumnType("decimal(18,2)");
             e.Property(x => x.DailyDrawdownLimitPct).HasColumnType("decimal(5,2)");
             e.Property(x => x.MaxOverallLossPct).HasColumnType("decimal(5,2)");
@@ -104,6 +108,24 @@ public class ApplicationDbContext : DbContext
             e.Property(x => x.MaxAllowedLotSize).HasColumnType("decimal(18,4)");
             e.HasOne(x => x.User).WithMany(u => u.TradingAccounts).HasForeignKey(x => x.UserId);
         });
+
+        // PropFirmPreset
+        mb.Entity<PropFirmPreset>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => new { x.FirmName, x.PlanName }).IsUnique();
+            e.Property(x => x.FirmName).HasMaxLength(100).IsRequired();
+            e.Property(x => x.PlanName).HasMaxLength(150).IsRequired();
+            e.Property(x => x.AccountSize).HasColumnType("decimal(18,2)");
+            e.Property(x => x.DailyDrawdownLimitPct).HasColumnType("decimal(5,2)");
+            e.Property(x => x.MaxOverallLossPct).HasColumnType("decimal(5,2)");
+            e.Property(x => x.ProfitTargetPct).HasColumnType("decimal(5,2)");
+            e.Property(x => x.ProfitSplitPct).HasColumnType("decimal(5,2)");
+            e.Property(x => x.MaxAllowedLotSize).HasColumnType("decimal(18,4)");
+            e.Property(x => x.MaxRiskPerTradePctOfDailyLimit).HasColumnType("decimal(5,2)");
+        });
+
+
 
         // Announcement
         mb.Entity<Announcement>(e =>

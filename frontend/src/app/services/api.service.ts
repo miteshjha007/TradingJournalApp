@@ -9,7 +9,8 @@ import {
   DashboardSummary, CalendarDay, PerformanceMetrics, DrawdownInfo,
   AiAnalysis, RiskCalculation, RiskResult, PropRiskCalculation, PropRiskResult, Alert,
   UserInfo, AdminCreateUser, TradingAccount, CreateTradingAccount,
-  Announcement, CreateAnnouncement, ForumMessage, CreateForumMessage, DirectMessage, UnreadCount
+  Announcement, CreateAnnouncement, ForumMessage, CreateForumMessage, DirectMessage, UnreadCount,
+  PropFirmStatus, PropFirmPreset
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -142,6 +143,23 @@ export class ApiService {
   }
   upsertAlert(data: Alert): Observable<Alert> {
     return this.http.post<Alert>(`${environment.apiUrl}/dashboard/alerts`, data);
+  }
+
+  // Prop Firm Rule Engine
+  getPropFirmStatus(): Observable<PropFirmStatus | null> {
+    return this.http.get<PropFirmStatus | null>(`${environment.apiUrl}/dashboard/prop-firm-status`);
+  }
+
+  getPropFirmPresets(): Observable<PropFirmPreset[]> {
+    return this.http.get<PropFirmPreset[]>(`${environment.apiUrl}/propfirm/presets`);
+  }
+
+  getPropFirmPresetsByFirm(firmName: string): Observable<PropFirmPreset[]> {
+    return this.http.get<PropFirmPreset[]>(`${environment.apiUrl}/propfirm/presets/${encodeURIComponent(firmName)}`);
+  }
+
+  getPropFirmFirmNames(): Observable<string[]> {
+    return this.http.get<string[]>(`${environment.apiUrl}/propfirm/firm-names`);
   }
 
   // Admin

@@ -9,6 +9,11 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(ApplicationDbContext db)
     {
+        // ── Prop Firm Presets (always runs — idempotent) ───────────────────────
+        // Must be BEFORE the user guard so existing DBs get presets after migration
+        await SeedPropFirmPresetsAsync(db);
+
+        // ── Demo users + trades (only on fresh DB) ─────────────────────────────
         if (await db.Users.AnyAsync()) return;
 
         // Seed Admin user
@@ -123,12 +128,147 @@ public static class DbSeeder
             IsActive = true
         });
 
-        // Trading accounts
+        // Trading accounts (regular + a prop firm demo account)
         db.TradingAccounts.AddRange(
-            new TradingAccount { UserId = userId, Name = "Main Account", Balance = 10000, Currency = "USD", Broker = "MetaTrader 5", IsDefault = true },
-            new TradingAccount { UserId = userId, Name = "Demo Account", Balance = 50000, Currency = "USD", Broker = "cTrader", IsDefault = false }
+            new TradingAccount
+            {
+                UserId = userId, Name = "Main Account", Balance = 10000,
+                Currency = "USD", Broker = "MetaTrader 5", IsDefault = true
+            },
+            new TradingAccount
+            {
+                UserId = userId, Name = "Funding Pips $10K", Balance = 10000,
+                Currency = "USD", Broker = "Funding Pips", IsDefault = false,
+                IsPropFirm = true, PropFirmName = "Funding Pips", PropFirmPlan = "$10,000 — 2 Step",
+                DailyDrawdownLimitPct = 4, MaxOverallLossPct = 8, ProfitTargetPct = 8,
+                ProfitSplitPct = 80, MinTradingDays = 0, MaxAllowedLotSize = 10,
+                Has5xLotRule = true, UseDynamicEquity = true,
+                NewsTradeAllowed = true, WeekendHoldingAllowed = true,
+                MaxRiskPerTradePctOfDailyLimit = 40
+            }
         );
 
+        await db.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Idempotent — seeds prop firm presets if the table is empty.
+    /// Called independently of the user seeding guard so it runs on existing DBs
+    /// after the AddPropFirmPresetAndAccountFields migration.
+    /// </summary>
+    private static async Task SeedPropFirmPresetsAsync(ApplicationDbContext db)
+    {
+        // IgnoreQueryFilters() ensures we see soft-deleted rows too — truly idempotent
+        if (await db.PropFirmPresets.IgnoreQueryFilters().AnyAsync()) return;
+
+        var presets = new List<PropFirmPreset>
+        {
+            // ── FUNDING PIPS ────────────────────────────────────────────────────
+            new() { FirmName = "Funding Pips", PlanName = "$5,000 — 2 Step",
+                AccountSize = 5000, DailyDrawdownLimitPct = 4, MaxOverallLossPct = 8,
+                ProfitTargetPct = 8, ProfitSplitPct = 80, MinTradingDays = 0,
+                MaxAllowedLotSize = 5, Has5xLotRule = true, UseDynamicEquity = true,
+                NewsTradeAllowed = true, WeekendHoldingAllowed = true,
+                MaxRiskPerTradePctOfDailyLimit = 40 },
+
+            new() { FirmName = "Funding Pips", PlanName = "$10,000 — 2 Step",
+                AccountSize = 10000, DailyDrawdownLimitPct = 4, MaxOverallLossPct = 8,
+                ProfitTargetPct = 8, ProfitSplitPct = 80, MinTradingDays = 0,
+                MaxAllowedLotSize = 10, Has5xLotRule = true, UseDynamicEquity = true,
+                NewsTradeAllowed = true, WeekendHoldingAllowed = true,
+                MaxRiskPerTradePctOfDailyLimit = 40 },
+
+            new() { FirmName = "Funding Pips", PlanName = "$25,000 — 2 Step",
+                AccountSize = 25000, DailyDrawdownLimitPct = 4, MaxOverallLossPct = 8,
+                ProfitTargetPct = 8, ProfitSplitPct = 80, MinTradingDays = 0,
+                MaxAllowedLotSize = 25, Has5xLotRule = true, UseDynamicEquity = true,
+                NewsTradeAllowed = true, WeekendHoldingAllowed = true,
+                MaxRiskPerTradePctOfDailyLimit = 40 },
+
+            new() { FirmName = "Funding Pips", PlanName = "$50,000 — 2 Step",
+                AccountSize = 50000, DailyDrawdownLimitPct = 4, MaxOverallLossPct = 8,
+                ProfitTargetPct = 8, ProfitSplitPct = 80, MinTradingDays = 0,
+                MaxAllowedLotSize = 50, Has5xLotRule = true, UseDynamicEquity = true,
+                NewsTradeAllowed = true, WeekendHoldingAllowed = true,
+                MaxRiskPerTradePctOfDailyLimit = 40 },
+
+            new() { FirmName = "Funding Pips", PlanName = "$100,000 — 2 Step",
+                AccountSize = 100000, DailyDrawdownLimitPct = 4, MaxOverallLossPct = 8,
+                ProfitTargetPct = 8, ProfitSplitPct = 80, MinTradingDays = 0,
+                MaxAllowedLotSize = 100, Has5xLotRule = true, UseDynamicEquity = true,
+                NewsTradeAllowed = true, WeekendHoldingAllowed = true,
+                MaxRiskPerTradePctOfDailyLimit = 40 },
+
+            // ── FTMO ────────────────────────────────────────────────────────────
+            new() { FirmName = "FTMO", PlanName = "$10,000 — 2 Step",
+                AccountSize = 10000, DailyDrawdownLimitPct = 5, MaxOverallLossPct = 10,
+                ProfitTargetPct = 10, ProfitSplitPct = 80, MinTradingDays = 4,
+                MaxAllowedLotSize = 10, Has5xLotRule = false, UseDynamicEquity = false,
+                NewsTradeAllowed = false, WeekendHoldingAllowed = false,
+                MaxRiskPerTradePctOfDailyLimit = 50 },
+
+            new() { FirmName = "FTMO", PlanName = "$25,000 — 2 Step",
+                AccountSize = 25000, DailyDrawdownLimitPct = 5, MaxOverallLossPct = 10,
+                ProfitTargetPct = 10, ProfitSplitPct = 80, MinTradingDays = 4,
+                MaxAllowedLotSize = 25, Has5xLotRule = false, UseDynamicEquity = false,
+                NewsTradeAllowed = false, WeekendHoldingAllowed = false,
+                MaxRiskPerTradePctOfDailyLimit = 50 },
+
+            new() { FirmName = "FTMO", PlanName = "$50,000 — 2 Step",
+                AccountSize = 50000, DailyDrawdownLimitPct = 5, MaxOverallLossPct = 10,
+                ProfitTargetPct = 10, ProfitSplitPct = 80, MinTradingDays = 4,
+                MaxAllowedLotSize = 50, Has5xLotRule = false, UseDynamicEquity = false,
+                NewsTradeAllowed = false, WeekendHoldingAllowed = false,
+                MaxRiskPerTradePctOfDailyLimit = 50 },
+
+            new() { FirmName = "FTMO", PlanName = "$100,000 — 2 Step",
+                AccountSize = 100000, DailyDrawdownLimitPct = 5, MaxOverallLossPct = 10,
+                ProfitTargetPct = 10, ProfitSplitPct = 80, MinTradingDays = 4,
+                MaxAllowedLotSize = 100, Has5xLotRule = false, UseDynamicEquity = false,
+                NewsTradeAllowed = false, WeekendHoldingAllowed = false,
+                MaxRiskPerTradePctOfDailyLimit = 50 },
+
+            // ── THE 5ERS ─────────────────────────────────────────────────────────
+            new() { FirmName = "The5ers", PlanName = "$6,000 — Hyper Growth",
+                AccountSize = 6000, DailyDrawdownLimitPct = 4, MaxOverallLossPct = 6,
+                ProfitTargetPct = 6, ProfitSplitPct = 100, MinTradingDays = 3,
+                MaxAllowedLotSize = 6, Has5xLotRule = false, UseDynamicEquity = false,
+                NewsTradeAllowed = true, WeekendHoldingAllowed = true,
+                MaxRiskPerTradePctOfDailyLimit = 50 },
+
+            new() { FirmName = "The5ers", PlanName = "$20,000 — High Stakes",
+                AccountSize = 20000, DailyDrawdownLimitPct = 4, MaxOverallLossPct = 6,
+                ProfitTargetPct = 6, ProfitSplitPct = 100, MinTradingDays = 3,
+                MaxAllowedLotSize = 20, Has5xLotRule = false, UseDynamicEquity = false,
+                NewsTradeAllowed = true, WeekendHoldingAllowed = true,
+                MaxRiskPerTradePctOfDailyLimit = 50 },
+
+            // ── ALPHA CAPITAL ────────────────────────────────────────────────────
+            new() { FirmName = "Alpha Capital", PlanName = "$10,000 — 2 Step",
+                AccountSize = 10000, DailyDrawdownLimitPct = 5, MaxOverallLossPct = 10,
+                ProfitTargetPct = 8, ProfitSplitPct = 85, MinTradingDays = 5,
+                MaxAllowedLotSize = 10, Has5xLotRule = false, UseDynamicEquity = false,
+                NewsTradeAllowed = true, WeekendHoldingAllowed = false,
+                MaxRiskPerTradePctOfDailyLimit = 50 },
+
+            // ── TOPSTEP ──────────────────────────────────────────────────────────
+            new() { FirmName = "TopStep", PlanName = "$50,000 — Standard",
+                AccountSize = 50000, DailyDrawdownLimitPct = 4, MaxOverallLossPct = 8,
+                ProfitTargetPct = 10, ProfitSplitPct = 90, MinTradingDays = 0,
+                MaxAllowedLotSize = 50, Has5xLotRule = false, UseDynamicEquity = false,
+                NewsTradeAllowed = false, WeekendHoldingAllowed = false,
+                MaxRiskPerTradePctOfDailyLimit = 50 },
+
+            // ── CUSTOM / MANUAL ──────────────────────────────────────────────────
+            new() { FirmName = "Custom", PlanName = "Manual Configuration",
+                AccountSize = 10000, DailyDrawdownLimitPct = 3, MaxOverallLossPct = 6,
+                ProfitTargetPct = 10, ProfitSplitPct = 80, MinTradingDays = 0,
+                MaxAllowedLotSize = 5, Has5xLotRule = true, UseDynamicEquity = true,
+                NewsTradeAllowed = true, WeekendHoldingAllowed = false,
+                MaxRiskPerTradePctOfDailyLimit = 40 },
+        };
+
+        db.PropFirmPresets.AddRange(presets);
         await db.SaveChangesAsync();
     }
 }

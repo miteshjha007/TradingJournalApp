@@ -37,6 +37,11 @@ public class TradingAccountService : ITradingAccountService
             Broker = dto.Broker,
             IsDefault = dto.IsDefault,
             IsPropFirm = dto.IsPropFirm,
+            PropFirmName = dto.PropFirmName,
+            PropFirmPlan = dto.PropFirmPlan,
+            MinTradingDays = dto.MinTradingDays,
+            NewsTradeAllowed = dto.NewsTradeAllowed,
+            WeekendHoldingAllowed = dto.WeekendHoldingAllowed,
             DailyDrawdownLimitPct = dto.DailyDrawdownLimitPct,
             MaxOverallLossPct = dto.MaxOverallLossPct,
             ProfitTargetPct = dto.ProfitTargetPct,
@@ -63,6 +68,11 @@ public class TradingAccountService : ITradingAccountService
         account.Broker = dto.Broker;
         account.IsDefault = dto.IsDefault;
         account.IsPropFirm = dto.IsPropFirm;
+        account.PropFirmName = dto.PropFirmName;
+        account.PropFirmPlan = dto.PropFirmPlan;
+        account.MinTradingDays = dto.MinTradingDays;
+        account.NewsTradeAllowed = dto.NewsTradeAllowed;
+        account.WeekendHoldingAllowed = dto.WeekendHoldingAllowed;
         account.DailyDrawdownLimitPct = dto.DailyDrawdownLimitPct;
         account.MaxOverallLossPct = dto.MaxOverallLossPct;
         account.ProfitTargetPct = dto.ProfitTargetPct;
@@ -99,6 +109,11 @@ public class TradingAccountService : ITradingAccountService
             Broker = entity.Broker,
             IsDefault = entity.IsDefault,
             IsPropFirm = entity.IsPropFirm,
+            PropFirmName = entity.PropFirmName,
+            PropFirmPlan = entity.PropFirmPlan,
+            MinTradingDays = entity.MinTradingDays,
+            NewsTradeAllowed = entity.NewsTradeAllowed,
+            WeekendHoldingAllowed = entity.WeekendHoldingAllowed,
             DailyDrawdownLimitPct = entity.DailyDrawdownLimitPct,
             MaxOverallLossPct = entity.MaxOverallLossPct,
             ProfitTargetPct = entity.ProfitTargetPct,

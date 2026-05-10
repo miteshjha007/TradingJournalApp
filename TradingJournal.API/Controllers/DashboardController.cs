@@ -179,4 +179,36 @@ public class DashboardController : ControllerBase
             return StatusCode(500, new { error = "An error occurred while updating alert settings." });
         }
     }
+
+    /// <summary>
+    /// Get real-time prop firm rule engine status — daily loss, overall drawdown,
+    /// profit target progress, trading days. Returns null if account is not a prop firm.
+    /// </summary>
+    [HttpGet("prop-firm-status")]
+    public async Task<ActionResult<PropFirmStatusDto?>> GetPropFirmStatus()
+    {
+        try
+        {
+            _logger.LogInformation("Fetching prop firm status for user: {UserId}", UserId);
+            var result = await _dashboardService.GetPropFirmStatusAsync(UserId);
+
+            if (result == null)
+            {
+                _logger.LogInformation("No prop firm account found for user: {UserId} — returning null", UserId);
+                return Ok(null);
+            }
+
+            _logger.LogInformation(
+                "Prop firm status for user {UserId}: Status={Status}, DailyUsed={DailyPct}%, OverallDD={OverallPct}%",
+                UserId, result.AccountStatus, result.DailyLossUsedPct, result.TotalDrawdownPct);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching prop firm status for user: {UserId}", UserId);
+            return StatusCode(500, new { error = "An error occurred while fetching prop firm status." });
+        }
+    }
 }
+

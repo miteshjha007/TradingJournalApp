@@ -605,4 +605,150 @@ public class DashboardService : IDashboardService
         EmailAlertEnabled = alert.EmailAlertEnabled,
         Email = alert.Email
     };
+
+    // ─────────────────────────────────────────────────────────────
+    // PROP FIRM RULE ENGINE — Real-time status calculation
+    // ─────────────────────────────────────────────────────────────
+    public async Task<PropFirmStatusDto?> GetPropFirmStatusAsync(Guid userId)
+    {
+        var account = await _accountService.GetDefaultAccountAsync(userId);
+
+        // Only proceed for prop firm accounts
+        if (account == null || !account.IsPropFirm)
+            return null;
+
+        var allTrades = await _tradeRepository.GetByUserIdAsync(userId);
+        var today = DateTime.UtcNow.Date;
+
+        // ── Daily Loss Calculation ──────────────────────────────
+        var todayTrades = allTrades.Where(t => t.TradeDate.Date == today).ToList();
+        var todayPL = todayTrades.Sum(t => t.ProfitLoss);
+        var dailyLossUsed = todayPL < 0 ? Math.Abs(todayPL) : 0m;
+
+        // Dynamic equity: if profitable today, daily budget increases
+        var baseDailyLimit = account.Balance * account.DailyDrawdownLimitPct / 100m;
+        var dynamicDailyLimit = account.UseDynamicEquity && todayPL > 0
+            ? baseDailyLimit + todayPL
+            : baseDailyLimit;
+
+        var dailyLossUsedPct = dynamicDailyLimit > 0
+            ? Math.Round(dailyLossUsed / dynamicDailyLimit * 100, 1)
+            : 0;
+        var remainingDailyBudget = Math.Max(0, dynamicDailyLimit - dailyLossUsed);
+
+        // ── Overall Drawdown Calculation ───────────────────────
+        var sortedTrades = allTrades.OrderBy(t => t.TradeDate).ToList();
+        var totalDrawdown = CalculateCurrentDrawdown(sortedTrades, account.Balance);
+        var maxOverallLimitAmt = account.Balance * account.MaxOverallLossPct / 100m;
+        var totalDrawdownPct = maxOverallLimitAmt > 0
+            ? Math.Round(totalDrawdown / maxOverallLimitAmt * 100, 1)
+            : 0;
+        var remainingOverallBudget = Math.Max(0, maxOverallLimitAmt - totalDrawdown);
+
+        // ── Profit Target ──────────────────────────────────────
+        var totalPL = allTrades.Sum(t => t.ProfitLoss);
+        var profitTargetAmt = account.Balance * account.ProfitTargetPct / 100m;
+        var profitEarnedPct = profitTargetAmt > 0
+            ? Math.Round(totalPL / profitTargetAmt * 100, 1)
+            : 0;
+        var estimatedPayout = totalPL > 0
+            ? Math.Round(totalPL * account.ProfitSplitPct / 100m, 2)
+            : 0;
+
+        // ── Trading Days ───────────────────────────────────────
+        var tradingDaysCompleted = allTrades
+            .Select(t => t.TradeDate.Date)
+            .Distinct()
+            .Count();
+
+        // ── Rule Breach Detection ──────────────────────────────
+        var dailyLimitBreached = dailyLossUsed >= dynamicDailyLimit;
+        var overallLimitBreached = totalDrawdown >= maxOverallLimitAmt;
+        var profitTargetReached = totalPL >= profitTargetAmt;
+
+        // ── Status Determination (the 🟢🟡🔴 logic) ───────────
+        string status;
+        string statusColor;
+        var warnings = new List<string>();
+
+        if (overallLimitBreached)
+        {
+            status = "BREACHED_OVERALL";
+            statusColor = "#dc2626"; // red-600
+            warnings.Add($"🔴 ACCOUNT BLOWN: Overall drawdown limit of ${maxOverallLimitAmt:F0} breached. Account at risk!");
+        }
+        else if (dailyLimitBreached)
+        {
+            status = "BREACHED_DAILY";
+            statusColor = "#ef4444"; // red-500
+            warnings.Add($"🔴 STOP TRADING: Daily loss of ${dailyLossUsed:F2} has hit the ${dynamicDailyLimit:F2} daily limit.");
+        }
+        else if (profitTargetReached)
+        {
+            status = "PASSED";
+            statusColor = "#6366f1"; // indigo — challenge passed!
+            warnings.Add($"🎉 CHALLENGE PASSED! You have hit {account.ProfitTargetPct}% profit target. Request your payout!");
+        }
+        else if (dailyLossUsedPct >= 90 || totalDrawdownPct >= 90)
+        {
+            status = "CRITICAL";
+            statusColor = "#f97316"; // orange-500
+            if (dailyLossUsedPct >= 90)
+                warnings.Add($"🟠 CRITICAL: {dailyLossUsedPct}% of daily limit used. Only ${remainingDailyBudget:F2} left today!");
+            if (totalDrawdownPct >= 90)
+                warnings.Add($"🟠 CRITICAL: {totalDrawdownPct}% of overall drawdown limit reached!");
+        }
+        else if (dailyLossUsedPct >= 70 || totalDrawdownPct >= 70)
+        {
+            status = "WARNING";
+            statusColor = "#f59e0b"; // amber-500
+            if (dailyLossUsedPct >= 70)
+                warnings.Add($"⚠️ WARNING: {dailyLossUsedPct}% of daily drawdown used. Remaining: ${remainingDailyBudget:F2}");
+            if (totalDrawdownPct >= 70)
+                warnings.Add($"⚠️ WARNING: {totalDrawdownPct}% of overall loss limit reached.");
+        }
+        else
+        {
+            status = "SAFE";
+            statusColor = "#10b981"; // emerald-500
+        }
+
+        return new PropFirmStatusDto
+        {
+            FirmName = account.PropFirmName ?? "Prop Firm",
+            PlanName = account.PropFirmPlan ?? account.Name,
+            AccountBalance = account.Balance,
+
+            DailyLossUsed = Math.Round(dailyLossUsed, 2),
+            DailyLossLimit = Math.Round(dynamicDailyLimit, 2),
+            DailyLossUsedPct = dailyLossUsedPct,
+            RemainingDailyBudget = Math.Round(remainingDailyBudget, 2),
+
+            TotalDrawdown = Math.Round(totalDrawdown, 2),
+            MaxDrawdownLimit = Math.Round(maxOverallLimitAmt, 2),
+            TotalDrawdownPct = totalDrawdownPct,
+            RemainingOverallBudget = Math.Round(remainingOverallBudget, 2),
+
+            ProfitEarned = Math.Round(totalPL, 2),
+            ProfitTarget = Math.Round(profitTargetAmt, 2),
+            ProfitEarnedPct = profitEarnedPct,
+            EstimatedPayout = estimatedPayout,
+
+            TradingDaysCompleted = tradingDaysCompleted,
+            MinTradingDaysRequired = account.MinTradingDays,
+
+            NewsTradeAllowed = account.NewsTradeAllowed,
+            WeekendHoldingAllowed = account.WeekendHoldingAllowed,
+            Has5xLotRule = account.Has5xLotRule,
+            UseDynamicEquity = account.UseDynamicEquity,
+
+            AccountStatus = status,
+            StatusColor = statusColor,
+            DailyLimitBreached = dailyLimitBreached,
+            OverallLimitBreached = overallLimitBreached,
+            ProfitTargetReached = profitTargetReached,
+            ActiveWarnings = warnings
+        };
+    }
 }
+
