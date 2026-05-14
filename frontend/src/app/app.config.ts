@@ -4,7 +4,8 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { jwtInterceptor } from './interceptors/jwt.interceptor';
 
-import { SocialLoginModule, SocialAuthServiceConfig, GoogleLoginProvider } from '@abacritt/angularx-social-login';
+import { importProvidersFrom } from '@angular/core';
+import { SocialLoginModule, GoogleLoginProvider, SOCIAL_AUTH_CONFIG, SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
 import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
@@ -13,7 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([jwtInterceptor])),
     {
-      provide: 'SocialAuthServiceConfig',
+      provide: SOCIAL_AUTH_CONFIG,
       useValue: {
         autoLogin: false,
         providers: [
@@ -22,7 +23,7 @@ export const appConfig: ApplicationConfig = {
             provider: new GoogleLoginProvider(environment.googleClientId)
           }
         ],
-        onError: (err) => {
+        onError: (err: any) => {
           console.error('Google Auth Error:', err);
         }
       } as SocialAuthServiceConfig,
