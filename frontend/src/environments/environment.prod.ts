@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://192.168.1.8/TradingJournalAPI/api'
+  apiUrl: 'https://trading-journal-api-mcc2.onrender.com/api',
+  hubUrl: 'https://trading-journal-api-mcc2.onrender.com/hubs/chat'
 };
