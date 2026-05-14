@@ -178,15 +178,22 @@ public class AiChatService : IAiChatService
         }
         else if (settings.Provider == AiProvider.Gemini)
         {
-            var model = settings.ModelName ?? "gemini-2.0-flash";
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent?key={apiKey}";
+            var model = settings.ModelName;
+            if (string.IsNullOrEmpty(model)) model = "gemini-1.5-flash";
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent?alt=sse&key={apiKey}";
 
-            var contents = new List<object> { new { role = "user", parts = new[] { new { text = systemPrompt } } } };
-            foreach (var m in msgs)
-                contents.Add(new { role = m.role == "assistant" ? "model" : "user", parts = new[] { new { text = m.content } } });
+            var bodyObj = new
+            {
+                systemInstruction = new { parts = new[] { new { text = systemPrompt } } },
+                contents = msgs.Select(m => new
+                {
+                    role = m.role == "assistant" ? "model" : "user",
+                    parts = new[] { new { text = m.content } }
+                }).ToList()
+            };
 
             request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Content = JsonContent.Create(new { contents });
+            request.Content = JsonContent.Create(bodyObj);
         }
         else
         {
@@ -211,7 +218,11 @@ public class AiChatService : IAiChatService
         }
 
         using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct);
+            throw new InvalidOperationException($"AI API Error ({response.StatusCode}): {errorBody}");
+        }
 
         using var stream = await response.Content.ReadAsStreamAsync(ct);
         using var reader = new StreamReader(stream);
@@ -243,14 +254,19 @@ public class AiChatService : IAiChatService
             {
                 try
                 {
-                    if (line.TrimStart().StartsWith("{"))
+                    if (line.StartsWith("data: "))
                     {
-                        using var doc = JsonDocument.Parse(line);
-                        if (doc.RootElement.TryGetProperty("candidates", out var cands))
+                        var json = line[6..];
+                        if (json == "[DONE]") break;
+                        using var doc = JsonDocument.Parse(json);
+                        if (doc.RootElement.TryGetProperty("candidates", out var cands) && cands.GetArrayLength() > 0)
                         {
-                            var part = cands[0].GetProperty("content").GetProperty("parts")[0];
-                            if (part.TryGetProperty("text", out var t))
-                                token = t.GetString();
+                            var contentProp = cands[0].GetProperty("content");
+                            if (contentProp.TryGetProperty("parts", out var parts) && parts.GetArrayLength() > 0)
+                            {
+                                if (parts[0].TryGetProperty("text", out var t))
+                                    token = t.GetString();
+                            }
                         }
                     }
                 }
