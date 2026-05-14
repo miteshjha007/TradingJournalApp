@@ -10,3 +10,15 @@ D:\Mitesh\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\TradingJou
 D:\Mitesh\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\refint\TradingJournal.Domain.dll
 D:\Mitesh\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\TradingJournal.Domain.pdb
 D:\Mitesh\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\ref\TradingJournal.Domain.dll
+D:\Mitesh\Projects\TradingJournalApp\TradingJournal.Domain\bin\Release\net10.0\TradingJournal.Domain.deps.json
+D:\Mitesh\Projects\TradingJournalApp\TradingJournal.Domain\bin\Release\net10.0\TradingJournal.Domain.dll
+D:\Mitesh\Projects\TradingJournalApp\TradingJournal.Domain\bin\Release\net10.0\TradingJournal.Domain.pdb
+D:\Mitesh\Projects\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\TradingJournal.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Mitesh\Projects\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\TradingJournal.Domain.AssemblyInfoInputs.cache
+D:\Mitesh\Projects\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\TradingJournal.Domain.AssemblyInfo.cs
+D:\Mitesh\Projects\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\TradingJournal.Domain.csproj.CoreCompileInputs.cache
+D:\Mitesh\Projects\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\TradingJournal.Domain.sourcelink.json
+D:\Mitesh\Projects\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\TradingJournal.Domain.dll
+D:\Mitesh\Projects\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\refint\TradingJournal.Domain.dll
+D:\Mitesh\Projects\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\TradingJournal.Domain.pdb
+D:\Mitesh\Projects\TradingJournalApp\TradingJournal.Domain\obj\Release\net10.0\ref\TradingJournal.Domain.dll

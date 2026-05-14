@@ -713,53 +713,6 @@
             "assemblyVersion": "2.1.0.0",
             "fileVersion": "10.0.626.17701"
           }
-        },
-        "native": {
-          "Microsoft.DiaSymReader.Native.amd64.dll": {
-            "fileVersion": "14.42.34436.0"
-          },
-          "System.IO.Compression.Native.dll": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "clretwrc.dll": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "clrgc.dll": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "clrgcexp.dll": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "clrjit.dll": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "coreclr.dll": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "createdump.exe": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "hostfxr.dll": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "hostpolicy.dll": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "mscordaccore.dll": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "mscordaccore_amd64_amd64_10.0.626.17701.dll": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "mscordbi.dll": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "mscorrc.dll": {
-            "fileVersion": "10.0.626.17701"
-          },
-          "msquic.dll": {
-            "fileVersion": "2.4.17.0"
-          }
         }
       },
       "runtimepack.Microsoft.AspNetCore.App.Runtime.win-x64/10.0.6": {

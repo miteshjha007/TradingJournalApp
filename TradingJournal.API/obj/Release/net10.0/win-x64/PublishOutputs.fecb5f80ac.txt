@@ -1,0 +1,5 @@
+D:\Mitesh\Projects\TradingJournalApp\exe_output\web.config
+D:\Mitesh\Projects\TradingJournalApp\exe_output\appsettings.Development.json
+D:\Mitesh\Projects\TradingJournalApp\exe_output\appsettings.json
+D:\Mitesh\Projects\TradingJournalApp\exe_output\TradingJournal.API.pdb
+D:\Mitesh\Projects\TradingJournalApp\exe_output\TradingJournal.API.exe
