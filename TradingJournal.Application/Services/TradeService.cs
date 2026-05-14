@@ -64,7 +64,7 @@ public class TradeService : ITradeService
             ProfitLoss = pl,
             RiskPercentage = dto.RiskPercentage,
             RiskRewardRatio = rrr,
-            TradeDate = dto.TradeDate,
+            TradeDate = dto.TradeDate.ToUniversalTime(),
             TradeDurationMinutes = dto.TradeDurationMinutes,
             TradeType = dto.TradeType,
             Result = result,
@@ -94,7 +94,7 @@ public class TradeService : ITradeService
         trade.ProfitLoss = pl;
         trade.RiskPercentage = dto.RiskPercentage;
         trade.RiskRewardRatio = rrr;
-        trade.TradeDate = dto.TradeDate;
+        trade.TradeDate = dto.TradeDate.ToUniversalTime();
         trade.TradeDurationMinutes = dto.TradeDurationMinutes;
         trade.TradeType = dto.TradeType;
         trade.Result = result;
@@ -113,7 +113,7 @@ public class TradeService : ITradeService
 
     public async Task<List<TradeDto>> GetForCalendarAsync(Guid userId, int year, int month)
     {
-        var from = new DateTime(year, month, 1);
+        var from = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
         var to = from.AddMonths(1).AddDays(-1);
         var trades = await _tradeRepository.GetByDateRangeAsync(userId, from, to);
         return trades.Select(MapToDto).ToList();
