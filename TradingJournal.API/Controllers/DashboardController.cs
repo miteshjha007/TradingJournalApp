@@ -13,11 +13,13 @@ namespace TradingJournal.API.Controllers;
 public class DashboardController : ControllerBase
 {
     private readonly IDashboardService _dashboardService;
+    private readonly IStreakService _streakService;
     private readonly ILogger<DashboardController> _logger;
 
-    public DashboardController(IDashboardService dashboardService, ILogger<DashboardController> logger)
+    public DashboardController(IDashboardService dashboardService, IStreakService streakService, ILogger<DashboardController> logger)
     {
         _dashboardService = dashboardService;
+        _streakService = streakService;
         _logger = logger;
     }
 
@@ -177,6 +179,54 @@ public class DashboardController : ControllerBase
         {
             _logger.LogError(ex, "Error upserting alert settings for user: {UserId}", UserId);
             return StatusCode(500, new { error = "An error occurred while updating alert settings." });
+        }
+    }
+
+    [HttpGet("streak")]
+    public async Task<IActionResult> GetStreak()
+    {
+        try
+        {
+            _logger.LogInformation("Fetching streak for user: {UserId}", UserId);
+            var result = await _streakService.GetStreakAsync(UserId);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching streak for user: {UserId}", UserId);
+            return StatusCode(500, new { error = "An error occurred while fetching streak." });
+        }
+    }
+
+    [HttpGet("heatmap")]
+    public async Task<IActionResult> GetHeatmap()
+    {
+        try
+        {
+            _logger.LogInformation("Fetching heatmap for user: {UserId}", UserId);
+            var result = await _dashboardService.GetHeatmapAsync(UserId);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching heatmap for user: {UserId}", UserId);
+            return StatusCode(500, new { error = "An error occurred while fetching heatmap." });
+        }
+    }
+
+    [HttpGet("shadow-profile")]
+    public async Task<IActionResult> GetShadowProfile()
+    {
+        try
+        {
+            _logger.LogInformation("Fetching shadow profile for user: {UserId}", UserId);
+            var result = await _dashboardService.GetShadowProfileAsync(UserId);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching shadow profile for user: {UserId}", UserId);
+            return StatusCode(500, new { error = "An error occurred while fetching shadow profile." });
         }
     }
 

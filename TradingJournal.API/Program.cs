@@ -125,11 +125,10 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint($"{pathBase}/swagger/v1/swagger.json", "Trading Journal API v1");
     c.RoutePrefix = "swagger";
 });
-//app.UseSwagger();
-//app.UseSwaggerUI(c => c.SwaggerEndpoint("/TradingJournalAPI/swagger/v1/swagger.json", "Trading Journal API v1"));
 
-app.UseHttpsRedirection();
 app.UseCors("AllowAngular");
+app.UseStaticFiles();
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

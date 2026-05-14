@@ -15,11 +15,13 @@ public class ForumController : ControllerBase
 {
     private readonly IForumMessageService _service;
     private readonly IHubContext<ChatHub> _hubContext;
+    private readonly IUserRepository _userRepository;
 
-    public ForumController(IForumMessageService service, IHubContext<ChatHub> hubContext)
+    public ForumController(IForumMessageService service, IHubContext<ChatHub> hubContext, IUserRepository userRepository)
     {
         _service = service;
         _hubContext = hubContext;
+        _userRepository = userRepository;
     }
 
     [HttpGet("public")]
@@ -116,18 +118,14 @@ public class ForumController : ControllerBase
     }
 
     [HttpGet("users")]
-    public async Task<IActionResult> GetUsersForChat([FromServices] TradingJournal.Infrastructure.Data.ApplicationDbContext context)
+    public async Task<IActionResult> GetUsersForChat()
     {
         var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out var currentUserId))
             return Unauthorized();
 
-        var users = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync(
-            System.Linq.Queryable.Select(
-                System.Linq.Queryable.Where(context.Users, u => u.Id != currentUserId && !u.IsDeleted),
-                u => new { Id = u.Id, Name = u.FirstName + " " + u.LastName, Email = u.Email }
-            )
-        );
-        return Ok(users);
+        var users = await _userRepository.GetAllExceptAsync(currentUserId);
+        var result = users.Select(u => new { Id = u.Id, Name = u.FirstName + " " + u.LastName, Email = u.Email });
+        return Ok(result);
     }
 }

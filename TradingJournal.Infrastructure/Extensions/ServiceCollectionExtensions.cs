@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TradingJournal.Application.Interfaces;
@@ -15,6 +16,8 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
 
+        services.AddHttpClient();
+
         // Repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IInstrumentRepository, InstrumentRepository>();
@@ -24,9 +27,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITradingAccountRepository, TradingAccountRepository>();
         services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
         services.AddScoped<IForumMessageRepository, ForumMessageRepository>();
+        services.AddScoped<IPlaybookRepository, PlaybookRepository>();
+        services.AddScoped<ITradeChecklistRepository, TradeChecklistRepository>();
+        services.AddScoped<IUserAiSettingsRepository, UserAiSettingsRepository>();
+        services.AddScoped<IAiChatSessionRepository, AiChatSessionRepository>();
+        services.AddScoped<IBacktestRepository, BacktestRepository>();
 
         // Application Services
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IStreakService, StreakService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IInstrumentService, InstrumentService>();
         services.AddScoped<ITradeService, TradeService>();
@@ -35,6 +44,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITradingAccountService, TradingAccountService>();
         services.AddScoped<IAnnouncementService, AnnouncementService>();
         services.AddScoped<IForumMessageService, ForumMessageService>();
+        services.AddScoped<IPlaybookService, PlaybookService>();
+        services.AddScoped<IAiChatService, AiChatService>();
+        services.AddScoped<IBacktestService, BacktestService>();
+        services.AddScoped<IStorageService, LocalStorageService>();
 
         return services;
     }

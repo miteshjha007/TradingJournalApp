@@ -35,11 +35,16 @@ export interface Trade {
   tags?: string;
   ruleViolations?: string[];
   createdAt: string;
+  checklistCompliancePercent?: number;
+  chartImageUrl?: string;
+  tradingAccountId?: string;
 }
 export interface CreateTrade {
   instrumentId: string; lotSize: number; entryPrice: number; exitPrice: number;
   stopLoss: number; takeProfit: number; riskPercentage: number; tradeDate: string;
   tradeDurationMinutes: number; tradeType: number; notes?: string; tags?: string;
+  checkedRuleIds?: string[];
+  chartImageUrl?: string;
 }
 export interface TradeFilter { fromDate?: string; toDate?: string; instrumentId?: string; result?: string; tradeType?: string; page: number; pageSize: number; }
 export interface PagedTrades { trades: Trade[]; totalCount: number; page: number; pageSize: number; totalPages: number; }
@@ -110,6 +115,7 @@ export interface TradingAccount {
   maxAllowedLotSize: number;
   useDynamicEquity: boolean;
   has5xLotRule: boolean;
+  maxDailyLossType?: number; // 1=BalanceBased, 2=EquityBased
   createdAt: string;
 }
 
@@ -134,6 +140,7 @@ export interface CreateTradingAccount {
   maxAllowedLotSize: number;
   useDynamicEquity: boolean;
   has5xLotRule: boolean;
+  maxDailyLossType?: number;
 }
 
 // Prop Firm Rule Engine Models
@@ -285,4 +292,172 @@ export interface DirectMessage {
 export interface UnreadCount {
   userId: string;
   unreadCount: number;
+}
+
+// Playbook models
+export enum PlaybookCategory { Entry = 1, Risk = 2, Psychology = 3, Exit = 4 }
+
+export interface PlaybookRule {
+  id: string;
+  title: string;
+  description?: string;
+  category: PlaybookCategory;
+  isActive: boolean;
+  orderIndex: number;
+  createdAt: string;
+}
+export interface CreatePlaybookRule {
+  title: string;
+  description?: string;
+  category: PlaybookCategory;
+}
+export interface UpdatePlaybookRule {
+  title: string;
+  description?: string;
+  category: PlaybookCategory;
+  isActive: boolean;
+}
+export interface TradeChecklistItem {
+  ruleId: string;
+  ruleTitle: string;
+  category: PlaybookCategory;
+  isChecked: boolean;
+}
+export interface SaveChecklist {
+  tradeId: string;
+  checkedRuleIds: string[];
+}
+
+// AI Chat models
+export enum AiProvider { OpenAI = 1, Anthropic = 2, Gemini = 3, DeepSeek = 4, Custom = 5 }
+
+export interface UserAiSettings {
+  provider: AiProvider;
+  modelName?: string;
+  customBaseUrl?: string;
+  isConfigured: boolean;
+}
+export interface SaveAiSettings {
+  provider: AiProvider;
+  apiKey: string;
+  modelName?: string;
+  customBaseUrl?: string;
+}
+export interface AiChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+}
+export interface AiChatSession {
+  id: string;
+  title: string;
+  messages: AiChatMessage[];
+  createdAt: string;
+  updatedAt: string;
+}
+export interface SendAiMessage {
+  message: string;
+  sessionId?: string;
+}
+
+// Backtest models
+export enum BacktestRuleType { MinRRR = 1, MaxDailyTrades = 2, ChecklistCompliance = 3, TradeType = 4, TimeOfDay = 5, MaxRiskPercent = 6 }
+
+export interface BacktestRuleFilter {
+  ruleType: BacktestRuleType;
+  minValue?: number;
+  maxValue?: number;
+  stringValue?: string;
+}
+export interface BacktestRequest {
+  name: string;
+  fromDate?: string;
+  toDate?: string;
+  rules: BacktestRuleFilter[];
+  initialBalance: number;
+  runMonteCarlo: boolean;
+}
+export interface MonteCarloResult {
+  p5FinalBalance: number;
+  medianFinalBalance: number;
+  p95FinalBalance: number;
+  ruinProbability: number;
+  p5Drawdown: number;
+  medianDrawdown: number;
+  p95Drawdown: number;
+}
+export interface BacktestResult {
+  id: string;
+  name: string;
+  fromDate?: string;
+  toDate?: string;
+  tradeCount: number;
+  filteredTradeCount: number;
+  totalPL: number;
+  winRate: number;
+  profitFactor: number;
+  sharpeRatio: number;
+  sortinoRatio: number;
+  maxDrawdown: number;
+  maxDrawdownPercent: number;
+  averageRRR: number;
+  bestDay: number;
+  worstDay: number;
+  equityCurve: EquityCurvePoint[];
+  monteCarlo?: MonteCarloResult;
+  createdAt: string;
+}
+
+// Streak & Discipline models
+export interface Streak {
+  currentStreak: number;
+  longestStreak: number;
+  disciplineScore: number;
+  disciplineGrade: string;
+  tradedToday: boolean;
+  checklistAvgComplianceToday?: number;
+  streakBrokenReason?: string;
+}
+
+// Heatmap models
+export interface HeatmapCell {
+  dayOfWeek: number;
+  hour: number;
+  totalPL: number;
+  tradeCount: number;
+  winRate: number;
+  avgPL: number;
+  intensity: number;
+}
+export interface SessionStats {
+  name: string;
+  totalPL: number;
+  tradeCount: number;
+  winRate: number;
+}
+export interface HeatmapData {
+  cells: HeatmapCell[];
+  sessions: SessionStats[];
+  bestSlot?: HeatmapCell;
+  worstSlot?: HeatmapCell;
+}
+
+// Shadow Account / Journal DNA models
+export interface ShadowRule {
+  description: string;
+  impact: number;
+}
+export interface Pattern {
+  label: string;
+  value: string;
+  avgPL: number;
+  tradeCount: number;
+}
+export interface ShadowProfile {
+  winningRules: ShadowRule[];
+  losingRules: ShadowRule[];
+  bestPatterns: Pattern[];
+  worstPatterns: Pattern[];
+  dna: string;
+  consistencyScore: number;
 }

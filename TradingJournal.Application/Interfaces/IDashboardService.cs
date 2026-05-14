@@ -15,6 +15,7 @@ public interface IDashboardService
     Task<AlertDto?> GetAlertAsync(Guid userId);
     Task<AlertDto> UpsertAlertAsync(CreateAlertDto dto, Guid userId);
 
-    /// <summary>Get real-time prop firm rule compliance status for the dashboard card.</summary>
     Task<PropFirmStatusDto?> GetPropFirmStatusAsync(Guid userId);
+    Task<HeatmapDto> GetHeatmapAsync(Guid userId);
+    Task<ShadowProfileDto> GetShadowProfileAsync(Guid userId);
 }

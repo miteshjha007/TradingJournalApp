@@ -19,11 +19,14 @@ public class Trade : BaseEntity
     public TradeType TradeType { get; set; }
     public TradeResult Result { get; set; }
     public string? Notes { get; set; }
-    public string? Tags { get; set; } // Comma-separated
+    public string? Tags { get; set; }
     public Guid? TradingAccountId { get; set; }
+    public decimal? ChecklistCompliancePercent { get; set; }
+    public string? ChartImageUrl { get; set; }
 
     // Navigation
     public User User { get; set; } = null!;
     public Instrument Instrument { get; set; } = null!;
     public TradingAccount? TradingAccount { get; set; }
+    public ICollection<TradeChecklist> Checklists { get; set; } = new List<TradeChecklist>();
 }

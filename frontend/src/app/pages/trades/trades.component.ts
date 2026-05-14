@@ -81,6 +81,7 @@ import { Trade, CreateTrade, TradeFilter, Instrument } from '../../models/models
                 <th>RRR</th>
                 <th>Result</th>
                 <th>Tags</th>
+                <th>Checklist</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -116,6 +117,16 @@ import { Trade, CreateTrade, TradeFilter, Instrument } from '../../models/models
                       </div>
                     }
                   </td>
+                  <td>
+                    @if (trade.checklistCompliancePercent != null) {
+                      <span class="compliance-badge" [class.compliance-high]="trade.checklistCompliancePercent >= 80" [class.compliance-mid]="trade.checklistCompliancePercent >= 50 && trade.checklistCompliancePercent < 80" [class.compliance-low]="trade.checklistCompliancePercent < 50">
+                        {{ trade.checklistCompliancePercent | number:'1.0-0' }}%
+                      </span>
+                    }
+                    @if (trade.chartImageUrl) {
+                      <span title="Chart uploaded" style="margin-left:4px">📷</span>
+                    }
+                  </td>
                   <td class="actions-cell">
                     <button class="btn-icon" (click)="openModal(trade)">✏️</button>
                     @if (trade.id) {
@@ -126,7 +137,7 @@ import { Trade, CreateTrade, TradeFilter, Instrument } from '../../models/models
               }
               @empty {
                 <tr>
-                  <td colspan="13" class="empty-cell">No trades found. Click "+ Add Trade" to log your first trade.</td>
+                  <td colspan="14" class="empty-cell">No trades found. Click "+ Add Trade" to log your first trade.</td>
                 </tr>
               }
             </tbody>

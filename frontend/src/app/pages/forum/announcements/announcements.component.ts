@@ -60,6 +60,7 @@ export class AnnouncementsComponent implements OnInit {
     this.apiService.createAnnouncement(this.newAnnouncement).subscribe({
       next: () => {
         this.closeModal();
+        this.loadAnnouncements();
       },
       error: (err) => console.error('Failed to post announcement', err)
     });

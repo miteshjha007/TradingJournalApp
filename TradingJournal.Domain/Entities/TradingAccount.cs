@@ -1,3 +1,5 @@
+using TradingJournal.Domain.Enums;
+
 namespace TradingJournal.Domain.Entities;
 
 public class TradingAccount : BaseEntity
@@ -24,6 +26,7 @@ public class TradingAccount : BaseEntity
     public decimal MaxAllowedLotSize { get; set; } = 5.0m;
     public bool UseDynamicEquity { get; set; } = true;
     public bool Has5xLotRule { get; set; } = true;
+    public MaxDailyLossType MaxDailyLossType { get; set; } = MaxDailyLossType.BalanceBased;
 
     // Navigation
     public User User { get; set; } = null!;

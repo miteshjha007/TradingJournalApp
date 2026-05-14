@@ -26,4 +26,9 @@ public class User : BaseEntity
     
     // Permissions
     public List<string> AllowedSections { get; set; } = new();
+
+    // Streak tracking
+    public DateTime? LastLoginDate { get; set; }
+    public int CurrentStreak { get; set; } = 0;
+    public int LongestStreak { get; set; } = 0;
 }

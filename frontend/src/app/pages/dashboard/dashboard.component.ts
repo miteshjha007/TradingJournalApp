@@ -2,7 +2,7 @@ import { Component, OnInit, signal, ViewChild, ElementRef, AfterViewInit } from 
 import { CommonModule, DecimalPipe, CurrencyPipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { ToastService } from '../../services/toast.service';
-import { DashboardSummary, PropFirmStatus } from '../../models/models';
+import { DashboardSummary, PropFirmStatus, Streak } from '../../models/models';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -257,6 +257,41 @@ Chart.register(...registerables);
           </div>
         </div>
 
+        <!-- Streak & Discipline Score Card -->
+        @if (streak()) {
+          <div class="streak-card">
+            <div class="streak-left">
+              <div class="streak-fire">🔥</div>
+              <div class="streak-info">
+                <div class="streak-num">{{ streak()!.currentStreak }} day streak</div>
+                <div class="streak-sub">Best: {{ streak()!.longestStreak }} days</div>
+                @if (!streak()!.tradedToday) {
+                  <div class="streak-warn">⚠️ Trade today to keep your streak!</div>
+                }
+              </div>
+            </div>
+            <div class="streak-right">
+              <div class="discipline-ring">
+                <svg viewBox="0 0 60 60">
+                  <circle cx="30" cy="30" r="26" fill="none" stroke="var(--border-color)" stroke-width="5"/>
+                  <circle cx="30" cy="30" r="26" fill="none"
+                    [attr.stroke]="disciplineColor(streak()!.disciplineScore)"
+                    stroke-width="5"
+                    stroke-linecap="round"
+                    stroke-dasharray="163.4"
+                    [attr.stroke-dashoffset]="163.4 * (1 - streak()!.disciplineScore / 100)"
+                    transform="rotate(-90 30 30)"/>
+                </svg>
+                <div class="ring-text">
+                  <div class="ring-score">{{ streak()!.disciplineScore }}</div>
+                  <div class="ring-grade">{{ streak()!.disciplineGrade }}</div>
+                </div>
+              </div>
+              <div class="discipline-label">Discipline Score</div>
+            </div>
+          </div>
+        }
+
         <!-- Instrument Performance -->
         <div class="section-card">
           <h3>🎯 Instrument Performance</h3>
@@ -283,6 +318,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   dashboard = signal<DashboardSummary | null>(null);
   propFirmStatus = signal<PropFirmStatus | null>(null);
+  streak = signal<Streak | null>(null);
   loading = signal(true);
   drawdownWarning = signal(false);
   private equityChartInstance: Chart | null = null;
@@ -300,6 +336,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       },
       error: () => this.loading.set(false)
     });
+
+    this.api.getStreak().subscribe({ next: (s) => this.streak.set(s), error: () => {} });
 
     // Load prop firm status and fire toast warnings
     this.api.getPropFirmStatus().subscribe({
@@ -324,6 +362,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {}
+
+  disciplineColor(score: number): string {
+    if (score >= 80) return '#10b981';
+    if (score >= 60) return '#f59e0b';
+    return '#ef4444';
+  }
 
   getProfitTargetDollar(): number {
     const db = this.dashboard();

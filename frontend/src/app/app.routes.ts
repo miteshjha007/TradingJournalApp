@@ -30,6 +30,18 @@ export const routes: Routes = [
       {
         path: 'forum',
         loadComponent: () => import('./pages/forum/forum.component').then(m => m.ForumComponent)
+      },
+      {
+        path: 'playbook',
+        loadComponent: () => import('./pages/playbook/playbook.component').then(m => m.PlaybookComponent)
+      },
+      {
+        path: 'ai-chat',
+        loadComponent: () => import('./pages/ai-chat/ai-chat.component').then(m => m.AiChatComponent)
+      },
+      {
+        path: 'backtest',
+        loadComponent: () => import('./pages/backtest/backtest.component').then(m => m.BacktestComponent)
       }
     ]
   },

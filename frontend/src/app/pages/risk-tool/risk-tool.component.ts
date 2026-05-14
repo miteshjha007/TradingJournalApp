@@ -109,9 +109,13 @@ import { Instrument, RiskResult, PropRiskResult } from '../../models/models';
             <div class="form-group">
               <label>Instrument</label>
               <select formControlName="instrumentId" class="form-input" (change)="onPropInstrumentChange()">
-                <option value="">-- Select Instrument --</option>
-                @for (i of instruments(); track i.id) {
-                  <option [value]="i.id">{{i.symbol || i.name}}</option>
+                @if (instruments().length === 0) {
+                  <option value="">-- No Instruments Found --</option>
+                } @else {
+                  <option value="">-- Select Instrument --</option>
+                  @for (i of instruments(); track i.id) {
+                    <option [value]="i.id">{{i.symbol || i.name}}</option>
+                  }
                 }
               </select>
             </div>
@@ -221,9 +225,13 @@ import { Instrument, RiskResult, PropRiskResult } from '../../models/models';
           <div class="form-group">
             <label>Instrument (optional)</label>
             <select formControlName="instrumentId" class="form-input">
-              <option value="">General Calculation</option>
-              @for (i of instruments(); track i.id) {
-                <option [value]="i.id">{{i.name}} (Safe: {{i.safeLotSize}})</option>
+              @if (instruments().length === 0) {
+                <option value="">-- No Instruments Found --</option>
+              } @else {
+                <option value="">General Calculation</option>
+                @for (i of instruments(); track i.id) {
+                  <option [value]="i.id">{{i.name}} (Safe: {{i.safeLotSize}})</option>
+                }
               }
             </select>
           </div>

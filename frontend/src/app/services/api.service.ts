@@ -10,7 +10,11 @@ import {
   AiAnalysis, RiskCalculation, RiskResult, PropRiskCalculation, PropRiskResult, Alert,
   UserInfo, AdminCreateUser, TradingAccount, CreateTradingAccount,
   Announcement, CreateAnnouncement, ForumMessage, CreateForumMessage, DirectMessage, UnreadCount,
-  PropFirmStatus, PropFirmPreset
+  PropFirmStatus, PropFirmPreset,
+  PlaybookRule, CreatePlaybookRule, UpdatePlaybookRule, TradeChecklistItem, SaveChecklist,
+  UserAiSettings, SaveAiSettings, AiChatSession, SendAiMessage,
+  BacktestRequest, BacktestResult,
+  Streak, HeatmapData, ShadowProfile
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -218,5 +222,83 @@ export class ApiService {
 
   getForumUsers(): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/forum/users`);
+  }
+
+  // Streak & Discipline
+  getStreak(): Observable<Streak> {
+    return this.http.get<Streak>(`${environment.apiUrl}/dashboard/streak`);
+  }
+  getHeatmap(): Observable<HeatmapData> {
+    return this.http.get<HeatmapData>(`${environment.apiUrl}/dashboard/heatmap`);
+  }
+  getShadowProfile(): Observable<ShadowProfile> {
+    return this.http.get<ShadowProfile>(`${environment.apiUrl}/dashboard/shadow-profile`);
+  }
+
+  // Playbook
+  getPlaybookRules(): Observable<PlaybookRule[]> {
+    return this.http.get<PlaybookRule[]>(`${environment.apiUrl}/playbook`);
+  }
+  createPlaybookRule(data: CreatePlaybookRule): Observable<PlaybookRule> {
+    return this.http.post<PlaybookRule>(`${environment.apiUrl}/playbook`, data);
+  }
+  updatePlaybookRule(id: string, data: UpdatePlaybookRule): Observable<PlaybookRule> {
+    return this.http.put<PlaybookRule>(`${environment.apiUrl}/playbook/${id}`, data);
+  }
+  deletePlaybookRule(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/playbook/${id}`);
+  }
+  reorderPlaybookRules(orderedIds: string[]): Observable<void> {
+    return this.http.put<void>(`${environment.apiUrl}/playbook/reorder`, orderedIds);
+  }
+  getChecklist(tradeId: string): Observable<TradeChecklistItem[]> {
+    return this.http.get<TradeChecklistItem[]>(`${environment.apiUrl}/playbook/checklist/${tradeId}`);
+  }
+  saveChecklist(data: SaveChecklist): Observable<{ compliancePercent: number }> {
+    return this.http.post<{ compliancePercent: number }>(`${environment.apiUrl}/playbook/checklist`, data);
+  }
+
+  // Chart Upload
+  uploadChart(tradeId: string, file: File): Observable<{ url: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ url: string }>(`${environment.apiUrl}/upload/chart?tradeId=${tradeId}`, formData);
+  }
+  getChartUrl(tradeId: string): Observable<{ url: string }> {
+    return this.http.get<{ url: string }>(`${environment.apiUrl}/upload/chart/${tradeId}`);
+  }
+  deleteChart(tradeId: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/upload/chart/${tradeId}`);
+  }
+
+  // AI Chat
+  getAiSettings(): Observable<UserAiSettings> {
+    return this.http.get<UserAiSettings>(`${environment.apiUrl}/ai/settings`);
+  }
+  saveAiSettings(data: SaveAiSettings): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/ai/settings`, data);
+  }
+  getAiSessions(): Observable<AiChatSession[]> {
+    return this.http.get<AiChatSession[]>(`${environment.apiUrl}/ai/sessions`);
+  }
+  getAiSession(id: string): Observable<AiChatSession> {
+    return this.http.get<AiChatSession>(`${environment.apiUrl}/ai/sessions/${id}`);
+  }
+  deleteAiSession(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/ai/sessions/${id}`);
+  }
+
+  // Backtest
+  runBacktest(data: BacktestRequest): Observable<BacktestResult> {
+    return this.http.post<BacktestResult>(`${environment.apiUrl}/backtest/run`, data);
+  }
+  getBacktestHistory(): Observable<BacktestResult[]> {
+    return this.http.get<BacktestResult[]>(`${environment.apiUrl}/backtest`);
+  }
+  getBacktest(id: string): Observable<BacktestResult> {
+    return this.http.get<BacktestResult>(`${environment.apiUrl}/backtest/${id}`);
+  }
+  deleteBacktest(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/backtest/${id}`);
   }
 }

@@ -177,6 +177,13 @@ import { TradingAccount, CreateTradingAccount } from '../../models/models';
                     <label for="has5xLotRule" style="margin:0">Enforce 5x Lot Rule</label>
                   </div>
                 </div>
+                <div class="form-group">
+                  <label>Daily Loss Limit Basis</label>
+                  <select formControlName="maxDailyLossType" class="form-input">
+                    <option [value]="1">Balance-Based (% of starting balance)</option>
+                    <option [value]="2">Equity-Based (% of current equity)</option>
+                  </select>
+                </div>
               </div>
             }
           </form>
@@ -224,7 +231,8 @@ export class AccountsComponent implements OnInit {
       maxRiskPerTradePctOfDailyLimit: [40.0],
       maxAllowedLotSize: [5.0],
       useDynamicEquity: [true],
-      has5xLotRule: [true]
+      has5xLotRule: [true],
+      maxDailyLossType: [1]
     });
   }
 
@@ -250,7 +258,7 @@ export class AccountsComponent implements OnInit {
         balance: 10000, currency: 'USD', isDefault: this.accounts().length === 0,
         isPropFirm: false, dailyDrawdownLimitPct: 3.0, maxOverallLossPct: 6.0,
         profitTargetPct: 10.0, profitSplitPct: 80.0, maxRiskPerTradePctOfDailyLimit: 40.0,
-        maxAllowedLotSize: 5.0, useDynamicEquity: true, has5xLotRule: true
+        maxAllowedLotSize: 5.0, useDynamicEquity: true, has5xLotRule: true, maxDailyLossType: 1
       });
     }
     this.isModalOpen.set(true);

@@ -17,6 +17,8 @@ public class CreateTradeDto
     public string? Notes { get; set; }
     public string? Tags { get; set; }
     public Guid? TradingAccountId { get; set; }
+    public List<Guid>? CheckedRuleIds { get; set; }
+    public string? ChartImageUrl { get; set; }
 }
 
 public class UpdateTradeDto
@@ -32,6 +34,8 @@ public class UpdateTradeDto
     public TradeType TradeType { get; set; }
     public string? Notes { get; set; }
     public string? Tags { get; set; }
+    public List<Guid>? CheckedRuleIds { get; set; }
+    public string? ChartImageUrl { get; set; }
 }
 
 public class TradeDto
@@ -57,6 +61,9 @@ public class TradeDto
     
     // Prop Firm Rule Violations
     public List<string> RuleViolations { get; set; } = new();
+    public decimal? ChecklistCompliancePercent { get; set; }
+    public string? ChartImageUrl { get; set; }
+    public Guid? TradingAccountId { get; set; }
 }
 
 public class TradeFilterDto

@@ -6,7 +6,7 @@ import { ThemeService } from '../../services/theme.service';
 import { ToastService } from '../../services/toast.service';
 import { ChatService } from '../../services/chat.service';
 import { ApiService } from '../../services/api.service';
-import { DirectMessage } from '../../models/models';
+import { DirectMessage, Streak } from '../../models/models';
 
 @Component({
   selector: 'app-shell',
@@ -76,6 +76,14 @@ import { DirectMessage } from '../../models/models';
               </div>
             }
 
+            <!-- Streak Badge -->
+            @if (streak() && streak()!.currentStreak > 0) {
+              <div class="streak-badge" [title]="'Discipline: ' + streak()!.disciplineGrade + ' (' + streak()!.disciplineScore + '/100)'">
+                🔥 {{ streak()!.currentStreak }}
+                @if (!sidebarCollapsed()) { <span class="streak-label">day streak</span> }
+              </div>
+            }
+
             <!-- 🔔 Notification Bell -->
             <div class="notif-wrapper" (click)="toggleNotifPanel($event)">
               <button class="notif-btn" [class.has-unread]="chatService.globalUnreadCount() > 0" title="Notifications">
@@ -137,6 +145,20 @@ import { DirectMessage } from '../../models/models';
     </div>
   `,
   styles: [`
+    .streak-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: default;
+    }
+    .streak-label { font-size: 0.75rem; font-weight: 500; }
+
     .nav-item-rel { position: relative; }
 
     .nav-badge {
@@ -330,6 +352,7 @@ export class ShellComponent implements OnInit {
   showLossAlert = signal(false);
   showNotifPanel = signal(false);
   recentDMs = signal<DirectMessage[]>([]);
+  streak = signal<Streak | null>(null);
 
   navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: '📊' },
@@ -341,6 +364,9 @@ export class ShellComponent implements OnInit {
     { path: '/risk-tool', label: 'Risk Tool', icon: '⚖️' },
     { path: '/accounts', label: 'Accounts', icon: '🏦' },
     { path: '/alerts', label: 'Alerts', icon: '🔔' },
+    { path: '/playbook', label: 'Playbook', icon: '📋' },
+    { path: '/ai-chat', label: 'AI Chat', icon: '🤖' },
+    { path: '/backtest', label: 'Backtest', icon: '🔬' },
     { path: '/forum', label: 'Forum', icon: '💬' },
   ];
 
@@ -354,17 +380,22 @@ export class ShellComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Start SignalR and load unread count on page load
     const token = this.authService.getToken();
     if (token) {
       this.chatService.startConnection(token);
       this.loadUnreadCount();
     }
-
-    // When a new DM arrives via SignalR, add to recent DMs list for notification panel
     this.chatService.onNewDirectMessage((dm) => {
       this.recentDMs.update(list => [dm, ...list].slice(0, 10));
       this.toast.info(`New message from ${dm.senderName}`, '💌 Direct Message');
+    });
+    this.loadStreak();
+  }
+
+  loadStreak() {
+    this.apiService.getStreak().subscribe({
+      next: (s) => this.streak.set(s),
+      error: () => {}
     });
   }
 
@@ -408,8 +439,9 @@ export class ShellComponent implements OnInit {
     if (user.role === 'Admin') return this.navItems;
     // Regular users: Dashboard, Accounts, and Forum always visible; rest by allowedSections
     const allowed = user.allowedSections ?? [];
+    const alwaysVisible = ['Dashboard', 'Accounts', 'Forum', 'Playbook', 'AI Chat', 'Backtest'];
     return this.navItems.filter(item =>
-      item.label === 'Dashboard' || item.label === 'Accounts' || item.label === 'Forum' || allowed.includes(item.label)
+      alwaysVisible.includes(item.label) || allowed.includes(item.label)
     );
   }
 

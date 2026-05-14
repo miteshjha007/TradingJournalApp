@@ -10,11 +10,13 @@ public class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
     private readonly IJwtService _jwtService;
+    private readonly IStreakService _streakService;
 
-    public AuthService(IUserRepository userRepository, IJwtService jwtService)
+    public AuthService(IUserRepository userRepository, IJwtService jwtService, IStreakService streakService)
     {
         _userRepository = userRepository;
         _jwtService = jwtService;
+        _streakService = streakService;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
@@ -53,14 +55,14 @@ public class AuthService : IAuthService
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
         await _userRepository.UpdateAsync(user);
 
+        await _streakService.UpdateStreakOnLoginAsync(user.Id);
+
         return BuildResponse(user);
     }
 
     public async Task<AuthResponseDto> RefreshTokenAsync(string refreshToken)
     {
-        var users = await _userRepository.GetAllAsync();
-        var user = users.FirstOrDefault(u => u.RefreshToken == refreshToken
-            && u.RefreshTokenExpiry > DateTime.UtcNow)
+        var user = await _userRepository.GetByRefreshTokenAsync(refreshToken)
             ?? throw new UnauthorizedAccessException("Invalid or expired refresh token.");
 
         user.RefreshToken = _jwtService.GenerateRefreshToken();

@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule, DecimalPipe, CurrencyPipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { AiAnalysis, PerformanceMetrics, DrawdownInfo } from '../../models/models';
+import { AiAnalysis, PerformanceMetrics, DrawdownInfo, HeatmapData, ShadowProfile } from '../../models/models';
 
 
 @Component({
@@ -11,6 +11,20 @@ import { AiAnalysis, PerformanceMetrics, DrawdownInfo } from '../../models/model
   template: `
     <div class="page-wrapper">
       <h1 class="page-title-h1">Analytics & AI Insights</h1>
+
+      <!-- Tab Nav -->
+      <div class="tab-nav" style="margin-bottom:1.5rem">
+        <button class="tab-btn" [class.active]="activeTab() === 'insights'" (click)="activeTab.set('insights')">🤖 AI Insights</button>
+        <button class="tab-btn" [class.active]="activeTab() === 'heatmap'" (click)="loadHeatmap()">🔥 Trade Heatmap</button>
+        <button class="tab-btn" [class.active]="activeTab() === 'shadow'" (click)="loadShadow()">🪞 Journal DNA</button>
+      </div>
+
+      @if (loading()) {
+        <div class="loading-state"><div class="loading-spinner"></div></div>
+      }
+
+      <!-- AI Insights Tab -->
+      @if (activeTab() === 'insights' && !loading()) {
 
       <!-- AI Score Banner -->
       @if (aiAnalysis()) {
@@ -25,9 +39,6 @@ import { AiAnalysis, PerformanceMetrics, DrawdownInfo } from '../../models/model
         </div>
       }
 
-      @if (loading()) {
-        <div class="loading-state"><div class="loading-spinner"></div></div>
-      } @else {
         <div class="analytics-grid">
           <!-- AI Insights -->
           <div class="section-card span-full">
@@ -140,6 +151,124 @@ import { AiAnalysis, PerformanceMetrics, DrawdownInfo } from '../../models/model
           </div>
         </div>
       }
+
+      <!-- Heatmap Tab -->
+      @if (activeTab() === 'heatmap') {
+        <div class="section-card">
+          <h3>🔥 Trading Performance Heatmap</h3>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1rem">Hour-of-day vs Day-of-week. Color = avg P/L (green = best, red = worst).</p>
+
+          @if (heatmap()) {
+            <!-- Session Bands -->
+            <div class="session-bands">
+              @for (s of heatmap()!.sessions; track s.name) {
+                <div class="session-band" [style.background]="sessionColor(s.name)" style="color:white">
+                  {{ s.name }}: {{ s.totalPL | currency }} ({{ s.tradeCount }} trades)
+                </div>
+              }
+            </div>
+
+            <!-- Heatmap Grid Header (Hours) -->
+            <div class="heatmap-grid">
+              <div class="heatmap-label"></div>
+              @for (h of hours; track h) {
+                <div class="heatmap-label" style="text-align:center">{{ h }}</div>
+              }
+              @for (day of days; track day.value) {
+                <div class="heatmap-label" style="font-weight:600">{{ day.label }}</div>
+                @for (h of hours; track h) {
+                  <div class="heatmap-cell"
+                    [style.background]="cellColor(day.value, h)"
+                    [title]="cellTooltip(day.value, h)">
+                  </div>
+                }
+              }
+            </div>
+
+            @if (heatmap()!.bestSlot || heatmap()!.worstSlot) {
+              <div style="display:flex;gap:1rem;margin-top:1rem">
+                @if (heatmap()!.bestSlot) {
+                  <div style="padding:0.75rem;background:rgba(16,185,129,0.1);border:1px solid #10b981;border-radius:8px;font-size:0.8rem">
+                    ✅ Best: {{ dayName(heatmap()!.bestSlot!.dayOfWeek) }} {{ heatmap()!.bestSlot!.hour }}:00 — {{ heatmap()!.bestSlot!.avgPL | currency }}
+                  </div>
+                }
+                @if (heatmap()!.worstSlot) {
+                  <div style="padding:0.75rem;background:rgba(239,68,68,0.1);border:1px solid #ef4444;border-radius:8px;font-size:0.8rem">
+                    ❌ Worst: {{ dayName(heatmap()!.worstSlot!.dayOfWeek) }} {{ heatmap()!.worstSlot!.hour }}:00 — {{ heatmap()!.worstSlot!.avgPL | currency }}
+                  </div>
+                }
+              </div>
+            }
+          } @else {
+            <div class="loading-state"><div class="loading-spinner"></div></div>
+          }
+        </div>
+      }
+
+      <!-- Shadow / Journal DNA Tab -->
+      @if (activeTab() === 'shadow') {
+        <div class="analytics-grid">
+          @if (shadow()) {
+            <div class="section-card span-full">
+              <h3>🧬 Trading DNA</h3>
+              <div class="dna-score" style="font-size:1.3rem;font-weight:700;margin-bottom:1rem">
+                Consistency Score: <span [style.color]="disciplineColor(shadow()!.consistencyScore)">{{ shadow()!.consistencyScore }}/100</span>
+              </div>
+              <div class="dna-string" style="font-family:monospace;font-size:0.8rem;color:var(--text-muted);word-break:break-all;margin-bottom:1.5rem">{{ shadow()!.dna }}</div>
+            </div>
+
+            <div class="section-card">
+              <h3>✅ Winning Patterns</h3>
+              @for (r of shadow()!.winningRules; track r.description) {
+                <div class="dna-rule positive" style="display:flex;justify-content:space-between;padding:0.6rem;border-bottom:1px solid var(--border-color)">
+                  <span>{{ r.description }}</span>
+                  <span style="color:#10b981;font-weight:600">+{{ r.impact | currency }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="section-card">
+              <h3>❌ Losing Patterns</h3>
+              @for (r of shadow()!.losingRules; track r.description) {
+                <div class="dna-rule negative" style="display:flex;justify-content:space-between;padding:0.6rem;border-bottom:1px solid var(--border-color)">
+                  <span>{{ r.description }}</span>
+                  <span style="color:#ef4444;font-weight:600">{{ r.impact | currency }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="section-card">
+              <h3>🏆 Best Setups</h3>
+              @for (p of shadow()!.bestPatterns; track p.label) {
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem;border-bottom:1px solid var(--border-color)">
+                  <div>
+                    <div style="font-weight:600">{{ p.label }}: {{ p.value }}</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted)">{{ p.tradeCount }} trades</div>
+                  </div>
+                  <span style="color:#10b981;font-weight:700">{{ p.avgPL | currency }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="section-card">
+              <h3>⚠️ Worst Setups</h3>
+              @for (p of shadow()!.worstPatterns; track p.label) {
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem;border-bottom:1px solid var(--border-color)">
+                  <div>
+                    <div style="font-weight:600">{{ p.label }}: {{ p.value }}</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted)">{{ p.tradeCount }} trades</div>
+                  </div>
+                  <span style="color:#ef4444;font-weight:700">{{ p.avgPL | currency }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="section-card span-full">
+              <div class="loading-state"><div class="loading-spinner"></div></div>
+            </div>
+          }
+        </div>
+      }
     </div>
   `
 })
@@ -148,6 +277,15 @@ export class AnalyticsComponent implements OnInit {
   aiAnalysis = signal<AiAnalysis | null>(null);
   metrics = signal<PerformanceMetrics | null>(null);
   drawdown = signal<DrawdownInfo | null>(null);
+  heatmap = signal<HeatmapData | null>(null);
+  shadow = signal<ShadowProfile | null>(null);
+  activeTab = signal<'insights' | 'heatmap' | 'shadow'>('insights');
+
+  days = [
+    { value: 0, label: 'Sun' }, { value: 1, label: 'Mon' }, { value: 2, label: 'Tue' },
+    { value: 3, label: 'Wed' }, { value: 4, label: 'Thu' }, { value: 5, label: 'Fri' }, { value: 6, label: 'Sat' }
+  ];
+  hours = Array.from({ length: 24 }, (_, i) => i);
 
   constructor(private api: ApiService) {}
 
@@ -162,5 +300,48 @@ export class AnalyticsComponent implements OnInit {
       this.drawdown.set(dd || null);
       this.loading.set(false);
     }).catch(() => this.loading.set(false));
+  }
+
+  loadHeatmap() {
+    this.activeTab.set('heatmap');
+    if (this.heatmap()) return;
+    this.api.getHeatmap().subscribe({ next: (h) => this.heatmap.set(h), error: () => {} });
+  }
+
+  loadShadow() {
+    this.activeTab.set('shadow');
+    if (this.shadow()) return;
+    this.api.getShadowProfile().subscribe({ next: (s) => this.shadow.set(s), error: () => {} });
+  }
+
+  cellColor(day: number, hour: number): string {
+    const cell = this.heatmap()?.cells.find(c => c.dayOfWeek === day && c.hour === hour);
+    if (!cell || cell.tradeCount === 0) return 'var(--bg-hover)';
+    const i = cell.intensity;
+    if (i > 0) return `rgba(16,185,129,${Math.min(i, 1) * 0.8 + 0.1})`;
+    return `rgba(239,68,68,${Math.min(Math.abs(i), 1) * 0.8 + 0.1})`;
+  }
+
+  cellTooltip(day: number, hour: number): string {
+    const cell = this.heatmap()?.cells.find(c => c.dayOfWeek === day && c.hour === hour);
+    if (!cell || cell.tradeCount === 0) return 'No trades';
+    return `${cell.tradeCount} trades | WR: ${(cell.winRate * 100).toFixed(0)}% | Avg: $${cell.avgPL.toFixed(2)}`;
+  }
+
+  dayName(d: number): string {
+    return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d] ?? '';
+  }
+
+  sessionColor(name: string): string {
+    if (name.includes('London')) return '#6366f1';
+    if (name.includes('New York') || name.includes('NY')) return '#10b981';
+    if (name.includes('Asia')) return '#f59e0b';
+    return '#8b5cf6';
+  }
+
+  disciplineColor(score: number): string {
+    if (score >= 80) return '#10b981';
+    if (score >= 60) return '#f59e0b';
+    return '#ef4444';
   }
 }

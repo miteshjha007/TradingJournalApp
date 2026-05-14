@@ -19,6 +19,13 @@ public class UserRepository : IUserRepository
     public async Task<List<User>> GetAllAsync() =>
         await _db.Users.ToListAsync();
 
+    public async Task<User?> GetByRefreshTokenAsync(string refreshToken) =>
+        await _db.Users.FirstOrDefaultAsync(u =>
+            u.RefreshToken == refreshToken && u.RefreshTokenExpiry > DateTime.UtcNow);
+
+    public async Task<List<User>> GetAllExceptAsync(Guid currentUserId) =>
+        await _db.Users.Where(u => u.Id != currentUserId).ToListAsync();
+
     public async Task<User> CreateAsync(User user)
     {
         _db.Users.Add(user);

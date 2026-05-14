@@ -750,5 +750,213 @@ public class DashboardService : IDashboardService
             ActiveWarnings = warnings
         };
     }
+
+    public async Task<HeatmapDto> GetHeatmapAsync(Guid userId)
+    {
+        var trades = await _tradeRepository.GetByUserIdAsync(userId);
+
+        var cells = trades
+            .GroupBy(t => new { DayOfWeek = (int)t.TradeDate.DayOfWeek == 0 ? 6 : (int)t.TradeDate.DayOfWeek - 1, Hour = t.TradeDate.Hour })
+            .Select(g =>
+            {
+                var wins = g.Count(t => t.Result == TradeResult.Win);
+                var totalPL = g.Sum(t => t.ProfitLoss);
+                var count = g.Count();
+                return new HeatmapCellDto
+                {
+                    DayOfWeek = g.Key.DayOfWeek,
+                    Hour = g.Key.Hour,
+                    TotalPL = Math.Round(totalPL, 2),
+                    TradeCount = count,
+                    WinRate = count > 0 ? Math.Round((decimal)wins / count * 100, 1) : 0,
+                    AvgPL = count > 0 ? Math.Round(totalPL / count, 2) : 0
+                };
+            }).ToList();
+
+        // Normalize intensity
+        if (cells.Any())
+        {
+            var maxPos = cells.Where(c => c.AvgPL > 0).Select(c => c.AvgPL).DefaultIfEmpty(1).Max();
+            var maxNeg = Math.Abs(cells.Where(c => c.AvgPL < 0).Select(c => c.AvgPL).DefaultIfEmpty(-1).Min());
+            foreach (var c in cells)
+                c.Intensity = c.AvgPL >= 0
+                    ? (maxPos > 0 ? Math.Round(c.AvgPL / maxPos, 3) : 0)
+                    : (maxNeg > 0 ? Math.Round(c.AvgPL / maxNeg, 3) : 0);
+        }
+
+        // Session P/L (UTC hours)
+        decimal londonPL = 0, nyPL = 0, asiaPL = 0;
+        foreach (var t in trades)
+        {
+            var h = t.TradeDate.Hour;
+            if (h >= 7 && h < 16) londonPL += t.ProfitLoss;
+            if (h >= 13 && h < 22) nyPL += t.ProfitLoss;
+            if (h < 9 || h >= 23) asiaPL += t.ProfitLoss;
+        }
+
+        // Best/Worst slot (min 3 trades)
+        var qualified = cells.Where(c => c.TradeCount >= 3).ToList();
+        var dayNames = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+        var bestCell = qualified.OrderByDescending(c => c.AvgPL).FirstOrDefault();
+        var worstCell = qualified.OrderBy(c => c.AvgPL).FirstOrDefault();
+
+        string SlotLabel(HeatmapCellDto? c) => c == null ? "N/A"
+            : $"{dayNames[c.DayOfWeek]} {c.Hour:D2}:00 UTC";
+
+        var sessions = new List<SessionStatsDto>
+        {
+            BuildSession("London", trades, h => h >= 7 && h < 16),
+            BuildSession("New York", trades, h => h >= 13 && h < 22),
+            BuildSession("Asia", trades, h => h < 9 || h >= 23),
+            BuildSession("London/NY Overlap", trades, h => h >= 13 && h < 16)
+        };
+
+        return new HeatmapDto
+        {
+            Cells = cells,
+            BestSlot = SlotLabel(bestCell),
+            WorstSlot = SlotLabel(worstCell),
+            LondonSessionPL = Math.Round(londonPL, 2),
+            NYSessionPL = Math.Round(nyPL, 2),
+            AsiaSessionPL = Math.Round(asiaPL, 2),
+            SessionBreakdown = sessions
+        };
+    }
+
+    private static SessionStatsDto BuildSession(string name, List<Trade> trades, Func<int, bool> hourFilter)
+    {
+        var sessionTrades = trades.Where(t => hourFilter(t.TradeDate.Hour)).ToList();
+        var wins = sessionTrades.Count(t => t.Result == TradeResult.Win);
+        return new SessionStatsDto
+        {
+            Name = name,
+            TotalPL = Math.Round(sessionTrades.Sum(t => t.ProfitLoss), 2),
+            TradeCount = sessionTrades.Count,
+            WinRate = sessionTrades.Count > 0 ? Math.Round((decimal)wins / sessionTrades.Count * 100, 1) : 0
+        };
+    }
+
+    public async Task<ShadowProfileDto> GetShadowProfileAsync(Guid userId)
+    {
+        var allTrades = await _tradeRepository.GetByUserIdAsync(userId);
+        var sorted = allTrades.OrderBy(t => t.TradeDate).ToList();
+
+        var wins = sorted.Where(t => t.Result == TradeResult.Win).ToList();
+        var losses = sorted.Where(t => t.Result == TradeResult.Loss).ToList();
+
+        var rules = new List<ShadowRuleDto>();
+        rules.AddRange(ExtractPatterns(wins, "Win"));
+
+        var bestPatterns = wins.Count > 0 ? BuildTopPatterns(wins, 3) : new();
+        var worstPatterns = losses.Count > 0 ? BuildTopPatterns(losses, 3) : new();
+
+        var dna = BuildTradingDNA(bestPatterns, worstPatterns, wins, losses);
+
+        return new ShadowProfileDto
+        {
+            TotalRoundtrips = sorted.Count,
+            ProfitableRoundtrips = wins.Count,
+            ExtractedRules = rules,
+            TradingDNA = dna,
+            BestPatterns = bestPatterns,
+            WorstPatterns = worstPatterns
+        };
+    }
+
+    private static List<ShadowRuleDto> ExtractPatterns(List<Trade> trades, string label)
+    {
+        var rules = new List<ShadowRuleDto>();
+        if (!trades.Any()) return rules;
+
+        var dayNames = new[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+
+        // By day of week
+        foreach (var g in trades.GroupBy(t => t.TradeDate.DayOfWeek).OrderByDescending(g => g.Count()).Take(2))
+        {
+            var wins = g.Count(t => t.Result == TradeResult.Win);
+            rules.Add(new ShadowRuleDto
+            {
+                RuleText = $"Trades on {dayNames[(int)g.Key]}",
+                Support = g.Count(),
+                WinRate = Math.Round((decimal)wins / g.Count() * 100, 1),
+                AvgPL = Math.Round(g.Average(t => t.ProfitLoss), 2),
+                Category = "Time"
+            });
+        }
+
+        // By hour bracket
+        foreach (var g in trades.GroupBy(t => t.TradeDate.Hour / 2 * 2).OrderByDescending(g => g.Count()).Take(2))
+        {
+            var wins = g.Count(t => t.Result == TradeResult.Win);
+            rules.Add(new ShadowRuleDto
+            {
+                RuleText = $"Trades between {g.Key:D2}:00-{g.Key + 2:D2}:00 UTC",
+                Support = g.Count(),
+                WinRate = Math.Round((decimal)wins / g.Count() * 100, 1),
+                AvgPL = Math.Round(g.Average(t => t.ProfitLoss), 2),
+                Category = "Time"
+            });
+        }
+
+        // By instrument
+        foreach (var g in trades.GroupBy(t => t.Instrument?.Name ?? "Unknown").OrderByDescending(g => g.Count()).Take(2))
+        {
+            var wins = g.Count(t => t.Result == TradeResult.Win);
+            rules.Add(new ShadowRuleDto
+            {
+                RuleText = $"{g.Key}: {(decimal)wins / g.Count() * 100:F0}% win rate",
+                Support = g.Count(),
+                WinRate = Math.Round((decimal)wins / g.Count() * 100, 1),
+                AvgPL = Math.Round(g.Average(t => t.ProfitLoss), 2),
+                Category = "Instrument"
+            });
+        }
+
+        // By duration bucket
+        var shortTrades = trades.Where(t => t.TradeDurationMinutes is > 0 and <= 60).ToList();
+        if (shortTrades.Count >= 3)
+        {
+            var wins2 = shortTrades.Count(t => t.Result == TradeResult.Win);
+            rules.Add(new ShadowRuleDto
+            {
+                RuleText = "Short trades (0-60 min)",
+                Support = shortTrades.Count,
+                WinRate = Math.Round((decimal)wins2 / shortTrades.Count * 100, 1),
+                AvgPL = Math.Round(shortTrades.Average(t => t.ProfitLoss), 2),
+                Category = "Duration"
+            });
+        }
+
+        return rules;
+    }
+
+    private static List<PatternDto> BuildTopPatterns(List<Trade> trades, int topN)
+    {
+        var dayNames = new[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+        return trades
+            .GroupBy(t => t.TradeDate.DayOfWeek)
+            .OrderByDescending(g => g.Average(t => t.ProfitLoss))
+            .Take(topN)
+            .Select(g => new PatternDto
+            {
+                Description = $"Trades on {dayNames[(int)g.Key]}",
+                TradeCount = g.Count(),
+                AvgPL = Math.Round(g.Average(t => t.ProfitLoss), 2),
+                WinRate = Math.Round((decimal)g.Count(t => t.Result == TradeResult.Win) / g.Count() * 100, 1)
+            }).ToList();
+    }
+
+    private static string BuildTradingDNA(List<PatternDto> best, List<PatternDto> worst,
+        List<Trade> wins, List<Trade> losses)
+    {
+        if (wins.Count < 5)
+            return "Add at least 5 winning trades to generate your Trading DNA.";
+
+        var bestDesc = best.FirstOrDefault()?.Description ?? "varied sessions";
+        var worstDesc = worst.FirstOrDefault()?.Description ?? "varied sessions";
+        return $"Your best trading pattern is during {bestDesc} with strong win consistency. " +
+               $"You tend to struggle during {worstDesc}. " +
+               $"Overall you have {wins.Count} profitable trades out of {wins.Count + losses.Count} total.";
+    }
 }
 
