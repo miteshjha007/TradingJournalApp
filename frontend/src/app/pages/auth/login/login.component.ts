@@ -52,9 +52,11 @@ import { Subscription } from 'rxjs';
             <p>Don't have an account? <a routerLink="/auth/register">Create one</a></p>
           </div>
 
+          <!--
           <div class="demo-creds">
             <p><strong>Demo:</strong> trader&#64;tradingjournal.com / Trader&#64;123</p>
           </div>
+          -->
         </div>
       </div>
     </div>
