@@ -113,6 +113,59 @@ public class AuthService : IAuthService
         };
     }
 
+    public async Task<AuthResponseDto> GoogleLoginAsync(string idToken)
+    {
+        try
+        {
+            var settings = new Google.Apis.Auth.GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = new List<string> { "138510759100-mv83uftop7vjjea99lldjr1fhnue1d4l.apps.googleusercontent.com" }
+            };
+            var payload = await Google.Apis.Auth.GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+
+            var email = payload.Email.ToLowerInvariant();
+            var user = await _userRepository.GetByEmailAsync(email);
+
+            if (user == null)
+            {
+                user = new User
+                {
+                    FirstName = payload.GivenName ?? "Google",
+                    LastName = payload.FamilyName ?? "User",
+                    Email = email,
+                    PasswordHash = string.Empty, // No password for Google users
+                    Role = UserRole.User,
+                    IsActive = true,
+                    RefreshToken = _jwtService.GenerateRefreshToken(),
+                    RefreshTokenExpiry = DateTime.UtcNow.AddDays(7),
+                    ProfileImageUrl = payload.Picture
+                };
+                await _userRepository.CreateAsync(user);
+            }
+            else
+            {
+                if (!user.IsActive)
+                    throw new UnauthorizedAccessException("Account is deactivated.");
+
+                user.RefreshToken = _jwtService.GenerateRefreshToken();
+                user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+                if (string.IsNullOrEmpty(user.ProfileImageUrl) && !string.IsNullOrEmpty(payload.Picture))
+                {
+                    user.ProfileImageUrl = payload.Picture;
+                }
+                await _userRepository.UpdateAsync(user);
+            }
+
+            await _streakService.UpdateStreakOnLoginAsync(user.Id);
+
+            return BuildResponse(user);
+        }
+        catch (Google.Apis.Auth.InvalidJwtException)
+        {
+            throw new UnauthorizedAccessException("Invalid Google token.");
+        }
+    }
+
     private AuthResponseDto BuildResponse(User user)
     {
         var accessToken = _jwtService.GenerateAccessToken(user);

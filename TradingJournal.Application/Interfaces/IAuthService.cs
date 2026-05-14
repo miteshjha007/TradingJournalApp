@@ -9,4 +9,5 @@ public interface IAuthService
     Task<AuthResponseDto> RefreshTokenAsync(string refreshToken);
     Task RevokeTokenAsync(Guid userId);
     Task<UserInfoDto> AdminCreateUserAsync(AdminCreateUserDto dto);
+    Task<AuthResponseDto> GoogleLoginAsync(string idToken);
 }

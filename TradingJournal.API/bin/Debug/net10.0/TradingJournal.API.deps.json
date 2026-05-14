@@ -620,6 +620,14 @@
           }
         }
       },
+      "SixLabors.ImageSharp/3.1.5": {
+        "runtime": {
+          "lib/net6.0/SixLabors.ImageSharp.dll": {
+            "assemblyVersion": "3.0.0.0",
+            "fileVersion": "3.1.5.0"
+          }
+        }
+      },
       "Swashbuckle.AspNetCore/6.9.0": {
         "dependencies": {
           "Swashbuckle.AspNetCore.Swagger": "6.9.0",
@@ -764,6 +772,7 @@
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.7",
           "Microsoft.EntityFrameworkCore": "10.0.7",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.1",
+          "SixLabors.ImageSharp": "3.1.5",
           "System.IdentityModel.Tokens.Jwt": "8.17.0",
           "TradingJournal.Application": "1.0.0",
           "TradingJournal.Domain": "1.0.0"
@@ -1034,6 +1043,13 @@
       "sha512": "sha512-fKL7mXv7qaiNBUC71ssvn/dU0k9t0o45+qm2XgKAlSt19xF+ijjxyA3R6HmCgfKEKwfcfkwWjayuQtRueZFkYw==",
       "path": "serilog.sinks.file/7.0.0",
       "hashPath": "serilog.sinks.file.7.0.0.nupkg.sha512"
+    },
+    "SixLabors.ImageSharp/3.1.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lNtlq7dSI/QEbYey+A0xn48z5w4XHSffF8222cC4F4YwTXfEImuiBavQcWjr49LThT/pRmtWJRcqA/PlL+eJ6g==",
+      "path": "sixlabors.imagesharp/3.1.5",
+      "hashPath": "sixlabors.imagesharp.3.1.5.nupkg.sha512"
     },
     "Swashbuckle.AspNetCore/6.9.0": {
       "type": "package",

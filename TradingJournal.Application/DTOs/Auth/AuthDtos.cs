@@ -57,3 +57,8 @@ public class AdminUpdateUserDto
     public decimal AccountBalance { get; set; }
     public List<string> AllowedSections { get; set; } = new();
 }
+
+public class GoogleAuthDto
+{
+    public string IdToken { get; set; } = string.Empty;
+}

@@ -58,6 +58,30 @@ public class AuthController : ControllerBase
         }
     }
 
+    /// <summary>Login with Google</summary>
+    [HttpPost("google")]
+    public async Task<ActionResult<AuthResponseDto>> GoogleLogin([FromBody] GoogleAuthDto dto)
+    {
+        try
+        {
+            _logger.LogInformation("Attempting Google login.");
+            var result = await _authService.GoogleLoginAsync(dto.IdToken);
+            _logger.LogInformation("Successfully logged in with Google for user: {Email}", result.User.Email);
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning("Invalid Google login attempt.");
+            return Unauthorized(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred during Google login.");
+            return StatusCode(500, new { error = "An error occurred during Google login. Please try again." });
+        }
+    }
+
+
     /// <summary>Refresh access token</summary>
     [HttpPost("refresh")]
     public async Task<ActionResult<AuthResponseDto>> Refresh([FromBody] RefreshTokenDto dto)

@@ -28,6 +28,12 @@ export class AuthService {
     );
   }
 
+  loginWithGoogle(idToken: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/google`, { idToken }).pipe(
+      tap(res => this.storeAuth(res))
+    );
+  }
+
   refresh(): Observable<AuthResponse> {
     const token = localStorage.getItem('refreshToken') || '';
     return this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, { refreshToken: token }).pipe(

@@ -1,0 +1,50 @@
+1. Database: PostgreSQL 🐘
+Recommendation: Neon.tech or Supabase
+
+Why: Both offer permanent free tiers for PostgreSQL databases. Neon is specifically built as a "Serverless Postgres" and is incredibly easy to set up.
+How to deploy:
+Create an account, create a new project/database.
+Copy the provided connection string.
+Update your .NET backend appsettings.json (or environment variables) to use this new connection string.
+2. Backend: .NET Web API ⚙️
+Recommendation: Azure App Service (Free Tier) or Render
+
+Azure App Service: Because you are using .NET, Microsoft Azure provides a permanently free tier (F1) for web apps. It's the most native and stable place to host a .NET API for free.
+Render: If you prefer something simpler than Azure, Render has a "Free Web Service" tier. You just connect your GitHub repository, and it builds and deploys your .NET app. (Note: Render's free tier goes to sleep after 15 minutes of inactivity, so the first request after a while might take 30-50 seconds to wake up).
+How to deploy: Connect your GitHub repo, set the environment variables (like your Database Connection String from step 1), and deploy.
+3. Frontend: Angular 🎨
+Recommendation: Vercel or Netlify
+
+Why: These are the industry standards for hosting frontend applications. They are blazing fast, offer global CDNs, and are 100% free for hobby/testing projects.
+How to deploy:
+Go to Vercel/Netlify, click "Add New Project" and connect your GitHub repository.
+Select your frontend folder. The platform will automatically detect that it's an Angular app and run npm install and npm run build for you.
+Important: Make sure to update your Angular environment.prod.ts file so the apiUrl points to the live URL of your deployed .NET Backend (from Step 2).
+Summary of Steps to get it Live:
+Host the Database: Get your live PostgreSQL connection string from Neon.tech.
+Configure Backend: Put that connection string into your .NET project and deploy the backend to Render or Azure. Copy the live API URL (e.g., https://my-api.azurewebsites.net).
+Configure Frontend: Put the live API URL into your Angular environment.prod.ts.
+Deploy Frontend: Deploy the Angular app to Vercel.
+Once done, Vercel will give you a live link (like https://trading-journal.vercel.app) that you can share with your friends to test! Let me know if you'd like to proceed with this and need help configuring any specific part (like updating the environments or writing a Dockerfile for the backend).
+
+
+
+1. Backend Logs (.NET API Errors, Serilog, SignalR)
+If an API request fails, or if you want to see your Serilog output and Chat Hub connections, you will check Render:
+
+Go to your Render Dashboard.
+Click on your Web Service (trading-journal-api).
+On the left-side menu, click Logs.
+Note: This will show you a live, real-time stream of everything happening on your backend.
+2. Frontend Logs (Angular UI Errors, API Calls)
+Because Angular runs entirely on your users' computers (inside their browsers), the logs are generated on their local machines!
+
+If a tester says "a button doesn't work", ask them to Right-Click -> Inspect and go to the Console tab in their browser to see the error.
+If you want to see build logs or deployment history, you can check the Deployments tab in your Vercel Dashboard (which you were just looking at!).
+3. Database Logs (PostgreSQL)
+If you suspect an issue with the database itself (like running out of connections or slow queries):
+
+Go to your Neon.tech Dashboard.
+Click on your project.
+On the left menu, you can check Monitoring for CPU/RAM usage, and you can use the SQL Editor to query data directly.
+Congratulations on successfully deploying a complete, full-stack application to the cloud for free! Is there anything else you'd like to test or configure next?
