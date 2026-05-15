@@ -83,15 +83,19 @@ public class AiChatController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning("AI not configured for user {UserId}: {Message}", UserId, ex.Message);
-            var errMsg = $"data: [ERROR] {ex.Message}\n\n";
+            // SSE lines must not contain newlines — collapse the full error (incl. multi-line JSON bodies) to one line
+            var singleLineMsg = ex.Message.Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
+            _logger.LogError("AI provider error for user {UserId}: {Message}", UserId, ex.Message);
+            var errMsg = $"data: [ERROR] {singleLineMsg}\n\n";
             await Response.Body.WriteAsync(Encoding.UTF8.GetBytes(errMsg), ct);
+            await Response.Body.FlushAsync(ct);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in AI chat for user {UserId}", UserId);
             var errMsg = "data: [ERROR] An error occurred. Please try again.\n\n";
             await Response.Body.WriteAsync(Encoding.UTF8.GetBytes(errMsg), ct);
+            await Response.Body.FlushAsync(ct);
         }
     }
 
