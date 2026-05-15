@@ -316,15 +316,18 @@ export class AiChatComponent implements OnInit, AfterViewChecked {
 
     const token = localStorage.getItem('accessToken') ?? '';
     const sessionId = this.currentSession()?.id;
-    const body = JSON.stringify({ message: text, sessionId });
+
+    const requestBody = { message: text, sessionId };
+    console.log('[AI Chat] Sending request:', { url: `${environment.apiUrl}/ai/chat`, body: requestBody });
 
     fetch(`${environment.apiUrl}/ai/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body
+      body: JSON.stringify(requestBody)
     }).then(async res => {
       if (!res.ok) {
         const errText = await res.text();
+        console.error('[AI Chat] HTTP error from server:', { status: res.status, statusText: res.statusText, body: errText });
         this.toast.error(`Request failed (${res.status}): ${errText || res.statusText}`);
         this.streaming.set(false);
         return;
@@ -336,6 +339,7 @@ export class AiChatComponent implements OnInit, AfterViewChecked {
       const read = () => {
         reader.read().then(({ done, value }) => {
           if (done) {
+            console.log('[AI Chat] Stream complete. Total response length:', accumulated.length);
             const assistantMsg: AiChatMessage = { role: 'assistant', content: accumulated, timestamp: new Date().toISOString() };
             this.messages.update(list => [...list, assistantMsg]);
             this.streaming.set(false);
@@ -349,16 +353,30 @@ export class AiChatComponent implements OnInit, AfterViewChecked {
             if (line.startsWith('data: ')) {
               const data = line.slice(6);
               if (data === '[DONE]') return;
-              if (data.startsWith('[ERROR]')) { this.toast.error(data.replace('[ERROR] ', '')); this.streaming.set(false); return; }
+              if (data.startsWith('[ERROR]')) {
+                const errMsg = data.replace('[ERROR] ', '');
+                console.error('[AI Chat] Error from AI provider stream:', errMsg);
+                this.toast.error(errMsg);
+                this.streaming.set(false);
+                return;
+              }
               accumulated += data;
               this.streamingText.set(accumulated);
               this.shouldScroll = true;
             }
           });
           read();
+        }).catch(streamErr => {
+          console.error('[AI Chat] Stream read error:', streamErr);
+          this.toast.error('Stream read failed');
+          this.streaming.set(false);
         });
       };
       read();
-    }).catch(() => { this.toast.error('Connection failed'); this.streaming.set(false); });
+    }).catch(fetchErr => {
+      console.error('[AI Chat] Fetch/network error:', fetchErr);
+      this.toast.error('Connection failed');
+      this.streaming.set(false);
+    });
   }
 }

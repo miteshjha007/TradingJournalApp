@@ -223,6 +223,12 @@ public class AiChatService : IAiChatService
                 contents = geminiContents
             };
 
+            // Log the request body for debugging
+            var debugJson = JsonSerializer.Serialize(bodyObj, new JsonSerializerOptions { WriteIndented = true });
+            _logger.LogDebug("Gemini request body:\n{Body}", debugJson);
+            Console.WriteLine($"[Gemini DEBUG] Request URL: {url}");
+            Console.WriteLine($"[Gemini DEBUG] Request body:\n{debugJson}");
+
             request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Content = JsonContent.Create(bodyObj);
         }
@@ -252,6 +258,11 @@ public class AiChatService : IAiChatService
         if (!response.IsSuccessStatusCode)
         {
             var errorBody = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogError(
+                "AI API Error — Provider: {Provider}, Model: {Model}, Status: {Status}, Body:\n{ErrorBody}",
+                settings.Provider, settings.ModelName, response.StatusCode, errorBody);
+            Console.WriteLine($"[AI ERROR] Provider={settings.Provider} Model={settings.ModelName} Status={response.StatusCode}");
+            Console.WriteLine($"[AI ERROR] Full response body:\n{errorBody}");
             throw new InvalidOperationException($"AI API Error ({response.StatusCode}): {errorBody}");
         }
 
