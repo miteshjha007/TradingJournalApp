@@ -322,7 +322,13 @@ export class AiChatComponent implements OnInit, AfterViewChecked {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body
-    }).then(res => {
+    }).then(async res => {
+      if (!res.ok) {
+        const errText = await res.text();
+        this.toast.error(`Request failed (${res.status}): ${errText || res.statusText}`);
+        this.streaming.set(false);
+        return;
+      }
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();
       let accumulated = '';

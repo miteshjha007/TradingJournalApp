@@ -182,14 +182,45 @@ public class AiChatService : IAiChatService
             if (string.IsNullOrEmpty(model)) model = "gemini-1.5-flash";
             var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent?alt=sse&key={apiKey}";
 
+            // Gemini requires strictly alternating user/model roles.
+            // Merge consecutive same-role messages to avoid 400 Bad Request.
+            var geminiContents = new List<object>();
+            foreach (var m in msgs)
+            {
+                var geminiRole = m.role == "assistant" ? "model" : "user";
+                if (geminiContents.Count > 0)
+                {
+                    // Check if last entry has the same role — if so, merge content
+                    var last = (dynamic)geminiContents[^1];
+                    string lastRole = last.role;
+                    if (lastRole == geminiRole)
+                    {
+                        // Replace last entry with merged content
+                        var lastText = ((object[])last.parts)[0];
+                        var lastContent = ((dynamic)lastText).text + "\n" + m.content;
+                        geminiContents[^1] = new
+                        {
+                            role = geminiRole,
+                            parts = new[] { new { text = lastContent } }
+                        };
+                        continue;
+                    }
+                }
+                geminiContents.Add(new
+                {
+                    role = geminiRole,
+                    parts = new[] { new { text = m.content } }
+                });
+            }
+
+            // Gemini requires the conversation to start with a user turn
+            if (geminiContents.Count > 0 && ((dynamic)geminiContents[0]).role != "user")
+                geminiContents.RemoveAt(0);
+
             var bodyObj = new
             {
                 systemInstruction = new { parts = new[] { new { text = systemPrompt } } },
-                contents = msgs.Select(m => new
-                {
-                    role = m.role == "assistant" ? "model" : "user",
-                    parts = new[] { new { text = m.content } }
-                }).ToList()
+                contents = geminiContents
             };
 
             request = new HttpRequestMessage(HttpMethod.Post, url);
