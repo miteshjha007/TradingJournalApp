@@ -235,11 +235,21 @@ public class AiChatService : IAiChatService
         else
         {
             // OpenAI / DeepSeek / Custom (all OpenAI-compatible)
-            var baseUrl = settings.Provider == AiProvider.DeepSeek
-                ? "https://api.deepseek.com"
-                : settings.Provider == AiProvider.Custom && !string.IsNullOrEmpty(settings.CustomBaseUrl)
-                    ? settings.CustomBaseUrl
+            string chatUrl;
+            if (settings.Provider == AiProvider.Custom && !string.IsNullOrEmpty(settings.CustomBaseUrl))
+            {
+                // Custom base URLs (e.g. https://api.groq.com/openai/v1) already contain /v1,
+                // so only append /chat/completions to avoid doubling the path.
+                var trimmed = settings.CustomBaseUrl.TrimEnd('/');
+                chatUrl = $"{trimmed}/chat/completions";
+            }
+            else
+            {
+                var baseUrl = settings.Provider == AiProvider.DeepSeek
+                    ? "https://api.deepseek.com"
                     : "https://api.openai.com";
+                chatUrl = $"{baseUrl}/v1/chat/completions";
+            }
 
             var body = new
             {
@@ -249,7 +259,8 @@ public class AiChatService : IAiChatService
                 stream = true
             };
 
-            request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/v1/chat/completions");
+            _logger.LogDebug("Custom/OpenAI-compatible request URL: {Url}", chatUrl);
+            request = new HttpRequestMessage(HttpMethod.Post, chatUrl);
             request.Headers.Add("Authorization", $"Bearer {apiKey}");
             request.Content = JsonContent.Create(body);
         }
