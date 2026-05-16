@@ -38,7 +38,9 @@ public class ApplicationDbContext : DbContext
         mb.Entity<TradingAccount>().HasQueryFilter(e => !e.IsDeleted);
         mb.Entity<Announcement>().HasQueryFilter(e => !e.IsDeleted);
         mb.Entity<ForumMessage>().HasQueryFilter(e => !e.IsDeleted);
+        mb.Entity<Alert>().HasQueryFilter(e => !e.IsDeleted);
         mb.Entity<PlaybookRule>().HasQueryFilter(e => !e.IsDeleted);
+        mb.Entity<TradeChecklist>().HasQueryFilter(e => !e.IsDeleted);
         mb.Entity<UserAiSettings>().HasQueryFilter(e => !e.IsDeleted);
         mb.Entity<AiChatSession>().HasQueryFilter(e => !e.IsDeleted);
         mb.Entity<BacktestResult>().HasQueryFilter(e => !e.IsDeleted);
