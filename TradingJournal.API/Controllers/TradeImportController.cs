@@ -7,7 +7,7 @@ using TradingJournal.Application.Interfaces;
 namespace TradingJournal.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/import")]
 [Authorize]
 public class TradeImportController : ControllerBase
 {
