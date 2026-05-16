@@ -146,4 +146,72 @@ public class AiChatController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    // ──────────────────────────────────────────────────────────────
+    // Natural Language Strategy Analyzer
+    // ──────────────────────────────────────────────────────────────
+
+    [HttpPost("strategy/analyze")]
+    public async Task<IActionResult> AnalyzeStrategy([FromBody] TradingJournal.Application.DTOs.Ai.StrategyQueryDto dto)
+    {
+        try
+        {
+            _logger.LogInformation("StrategyAnalyze called for user {UserId}: {Message}", UserId, dto.UserMessage);
+            var result = await _service.AnalyzeStrategyAsync(UserId, dto);
+            _logger.LogInformation("Strategy analysis complete for user {UserId}: {FilterSummary} — {MatchedTrades} trades",
+                UserId, result.Filters.FilterSummary, result.MatchedTrades);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning("Strategy analyze config error for user {UserId}: {Message}", UserId, ex.Message);
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in strategy analyze for user {UserId}", UserId);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPost("strategy/stream")]
+    public async Task StreamStrategyInsight(
+        [FromBody] TradingJournal.Application.DTOs.Ai.StrategyStreamDto dto,
+        CancellationToken ct)
+    {
+        Response.ContentType = "text/event-stream";
+        Response.Headers["Cache-Control"] = "no-cache";
+        Response.Headers["X-Accel-Buffering"] = "no";
+
+        try
+        {
+            _logger.LogInformation("StreamStrategyInsight called for user {UserId}", UserId);
+
+            await foreach (var token in _service.StreamStrategyInsightAsync(UserId, dto.Result, dto.OriginalQuestion).WithCancellation(ct))
+            {
+                var data = $"data: {token}\n\n";
+                await Response.Body.WriteAsync(Encoding.UTF8.GetBytes(data), ct);
+                await Response.Body.FlushAsync(ct);
+            }
+
+            await Response.Body.WriteAsync(Encoding.UTF8.GetBytes("data: [DONE]\n\n"), ct);
+            await Response.Body.FlushAsync(ct);
+        }
+        catch (OperationCanceledException) { /* client disconnected */ }
+        catch (InvalidOperationException ex)
+        {
+            var singleLineMsg = ex.Message.Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
+            _logger.LogError("Strategy stream config error for user {UserId}: {Message}", UserId, ex.Message);
+            var errMsg = $"data: [ERROR] {singleLineMsg}\n\n";
+            await Response.Body.WriteAsync(Encoding.UTF8.GetBytes(errMsg), ct);
+            await Response.Body.FlushAsync(ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in strategy stream for user {UserId}", UserId);
+            var errMsg = "data: [ERROR] An error occurred. Please try again.\n\n";
+            await Response.Body.WriteAsync(Encoding.UTF8.GetBytes(errMsg), ct);
+            await Response.Body.FlushAsync(ct);
+        }
+    }
 }

@@ -4,11 +4,12 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angu
 import { ApiService } from '../../services/api.service';
 import { ToastService } from '../../services/toast.service';
 import { Instrument, RiskResult, PropRiskResult } from '../../models/models';
+import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
 
 @Component({
   selector: 'app-risk-tool',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DecimalPipe, CurrencyPipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DecimalPipe, CurrencyPipe, InfoTooltipDirective],
   styles: [`
     .tabs { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:1.5rem; }
     .tab-btn { padding:.75rem 1.5rem; background:none; border:none; border-bottom:3px solid transparent; color:var(--text-secondary); font-size:.9rem; font-weight:500; cursor:pointer; transition:all .2s; margin-bottom:-2px; }
@@ -145,35 +146,35 @@ import { Instrument, RiskResult, PropRiskResult } from '../../models/models';
           </div>
           <div class="result-grid">
             <div class="result-item highlight full-width">
-              <span class="result-label">Suggested Lot Size</span>
+              <span class="result-label" [infoTooltip]="'lot-size'">Suggested Lot Size</span>
               <span class="result-value primary">{{propResult()!.suggestedLotSize | number:'1.2-3'}}</span>
             </div>
             <div class="result-item">
-              <span class="result-label">Max Loss if SL Hit</span>
+              <span class="result-label" [infoTooltip]="'daily-loss-limit'">Max Loss if SL Hit</span>
               <span class="result-value" [class.red]="propResult()!.maxLossIfSLHit>propResult()!.riskAmountDollar*1.1">\${{propResult()!.maxLossIfSLHit | number:'1.2-2'}}</span>
             </div>
             <div class="result-item">
-              <span class="result-label">Risk Amount</span>
+              <span class="result-label" [infoTooltip]="'risk-per-trade'">Risk Amount</span>
               <span class="result-value">\${{propResult()!.riskAmountDollar | number:'1.2-2'}}</span>
             </div>
             <div class="result-item" [class.danger]="propResult()!.violatesFiveXRule" [class.safe]="!propResult()!.violatesFiveXRule&&propResult()!.fiveXRuleMaxLot>0">
-              <span class="result-label">5x Rule Max Lot</span>
+              <span class="result-label" [infoTooltip]="'5x-lot-rule'">5x Rule Max Lot</span>
               <span class="result-value" [class.red]="propResult()!.violatesFiveXRule" [class.green]="!propResult()!.violatesFiveXRule&&propResult()!.fiveXRuleMaxLot>0">
                 {{propResult()!.fiveXRuleMaxLot>0?(propResult()!.fiveXRuleMaxLot|number:'1.2-3'):'N/A (1st trade)'}}
               </span>
             </div>
             <div class="result-item" [class.danger]="propResult()!.dailyDrawdownBreached" [class.warning-item]="!propResult()!.dailyDrawdownBreached&&propResult()!.dailyDrawdownRemaining<50">
-              <span class="result-label">DD Remaining Today</span>
+              <span class="result-label" [infoTooltip]="'current-drawdown'">DD Remaining Today</span>
               <span class="result-value" [class.red]="propResult()!.dailyDrawdownBreached" [class.amber]="!propResult()!.dailyDrawdownBreached&&propResult()!.dailyDrawdownRemaining<50" [class.green]="!propResult()!.dailyDrawdownBreached&&propResult()!.dailyDrawdownRemaining>=50">
                 \${{propResult()!.dailyDrawdownRemaining | number:'1.2-2'}}
               </span>
             </div>
             <div class="result-item">
-              <span class="result-label">DD Limit Amount</span>
+              <span class="result-label" [infoTooltip]="'daily-loss-limit'">DD Limit Amount</span>
               <span class="result-value">\${{propResult()!.dailyDrawdownLimitAmount | number:'1.2-2'}}</span>
             </div>
             <div class="result-item">
-              <span class="result-label">Pip Value / 0.01 lot</span>
+              <span class="result-label" [infoTooltip]="'pip-value'">Pip Value / 0.01 lot</span>
               <span class="result-value">\${{propResult()!.pipValuePer001Lot}}</span>
             </div>
             <div class="result-item">

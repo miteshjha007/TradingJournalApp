@@ -14,7 +14,8 @@ import {
   PlaybookRule, CreatePlaybookRule, UpdatePlaybookRule, TradeChecklistItem, SaveChecklist,
   UserAiSettings, SaveAiSettings, AiChatSession, SendAiMessage,
   BacktestRequest, BacktestResult,
-  Streak, HeatmapData, ShadowProfile
+  Streak, HeatmapData, ShadowProfile,
+  StrategyQuery, StrategyAnalysisResult
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -235,6 +236,14 @@ export class ApiService {
     return this.http.get<ShadowProfile>(`${environment.apiUrl}/dashboard/shadow-profile`);
   }
 
+  getPerformanceMetrics(): Observable<PerformanceMetrics> {
+    return this.http.get<PerformanceMetrics>(`${environment.apiUrl}/dashboard/performance`);
+  }
+
+  getAiAnalysis(): Observable<AiAnalysis> {
+    return this.http.get<AiAnalysis>(`${environment.apiUrl}/dashboard/ai-insights`);
+  }
+
   // Playbook
   getPlaybookRules(): Observable<PlaybookRule[]> {
     return this.http.get<PlaybookRule[]>(`${environment.apiUrl}/playbook`);
@@ -300,5 +309,30 @@ export class ApiService {
   }
   deleteBacktest(id: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/backtest/${id}`);
+  }
+
+  // Strategy Analyzer
+  analyzeStrategy(dto: StrategyQuery): Observable<StrategyAnalysisResult> {
+    return this.http.post<StrategyAnalysisResult>(`${environment.apiUrl}/ai/strategy/analyze`, dto);
+  }
+
+  streamStrategyInsight(
+    result: StrategyAnalysisResult,
+    originalQuestion: string,
+    token: string
+  ): { reader: Promise<ReadableStreamDefaultReader<Uint8Array>> } {
+    const body = JSON.stringify({ result, originalQuestion });
+    const readerPromise = fetch(`${environment.apiUrl}/ai/strategy/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body
+    }).then(res => {
+      if (!res.ok || !res.body) throw new Error(`Stream failed: ${res.status}`);
+      return res.body.getReader();
+    });
+    return { reader: readerPromise };
   }
 }

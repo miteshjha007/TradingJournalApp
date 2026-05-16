@@ -10,6 +10,11 @@ public interface IAiChatService
     Task<List<AiChatSessionDto>> GetSessionsAsync(Guid userId);
     Task<AiChatSessionDto?> GetSessionAsync(Guid sessionId, Guid userId);
     Task DeleteSessionAsync(Guid sessionId, Guid userId);
+
+    // Natural Language Strategy Analyzer
+    Task<ExtractedStrategyFilters> ExtractFiltersAsync(Guid userId, StrategyQueryDto query);
+    Task<StrategyAnalysisResult> AnalyzeStrategyAsync(Guid userId, StrategyQueryDto query);
+    IAsyncEnumerable<string> StreamStrategyInsightAsync(Guid userId, StrategyAnalysisResult result, string originalQuestion);
 }
 
 public interface IUserAiSettingsRepository

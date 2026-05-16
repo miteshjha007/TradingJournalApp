@@ -461,3 +461,59 @@ export interface ShadowProfile {
   dna: string;
   consistencyScore: number;
 }
+
+// Strategy Analyzer models
+export interface StrategyQuery {
+  userMessage: string;
+  daysBack: number;
+}
+
+export interface ExtractedStrategyFilters {
+  instrumentName?: string;
+  fromHour?: number;
+  toHour?: number;
+  dayOfWeek?: number;
+  minRRR?: number;
+  maxRRR?: number;
+  minLotSize?: number;
+  maxLotSize?: number;
+  minRiskPercent?: number;
+  maxRiskPercent?: number;
+  result?: string;
+  tradeType?: string;
+  minChecklistCompliance?: number;
+  session?: string;
+  filterSummary: string;
+}
+
+export interface StrategyTradePreview {
+  tradeDate: string;
+  instrumentName: string;
+  tradeType: string;
+  lotSize: number;
+  profitLoss: number;
+  riskRewardRatio: number;
+  result: string;
+}
+
+export interface StrategyAnalysisResult {
+  filters: ExtractedStrategyFilters;
+  matchedTrades: number;
+  totalTradesInPeriod: number;
+  winRate: number;
+  totalPL: number;
+  averageRRR: number;
+  averagePL: number;
+  maxWin: number;
+  maxLoss: number;
+  profitFactor: number;
+  sharpeRatio: number;
+  winCount: number;
+  lossCount: number;
+  averageLotSize: number;
+  averageDurationMinutes: number;
+  bestInstrument?: string;
+  hasData: boolean;
+  aiSummary: string;
+  tradePreview: StrategyTradePreview[];
+}

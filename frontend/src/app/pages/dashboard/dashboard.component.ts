@@ -4,13 +4,14 @@ import { ApiService } from '../../services/api.service';
 import { ToastService } from '../../services/toast.service';
 import { DashboardSummary, PropFirmStatus, Streak } from '../../models/models';
 import { Chart, registerables } from 'chart.js';
+import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, CurrencyPipe],
+  imports: [CommonModule, DecimalPipe, CurrencyPipe, InfoTooltipDirective],
   template: `
     <div class="page-wrapper">
       <!-- Loss Alert -->
@@ -56,7 +57,7 @@ Chart.register(...registerables);
           <div class="kpi-card">
             <div class="kpi-icon">🏆</div>
             <div class="kpi-content">
-              <span class="kpi-label">Win Rate</span>
+              <span class="kpi-label" [infoTooltip]="'win-rate'">Win Rate</span>
               <span class="kpi-value">{{ dashboard()?.winRate | number:'1.1-1' }}%</span>
               <span class="kpi-sub">{{ dashboard()?.winCount }}W / {{ dashboard()?.lossCount }}L</span>
             </div>
@@ -74,7 +75,7 @@ Chart.register(...registerables);
           <div class="kpi-card">
             <div class="kpi-icon">⚖️</div>
             <div class="kpi-content">
-              <span class="kpi-label">Avg RRR</span>
+              <span class="kpi-label" [infoTooltip]="'risk-reward-ratio'">Avg RRR</span>
               <span class="kpi-value">{{ dashboard()?.averageRiskRewardRatio | number:'1.2-2' }}</span>
               <span class="kpi-sub">Risk:Reward</span>
             </div>
@@ -83,16 +84,16 @@ Chart.register(...registerables);
           <div class="kpi-card" [class.danger]="(dashboard()?.currentDrawdown ?? 0) > 0">
             <div class="kpi-icon">📉</div>
             <div class="kpi-content">
-              <span class="kpi-label">Drawdown</span>
+              <span class="kpi-label" [infoTooltip]="'current-drawdown'">Drawdown</span>
               <span class="kpi-value negative-text">{{ dashboard()?.currentDrawdown | currency }}</span>
-              <span class="kpi-sub">Max: {{ dashboard()?.maxDrawdown | currency }}</span>
+              <span class="kpi-sub">Max: <span [infoTooltip]="'max-drawdown'">{{ dashboard()?.maxDrawdown | currency }}</span></span>
             </div>
           </div>
 
           <div class="kpi-card" [class.positive]="(dashboard()?.todayPL ?? 0) > 0" [class.negative]="(dashboard()?.todayPL ?? 0) < 0">
             <div class="kpi-icon">📅</div>
             <div class="kpi-content">
-              <span class="kpi-label">Today P&amp;L</span>
+              <span class="kpi-label" [infoTooltip]="'daily-loss-limit'">Today P&amp;L</span>
               <span class="kpi-value" [class.positive-text]="(dashboard()?.todayPL ?? 0) > 0" [class.negative-text]="(dashboard()?.todayPL ?? 0) < 0">
                 {{ dashboard()?.todayPL | currency }}
               </span>
@@ -138,7 +139,7 @@ Chart.register(...registerables);
               <!-- Daily Loss -->
               <div class="pfe-bar-item">
                 <div class="pfe-bar-header">
-                  <span>&#x1F4C9; Daily Loss Used</span>
+                  <span>&#x1F4C9; <span [infoTooltip]="'daily-loss-limit'">Daily Loss Used</span></span>
                   <span class="pfe-bar-value" [style.color]="propFirmStatus()!.dailyLossUsedPct >= 70 ? propFirmStatus()!.statusColor : ''">
                     &#36;{{ propFirmStatus()!.dailyLossUsed | number:'1.2-2' }} / &#36;{{ propFirmStatus()!.dailyLossLimit | number:'1.2-2' }}
                   </span>
@@ -172,7 +173,7 @@ Chart.register(...registerables);
               <!-- Profit Target -->
               <div class="pfe-bar-item">
                 <div class="pfe-bar-header">
-                  <span>&#x1F3AF; Profit Target</span>
+                  <span>&#x1F3AF; <span [infoTooltip]="'profit-target'">Profit Target</span></span>
                   <span class="pfe-bar-value positive-text">
                     &#36;{{ propFirmStatus()!.profitEarned | number:'1.2-2' }} / &#36;{{ propFirmStatus()!.profitTarget | number:'1.2-2' }}
                   </span>
@@ -212,10 +213,10 @@ Chart.register(...registerables);
                 {{ propFirmStatus()!.weekendHoldingAllowed ? 'Weekend Hold OK' : 'No Weekend Hold' }}
               </span>
               <span class="pfe-flag" [class.flag-ok]="!propFirmStatus()!.has5xLotRule" [class.flag-no]="propFirmStatus()!.has5xLotRule">
-                {{ propFirmStatus()!.has5xLotRule ? '5x Lot Rule ON' : 'No 5x Rule' }}
+                <span [infoTooltip]="'5x-lot-rule'">{{ propFirmStatus()!.has5xLotRule ? '5x Lot Rule ON' : 'No 5x Rule' }}</span>
               </span>
               <span class="pfe-flag" [class.flag-ok]="propFirmStatus()!.useDynamicEquity">
-                {{ propFirmStatus()!.useDynamicEquity ? 'Dynamic Equity' : 'Static Equity' }}
+                <span [infoTooltip]="'dynamic-equity'">{{ propFirmStatus()!.useDynamicEquity ? 'Dynamic Equity' : 'Static Equity' }}</span>
               </span>
             </div>
           </div>
@@ -244,7 +245,7 @@ Chart.register(...registerables);
         <!-- Charts Row -->
         <div class="charts-grid">
           <div class="chart-card">
-            <h3>📈 Equity Curve</h3>
+            <h3 [infoTooltip]="'equity-curve'">📈 Equity Curve</h3>
             <div class="chart-container">
               <canvas #equityChart></canvas>
             </div>
@@ -263,7 +264,7 @@ Chart.register(...registerables);
             <div class="streak-left">
               <div class="streak-fire">🔥</div>
               <div class="streak-info">
-                <div class="streak-num">{{ streak()!.currentStreak }} day streak</div>
+                <div class="streak-num" [infoTooltip]="'discipline-streak'">{{ streak()!.currentStreak }} day streak</div>
                 <div class="streak-sub">Best: {{ streak()!.longestStreak }} days</div>
                 @if (!streak()!.tradedToday) {
                   <div class="streak-warn">⚠️ Trade today to keep your streak!</div>
@@ -287,7 +288,7 @@ Chart.register(...registerables);
                   <div class="ring-grade">{{ streak()!.disciplineGrade }}</div>
                 </div>
               </div>
-              <div class="discipline-label">Discipline Score</div>
+              <div class="discipline-label" [infoTooltip]="'trading-score'">Discipline Score</div>
             </div>
           </div>
         }

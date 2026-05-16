@@ -5,11 +5,12 @@ import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { TradingAccount, CreateTradingAccount } from '../../models/models';
+import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
 
 @Component({
   selector: 'app-accounts',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, CurrencyPipe, DecimalPipe, DatePipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, CurrencyPipe, DecimalPipe, DatePipe, InfoTooltipDirective],
   styles: [`
     .accounts-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.5rem; margin-top:1.5rem; }
     .account-card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:1.5rem; display:flex; flex-direction:column; gap:1rem; position:relative; }
@@ -131,7 +132,7 @@ import { TradingAccount, CreateTradingAccount } from '../../models/models';
             </div>
             <div class="form-group checkbox-group">
               <input type="checkbox" id="isPropFirm" formControlName="isPropFirm">
-              <label for="isPropFirm" style="margin:0; font-weight:600; color:var(--accent);">This is a Prop Firm Account</label>
+              <label for="isPropFirm" style="margin:0; font-weight:600; color:var(--accent);" [infoTooltip]="'prop-firm-account'">This is a Prop Firm Account</label>
             </div>
 
             @if (accountForm.get('isPropFirm')?.value) {
@@ -149,36 +150,36 @@ import { TradingAccount, CreateTradingAccount } from '../../models/models';
                 </div>
                 <div class="form-row">
                   <div class="form-group">
-                    <label>Profit Target (%)</label>
+                    <label [infoTooltip]="'profit-target'">Profit Target (%)</label>
                     <input type="number" step="0.1" formControlName="profitTargetPct" class="form-input">
                   </div>
                   <div class="form-group">
-                    <label>Profit Split (%)</label>
+                    <label [infoTooltip]="'profit-split'">Profit Split (%)</label>
                     <input type="number" step="1" formControlName="profitSplitPct" class="form-input">
                   </div>
                 </div>
                 <div class="form-row">
                   <div class="form-group">
-                    <label>Max Risk Per Trade (% of Daily Limit)</label>
+                    <label [infoTooltip]="'risk-per-trade'">Max Risk Per Trade (% of Daily Limit)</label>
                     <input type="number" step="1" formControlName="maxRiskPerTradePctOfDailyLimit" class="form-input" placeholder="e.g. 40">
                   </div>
                   <div class="form-group">
-                    <label>Absolute Max Lot Size</label>
+                    <label [infoTooltip]="'lot-size'">Absolute Max Lot Size</label>
                     <input type="number" step="0.1" formControlName="maxAllowedLotSize" class="form-input">
                   </div>
                 </div>
                 <div class="form-row">
                   <div class="form-group checkbox-group">
                     <input type="checkbox" id="useDynamicEquity" formControlName="useDynamicEquity">
-                    <label for="useDynamicEquity" style="margin:0">Dynamic Equity (Add today's profit to limit)</label>
+                    <label for="useDynamicEquity" style="margin:0" [infoTooltip]="'dynamic-equity'">Dynamic Equity (Add today's profit to limit)</label>
                   </div>
                   <div class="form-group checkbox-group">
                     <input type="checkbox" id="has5xLotRule" formControlName="has5xLotRule">
-                    <label for="has5xLotRule" style="margin:0">Enforce 5x Lot Rule</label>
+                    <label for="has5xLotRule" style="margin:0" [infoTooltip]="'5x-lot-rule'">Enforce 5x Lot Rule</label>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label>Daily Loss Limit Basis</label>
+                  <label [infoTooltip]="'daily-loss-limit'">Daily Loss Limit Basis</label>
                   <select formControlName="maxDailyLossType" class="form-input">
                     <option [value]="1">Balance-Based (% of starting balance)</option>
                     <option [value]="2">Equity-Based (% of current equity)</option>

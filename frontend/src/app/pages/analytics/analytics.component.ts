@@ -2,12 +2,13 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule, DecimalPipe, CurrencyPipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { AiAnalysis, PerformanceMetrics, DrawdownInfo, HeatmapData, ShadowProfile } from '../../models/models';
+import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
 
 
 @Component({
   selector: 'app-analytics',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, CurrencyPipe],
+  imports: [CommonModule, DecimalPipe, CurrencyPipe, InfoTooltipDirective],
   template: `
     <div class="page-wrapper">
       <h1 class="page-title-h1">Analytics & AI Insights</h1>
@@ -32,7 +33,7 @@ import { AiAnalysis, PerformanceMetrics, DrawdownInfo, HeatmapData, ShadowProfil
           <div class="ai-score-content">
             <div class="ai-icon">🤖</div>
             <div>
-              <h2>Trading Score: <span class="score-value">{{ aiAnalysis()!.overallScore }}</span></h2>
+              <h2>Trading Score: <span class="score-value" [infoTooltip]="'trading-score'">{{ aiAnalysis()!.overallScore }}</span></h2>
               <p>Best Instrument: <strong>{{ aiAnalysis()!.bestInstrument }}</strong> | Best Time: <strong>{{ aiAnalysis()!.bestTimeOfDay }}</strong></p>
             </div>
           </div>
@@ -69,7 +70,7 @@ import { AiAnalysis, PerformanceMetrics, DrawdownInfo, HeatmapData, ShadowProfil
             @if (metrics()) {
               <div class="metrics-grid">
                 <div class="metric-item">
-                  <span class="metric-label">Sharpe Ratio</span>
+                  <span class="metric-label" [infoTooltip]="'sharpe-ratio'">Sharpe Ratio</span>
                   <span class="metric-value">{{ metrics()!.sharpeRatio | number:'1.2-2' }}</span>
                 </div>
                 <div class="metric-item">
@@ -93,15 +94,15 @@ import { AiAnalysis, PerformanceMetrics, DrawdownInfo, HeatmapData, ShadowProfil
                   <span class="metric-value">{{ metrics()!.maxConsecutiveWins }}</span>
                 </div>
                 <div class="metric-item">
-                  <span class="metric-label">Max Consec. Losses</span>
+                  <span class="metric-label" [infoTooltip]="'consecutive-losses'">Max Consec. Losses</span>
                   <span class="metric-value">{{ metrics()!.maxConsecutiveLosses }}</span>
                 </div>
                 <div class="metric-item">
-                  <span class="metric-label">Profit Factor</span>
+                  <span class="metric-label" [infoTooltip]="'profit-factor'">Profit Factor</span>
                   <span class="metric-value">{{ metrics()!.profitFactor | number:'1.2-2' }}</span>
                 </div>
                 <div class="metric-item">
-                  <span class="metric-label">Expected Value</span>
+                  <span class="metric-label" [infoTooltip]="'expected-value'">Expected Value</span>
                   <span class="metric-value" [class.positive-text]="metrics()!.expectedValue > 0" [class.negative-text]="metrics()!.expectedValue < 0">
                     {{ metrics()!.expectedValue | currency }}
                   </span>
@@ -163,7 +164,7 @@ import { AiAnalysis, PerformanceMetrics, DrawdownInfo, HeatmapData, ShadowProfil
             <div class="session-bands">
               @for (s of heatmap()!.sessions; track s.name) {
                 <div class="session-band" [style.background]="sessionColor(s.name)" style="color:white">
-                  {{ s.name }}: {{ s.totalPL | currency }} ({{ s.tradeCount }} trades)
+                  <span [infoTooltip]="sessionTooltipKey(s.name)">{{ s.name }}</span>: {{ s.totalPL | currency }} ({{ s.tradeCount }} trades)
                 </div>
               }
             </div>
@@ -337,6 +338,13 @@ export class AnalyticsComponent implements OnInit {
     if (name.includes('New York') || name.includes('NY')) return '#10b981';
     if (name.includes('Asia')) return '#f59e0b';
     return '#8b5cf6';
+  }
+
+  sessionTooltipKey(name: string): string {
+    if (name.includes('London')) return 'london-session';
+    if (name.includes('New York') || name.includes('NY')) return 'new-york-session';
+    if (name.includes('Asia')) return 'asia-session';
+    return '';
   }
 
   disciplineColor(score: number): string {

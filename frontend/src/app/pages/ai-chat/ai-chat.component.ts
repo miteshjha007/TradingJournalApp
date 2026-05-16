@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { ToastService } from '../../services/toast.service';
 import { AuthService } from '../../services/auth.service';
-import { UserAiSettings, SaveAiSettings, AiChatSession, AiChatMessage, AiProvider } from '../../models/models';
+import { UserAiSettings, SaveAiSettings, AiChatSession, AiChatMessage, AiProvider, StrategyQuery, StrategyAnalysisResult } from '../../models/models';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -83,6 +83,9 @@ import { environment } from '../../../environments/environment';
               <span>Not configured — set API key in settings</span>
             }
           </div>
+          <button class="strategy-toggle" [class.active]="strategyMode()" (click)="strategyMode.set(!strategyMode()); strategyResult.set(null)">
+            🔍 {{ strategyMode() ? 'Strategy Mode ON' : 'Strategy Mode' }}
+          </button>
         </div>
 
         <div class="messages-container" #scrollContainer>
@@ -115,19 +118,99 @@ import { environment } from '../../../environments/environment';
               </div>
             </div>
           }
+
+          <!-- Strategy loading indicator -->
+          @if (strategyLoadingStep()) {
+            <div class="message assistant">
+              <div class="msg-avatar">🔍</div>
+              <div class="msg-bubble">
+                <div class="msg-content strategy-loading">
+                  @if (strategyLoadingStep() === 'extracting') {
+                    <span class="step-dot active">●</span> Extracting filters from your query...
+                    <span class="step-dot">●</span> Analyzing trades
+                  } @else {
+                    <span class="step-dot done">✓</span> Filters extracted
+                    <span class="step-dot active">●</span> Analyzing your trades...
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Strategy Result Card -->
+          @if (strategyResult()) {
+            <div class="message assistant">
+              <div class="msg-avatar">🔍</div>
+              <div class="msg-bubble strategy-card-bubble">
+                <div class="strategy-card">
+                  <div class="sc-header">🔍 Strategy Analysis</div>
+                  <div class="sc-filter">{{ strategyResult()!.filters.filterSummary }}</div>
+
+                  @if (!strategyResult()!.hasData) {
+                    <div class="sc-no-data">
+                      <div>📭 No trades found matching your criteria.</div>
+                      <div class="sc-hint">Try: broader date range, remove the instrument filter, or rephrase your query.</div>
+                    </div>
+                  } @else {
+                    <div class="sc-trade-count">{{ strategyResult()!.matchedTrades }} trades matched (last {{ strategyDaysBack() }} days)</div>
+                    <div class="sc-stats">
+                      <div class="sc-stat"><span class="sc-stat-label">Win Rate</span><span class="sc-stat-val">{{ strategyResult()!.winRate | number:'1.1-1' }}%</span></div>
+                      <div class="sc-stat"><span class="sc-stat-label">Profit Factor</span><span class="sc-stat-val">{{ strategyResult()!.profitFactor | number:'1.2-2' }}</span></div>
+                      <div class="sc-stat"><span class="sc-stat-label">Total P&L</span><span class="sc-stat-val" [class.pos]="strategyResult()!.totalPL>0" [class.neg]="strategyResult()!.totalPL<0">{{ strategyResult()!.totalPL | currency }}</span></div>
+                      <div class="sc-stat"><span class="sc-stat-label">Avg RRR</span><span class="sc-stat-val">{{ strategyResult()!.averageRRR | number:'1.2-2' }}</span></div>
+                    </div>
+                    <div class="sc-meta">Sharpe: {{ strategyResult()!.sharpeRatio | number:'1.2-2' }} | Max Win: {{ strategyResult()!.maxWin | currency }} | Max Loss: {{ strategyResult()!.maxLoss | currency }}</div>
+
+                    @if (strategyResult()!.tradePreview.length > 0) {
+                      <div class="sc-preview-label">Recent Trades</div>
+                      @for (t of strategyResult()!.tradePreview.slice(0,3); track t.tradeDate) {
+                        <div class="sc-trade-row" [class.win]="t.result==='Win'" [class.loss]="t.result==='Loss'">
+                          <span>{{ t.tradeDate | date:'MM/dd' }}</span>
+                          <span>{{ t.instrumentName }}</span>
+                          <span>{{ t.tradeType }}</span>
+                          <span>{{ t.lotSize }}</span>
+                          <span [class.pos]="t.profitLoss>0" [class.neg]="t.profitLoss<0">{{ t.profitLoss | currency }}</span>
+                          <span class="sc-badge" [class.win-badge]="t.result==='Win'" [class.loss-badge]="t.result==='Loss'">{{ t.result }}</span>
+                        </div>
+                      }
+                    }
+
+                    <div class="sc-ai-label">AI Analysis:</div>
+                    <div class="sc-ai-text">
+                      @if (strategyStreamText()) { {{ strategyStreamText() }} }
+                      @else if (!strategyStreamDone()) { <span class="cursor">▋</span> }
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
         </div>
 
         <div class="chat-input-area">
-          <textarea
-            [(ngModel)]="inputText"
-            placeholder="Ask about your trading performance..."
-            class="chat-input"
-            rows="2"
-            (keydown.enter)="onEnter($event)"
-          ></textarea>
-          <button class="send-btn" (click)="send()" [disabled]="!inputText.trim() || streaming()">
-            {{ streaming() ? '⏳' : '➤' }}
-          </button>
+          @if (strategyMode()) {
+            <div class="strategy-quick-prompts">
+              @for (q of strategyQuickPrompts; track q) {
+                <button class="quick-btn" (click)="inputText=q; analyzeStrategy()">{{ q }}</button>
+              }
+            </div>
+            <div class="strategy-controls">
+              <textarea [(ngModel)]="inputText" placeholder="Ask about your strategy... e.g. 'GOLD trades in London session last 30 days'" class="chat-input" rows="2" (keydown.enter)="$event.preventDefault(); analyzeStrategy()"></textarea>
+              <div class="strategy-side">
+                <select [ngModel]="strategyDaysBack()" (ngModelChange)="strategyDaysBack.set($event)" class="days-select">
+                  <option [value]="7">7d</option>
+                  <option [value]="14">14d</option>
+                  <option [value]="30">30d</option>
+                  <option [value]="60">60d</option>
+                  <option [value]="90">90d</option>
+                </select>
+                <button class="send-btn" (click)="analyzeStrategy()" [disabled]="!inputText.trim() || !!strategyLoadingStep()">📊</button>
+              </div>
+            </div>
+          } @else {
+            <textarea [(ngModel)]="inputText" placeholder="Ask about your trading performance..." class="chat-input" rows="2" (keydown.enter)="onEnter($event)"></textarea>
+            <button class="send-btn" (click)="send()" [disabled]="!inputText.trim() || streaming()">{{ streaming() ? '⏳' : '➤' }}</button>
+          }
         </div>
       </div>
     </div>
@@ -200,6 +283,45 @@ import { environment } from '../../../environments/environment';
     .send-btn { width: 44px; height: 44px; background: var(--primary); color: white; border: none; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: var(--transition); }
     .send-btn:hover:not(:disabled) { opacity: 0.9; }
     .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Strategy Mode Styles */
+    .strategy-toggle { margin-left: auto; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--border-color); background: var(--bg-hover); color: var(--text-main); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
+    .strategy-toggle.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 10px rgba(99, 102, 241, 0.3); }
+
+    .strategy-loading { display: flex; align-items: center; gap: 0.6rem; color: var(--text-muted); }
+    .step-dot { font-size: 0.7rem; color: var(--text-muted); opacity: 0.4; }
+    .step-dot.active { color: var(--primary); opacity: 1; animation: blink 1s infinite; }
+    .step-dot.done { color: #10b981; opacity: 1; }
+
+    .strategy-card-bubble { max-width: 90% !important; }
+    .strategy-card { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .sc-header { padding: 0.75rem 1rem; background: var(--bg-card); border-bottom: 1px solid var(--border-color); font-weight: 700; font-size: 0.9rem; color: var(--primary); }
+    .sc-filter { padding: 0.6rem 1rem; background: var(--primary-light); color: var(--primary); font-size: 0.8rem; font-weight: 500; border-bottom: 1px solid var(--border-color); }
+    .sc-no-data { padding: 2rem; text-align: center; color: var(--text-muted); }
+    .sc-hint { font-size: 0.75rem; margin-top: 0.5rem; }
+    .sc-trade-count { padding: 0.75rem 1rem 0; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+    .sc-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border-color); margin: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+    .sc-stat { background: var(--bg-card); padding: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+    .sc-stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+    .sc-stat-val { font-size: 1rem; font-weight: 700; }
+    .sc-stat-val.pos { color: #10b981; }
+    .sc-stat-val.neg { color: #ef4444; }
+    .sc-meta { padding: 0 1rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+
+    .sc-preview-label { padding: 0 1rem 0.5rem; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .sc-trade-row { display: grid; grid-template-columns: 50px 1fr 60px 50px 80px 70px; gap: 0.5rem; padding: 0.5rem 1rem; font-size: 0.75rem; border-top: 1px solid var(--border-color); align-items: center; }
+    .sc-trade-row:hover { background: var(--bg-hover); }
+    .sc-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-align: center; }
+    .win-badge { background: rgba(16,185,129,0.1); color: #10b981; }
+    .loss-badge { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+    .sc-ai-label { padding: 1rem 1rem 0.5rem; font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; border-top: 1px solid var(--border-color); }
+    .sc-ai-text { padding: 0 1rem 1rem; font-size: 0.85rem; line-height: 1.5; color: var(--text-main); font-style: italic; }
+
+    .strategy-quick-prompts { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; width: 100%; }
+    .strategy-controls { display: flex; gap: 0.75rem; width: 100%; align-items: flex-end; }
+    .strategy-side { display: flex; flex-direction: column; gap: 0.5rem; }
+    .days-select { padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 0.75rem; cursor: pointer; }
   `]
 })
 export class AiChatComponent implements OnInit, AfterViewChecked {
@@ -214,6 +336,21 @@ export class AiChatComponent implements OnInit, AfterViewChecked {
   showSettings = signal(false);
   savingSettings = signal(false);
   inputText = '';
+  strategyMode = signal(false);
+  strategyDaysBack = signal(30);
+  strategyLoadingStep = signal<string | null>(null); // null=idle, 'extracting'|'analyzing'
+  strategyResult = signal<StrategyAnalysisResult | null>(null);
+  strategyStreamText = signal('');
+  strategyStreamDone = signal(false);
+
+  strategyQuickPrompts = [
+    'My London session trades last 30 days',
+    'GOLD trades where RRR was above 1.5',
+    'Winning trades on Monday last 60 days',
+    'Trades with checklist compliance above 80%',
+    'My worst performing instrument last 90 days',
+    'Short trades during New York session'
+  ];
 
   settingsForm: SaveAiSettings = { provider: AiProvider.Anthropic, apiKey: '', modelName: '' };
 
@@ -250,12 +387,22 @@ export class AiChatComponent implements OnInit, AfterViewChecked {
     return u ? `${u.firstName[0]}${u.lastName[0]}`.toUpperCase() : 'U';
   }
 
-  providerName(p: AiProvider): string {
-    return { 1: 'OpenAI', 2: 'Claude', 3: 'Gemini', 4: 'DeepSeek', 5: 'Custom' }[p] ?? 'AI';
+  formatMessage(content: string): string {
+    if (!content) return '';
+    // Basic formatting: bold and line breaks
+    return content
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br/>');
   }
 
-  formatMessage(content: string): string {
-    return content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+  providerName(p: AiProvider): string {
+    switch (p) {
+      case AiProvider.OpenAI: return 'OpenAI';
+      case AiProvider.Anthropic: return 'Anthropic';
+      case AiProvider.Gemini: return 'Gemini';
+      case AiProvider.DeepSeek: return 'DeepSeek';
+      default: return 'AI';
+    }
   }
 
   saveSettings() {
@@ -377,6 +524,63 @@ export class AiChatComponent implements OnInit, AfterViewChecked {
       console.error('[AI Chat] Fetch/network error:', fetchErr);
       this.toast.error('Connection failed');
       this.streaming.set(false);
+    });
+  }
+  analyzeStrategy() {
+    const text = this.inputText.trim();
+    if (!text || this.strategyLoadingStep()) return;
+
+    // Add user message to chat
+    const userMsg: AiChatMessage = { role: 'user', content: `🔍 Strategy: ${text}`, timestamp: new Date().toISOString() };
+    this.messages.update(list => [...list, userMsg]);
+    this.inputText = '';
+    this.strategyResult.set(null);
+    this.strategyStreamText.set('');
+    this.strategyStreamDone.set(false);
+    this.shouldScroll = true;
+
+    // Step 1
+    this.strategyLoadingStep.set('extracting');
+    const token = localStorage.getItem('accessToken') ?? '';
+    const dto: StrategyQuery = { userMessage: text, daysBack: this.strategyDaysBack() };
+
+    this.api.analyzeStrategy(dto).subscribe({
+      next: (result) => {
+        // Step 2 briefly visible after HTTP returns (filter extraction is done inside analyzeStrategy on server)
+        this.strategyLoadingStep.set('analyzing');
+        setTimeout(() => {
+          this.strategyResult.set(result);
+          this.strategyLoadingStep.set(null);
+          this.shouldScroll = true;
+
+          if (!result.hasData) return;
+
+          // Auto-stream LLM insight
+          const { reader } = this.api.streamStrategyInsight(result, text, token);
+          reader.then(r => {
+            const decoder = new TextDecoder();
+            const read = () => r.read().then(({ done, value }) => {
+              if (done) { this.strategyStreamDone.set(true); return; }
+              decoder.decode(value).split('\n').forEach(line => {
+                if (line.startsWith('data: ')) {
+                  const data = line.slice(6);
+                  if (data === '[DONE]') { this.strategyStreamDone.set(true); return; }
+                  if (!data.startsWith('[ERROR]')) {
+                    this.strategyStreamText.update(t => t + data);
+                    this.shouldScroll = true;
+                  }
+                }
+              });
+              read();
+            }).catch(() => this.strategyStreamDone.set(true));
+            read();
+          }).catch(() => this.strategyStreamDone.set(true));
+        }, 400);
+      },
+      error: (err) => {
+        this.strategyLoadingStep.set(null);
+        this.toast.error(err?.error?.error || 'Strategy analysis failed');
+      }
     });
   }
 }

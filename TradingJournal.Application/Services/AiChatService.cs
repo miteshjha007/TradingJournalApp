@@ -428,6 +428,343 @@ public class AiChatService : IAiChatService
         }).ToList(),
         CreatedAt = s.CreatedAt
     };
+    // ──────────────────────────────────────────────────────────────
+    // Natural Language Strategy Analyzer
+    // ──────────────────────────────────────────────────────────────
+
+    public async Task<ExtractedStrategyFilters> ExtractFiltersAsync(Guid userId, StrategyQueryDto query)
+    {
+        var settings = await _settingsRepo.GetByUserIdAsync(userId)
+            ?? throw new InvalidOperationException("Please configure your AI provider in AI Chat settings first.");
+        if (!settings.IsConfigured)
+            throw new InvalidOperationException("Please configure your AI provider in AI Chat settings first.");
+
+        var apiKey = Decrypt(settings.ApiKeyEncrypted!);
+
+        // Extract instrument names from user's existing trades
+        var allTrades = await _tradeRepo.GetByUserIdAsync(userId);
+        var instrumentNames = allTrades
+            .Where(t => t.Instrument?.Name != null)
+            .Select(t => t.Instrument!.Name)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        var instrumentList = instrumentNames.Count > 0
+            ? string.Join(", ", instrumentNames)
+            : "No instruments found";
+
+        var systemPrompt =
+            "You are a trading data filter extractor. Extract structured filters from the user's natural language " +
+            "query about their trading strategy. You must respond with ONLY valid JSON — no explanation, no markdown, " +
+            "no backticks, just the raw JSON object.\n\n" +
+            $"The user's available instruments are: {instrumentList}\n\n" +
+            "Session definitions:\n" +
+            "- london = hours 7-16 UTC\n" +
+            "- newyork = hours 13-22 UTC\n" +
+            "- asia = hours 0-9 UTC\n" +
+            "- overlap = hours 13-16 UTC (London/NY overlap — most volatile)\n\n" +
+            "Day of week: 0=Monday, 1=Tuesday, 2=Wednesday, 3=Thursday, 4=Friday\n\n" +
+            "Respond with a JSON object containing only the fields that are relevant to the query. " +
+            "For fields not mentioned, use null. Here is the exact schema:\n" +
+            "{\n" +
+            "  \"InstrumentName\": null or string (must match exactly one of the available instruments),\n" +
+            "  \"FromHour\": null or int (0-23 UTC),\n" +
+            "  \"ToHour\": null or int (0-23 UTC),\n" +
+            "  \"DayOfWeek\": null or int (0-4),\n" +
+            "  \"MinRRR\": null or decimal,\n" +
+            "  \"MaxRRR\": null or decimal,\n" +
+            "  \"MinLotSize\": null or decimal,\n" +
+            "  \"MaxLotSize\": null or decimal,\n" +
+            "  \"MinRiskPercent\": null or decimal,\n" +
+            "  \"MaxRiskPercent\": null or decimal,\n" +
+            "  \"Result\": null or \"Win\" or \"Loss\" or \"BreakEven\",\n" +
+            "  \"TradeType\": null or \"Buy\" or \"Sell\",\n" +
+            "  \"MinChecklistCompliance\": null or decimal (0-100),\n" +
+            "  \"MinDurationMinutes\": null or int,\n" +
+            "  \"MaxDurationMinutes\": null or int,\n" +
+            "  \"Session\": null or \"london\" or \"newyork\" or \"asia\" or \"overlap\",\n" +
+            "  \"FilterSummary\": string (human-readable summary, e.g. \"GOLD trades during London session with RRR above 1.5\")\n" +
+            "}";
+
+        var messages = new List<AiChatMessage>
+        {
+            new() { Role = "user", Content = query.UserMessage, Timestamp = DateTime.UtcNow }
+        };
+
+        var sb = new StringBuilder();
+        try
+        {
+            await foreach (var token in StreamFromProviderAsync(settings, apiKey, systemPrompt, messages))
+                sb.Append(token);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Strategy filter extraction failed for user {UserId}", userId);
+            return new ExtractedStrategyFilters
+            {
+                FilterSummary = "Could not parse filters — please rephrase your query"
+            };
+        }
+
+        // Strip markdown fences if present
+        var raw = sb.ToString().Trim();
+        if (raw.StartsWith("```")) raw = raw[(raw.IndexOf('\n') + 1)..];
+        if (raw.EndsWith("```")) raw = raw[..raw.LastIndexOf("```")].TrimEnd();
+        raw = raw.Trim();
+
+        ExtractedStrategyFilters filters;
+        try
+        {
+            var opts = new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
+            };
+            filters = System.Text.Json.JsonSerializer.Deserialize<ExtractedStrategyFilters>(raw, opts)
+                      ?? new ExtractedStrategyFilters { FilterSummary = "Could not parse filters — please rephrase your query" };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "JSON parse failed for strategy filters. Raw: {Raw}", raw);
+            return new ExtractedStrategyFilters
+            {
+                FilterSummary = "Could not parse filters — please rephrase your query"
+            };
+        }
+
+        // Validate instrument name
+        if (!string.IsNullOrEmpty(filters.InstrumentName) &&
+            !instrumentNames.Any(n => n.Equals(filters.InstrumentName, StringComparison.OrdinalIgnoreCase)))
+        {
+            filters.InstrumentName = null;
+        }
+
+        // Apply session → hour overrides
+        if (!string.IsNullOrEmpty(filters.Session))
+        {
+            switch (filters.Session.ToLower())
+            {
+                case "london":  filters.FromHour = 7;  filters.ToHour = 16; break;
+                case "newyork": filters.FromHour = 13; filters.ToHour = 22; break;
+                case "asia":    filters.FromHour = 0;  filters.ToHour = 9;  break;
+                case "overlap": filters.FromHour = 13; filters.ToHour = 16; break;
+            }
+        }
+
+        if (string.IsNullOrEmpty(filters.FilterSummary))
+            filters.FilterSummary = query.UserMessage;
+
+        _logger.LogInformation("Strategy filters extracted for user {UserId}: {Summary}", userId, filters.FilterSummary);
+        return filters;
+    }
+
+    public async Task<StrategyAnalysisResult> AnalyzeStrategyAsync(Guid userId, StrategyQueryDto query)
+    {
+        ExtractedStrategyFilters filters;
+        try
+        {
+            filters = await ExtractFiltersAsync(userId, query);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "ExtractFilters failed for user {UserId}", userId);
+            return new StrategyAnalysisResult
+            {
+                HasData = false,
+                Filters = new ExtractedStrategyFilters { FilterSummary = ex.Message }
+            };
+        }
+
+        var cutoff = DateTime.UtcNow.AddDays(-query.DaysBack);
+        var allTrades = await _tradeRepo.GetByUserIdAsync(userId);
+        var periodTrades = allTrades.Where(t => t.TradeDate >= cutoff).ToList();
+
+        // Apply filters
+        var matched = periodTrades.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(filters.InstrumentName))
+            matched = matched.Where(t => t.Instrument?.Name?.Equals(filters.InstrumentName, StringComparison.OrdinalIgnoreCase) == true);
+
+        if (filters.FromHour.HasValue)
+            matched = matched.Where(t => t.TradeDate.Hour >= filters.FromHour.Value);
+
+        if (filters.ToHour.HasValue)
+            matched = matched.Where(t => t.TradeDate.Hour <= filters.ToHour.Value);
+
+        if (filters.DayOfWeek.HasValue)
+        {
+            // Spec: 0=Mon,1=Tue,...,4=Fri — map to C# DayOfWeek (Monday=1, Tuesday=2, ...)
+            var csharpDow = filters.DayOfWeek.Value + 1;
+            matched = matched.Where(t => (int)t.TradeDate.DayOfWeek == csharpDow);
+        }
+
+        if (filters.MinRRR.HasValue)
+            matched = matched.Where(t => t.RiskRewardRatio >= filters.MinRRR.Value);
+
+        if (filters.MaxRRR.HasValue)
+            matched = matched.Where(t => t.RiskRewardRatio <= filters.MaxRRR.Value);
+
+        if (filters.MinLotSize.HasValue)
+            matched = matched.Where(t => t.LotSize >= filters.MinLotSize.Value);
+
+        if (filters.MaxLotSize.HasValue)
+            matched = matched.Where(t => t.LotSize <= filters.MaxLotSize.Value);
+
+        if (!string.IsNullOrEmpty(filters.Result))
+            matched = matched.Where(t => t.Result.ToString().Equals(filters.Result, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrEmpty(filters.TradeType))
+            matched = matched.Where(t => t.TradeType.ToString().Equals(filters.TradeType, StringComparison.OrdinalIgnoreCase));
+
+        if (filters.MinChecklistCompliance.HasValue)
+            matched = matched.Where(t => t.ChecklistCompliancePercent.HasValue &&
+                                         t.ChecklistCompliancePercent.Value >= filters.MinChecklistCompliance.Value);
+
+        if (filters.MinDurationMinutes.HasValue)
+            matched = matched.Where(t => t.TradeDurationMinutes >= filters.MinDurationMinutes.Value);
+
+        if (filters.MaxDurationMinutes.HasValue)
+            matched = matched.Where(t => t.TradeDurationMinutes <= filters.MaxDurationMinutes.Value);
+
+        if (filters.FromDate.HasValue)
+            matched = matched.Where(t => t.TradeDate >= filters.FromDate.Value);
+
+        if (filters.ToDate.HasValue)
+            matched = matched.Where(t => t.TradeDate <= filters.ToDate.Value);
+
+        var matchedList = matched.OrderBy(t => t.TradeDate).ToList();
+
+        if (matchedList.Count == 0)
+        {
+            _logger.LogInformation("Strategy analysis for user {UserId}: 0 trades matched. Filters: {Summary}", userId, filters.FilterSummary);
+            return new StrategyAnalysisResult
+            {
+                Filters = filters,
+                HasData = false,
+                MatchedTrades = 0,
+                TotalTradesInPeriod = periodTrades.Count
+            };
+        }
+
+        // Compute statistics
+        var wins = matchedList.Where(t => t.Result == Domain.Enums.TradeResult.Win).ToList();
+        var losses = matchedList.Where(t => t.Result == Domain.Enums.TradeResult.Loss).ToList();
+
+        var totalPL = matchedList.Sum(t => t.ProfitLoss);
+        var winRate = (decimal)wins.Count / matchedList.Count * 100;
+        var avgRRR = matchedList.Any() ? matchedList.Average(t => t.RiskRewardRatio) : 0;
+        var avgPL = totalPL / matchedList.Count;
+        var maxWin = wins.Any() ? wins.Max(t => t.ProfitLoss) : 0;
+        var maxLoss = losses.Any() ? losses.Min(t => t.ProfitLoss) : 0;
+        var totalWins = wins.Sum(t => t.ProfitLoss);
+        var totalLosses = Math.Abs(losses.Sum(t => t.ProfitLoss));
+        var profitFactor = totalLosses > 0 ? totalWins / totalLosses : (totalWins > 0 ? 999 : 0);
+
+        // Simplified Sharpe: group by date → daily PL → mean/stddev * sqrt(252)
+        var dailyPL = matchedList
+            .GroupBy(t => t.TradeDate.Date)
+            .Select(g => (double)g.Sum(t => t.ProfitLoss))
+            .ToList();
+
+        var sharpe = 0m;
+        if (dailyPL.Count > 1)
+        {
+            var mean = dailyPL.Average();
+            var variance = dailyPL.Select(d => Math.Pow(d - mean, 2)).Average();
+            var stdDev = Math.Sqrt(variance);
+            if (stdDev > 0)
+                sharpe = (decimal)(mean / stdDev * Math.Sqrt(252));
+        }
+
+        // Best instrument by total PL
+        var bestInstrument = matchedList
+            .GroupBy(t => t.Instrument?.Name ?? "Unknown")
+            .OrderByDescending(g => g.Sum(t => t.ProfitLoss))
+            .FirstOrDefault()?.Key;
+
+        var avgLot = matchedList.Average(t => t.LotSize);
+        var avgDuration = matchedList.Average(t => (decimal)t.TradeDurationMinutes);
+
+        // Trade preview (first 10, show 3 in UI)
+        var preview = matchedList.Take(10).Select(t => new StrategyTradePreview
+        {
+            TradeDate = t.TradeDate,
+            InstrumentName = t.Instrument?.Name ?? "—",
+            TradeType = t.TradeType.ToString(),
+            LotSize = t.LotSize,
+            ProfitLoss = t.ProfitLoss,
+            RiskRewardRatio = t.RiskRewardRatio,
+            Result = t.Result.ToString()
+        }).ToList();
+
+        _logger.LogInformation("Strategy analysis for user {UserId}: {Count} trades matched. Filters: {Summary}",
+            userId, matchedList.Count, filters.FilterSummary);
+
+        return new StrategyAnalysisResult
+        {
+            Filters = filters,
+            MatchedTrades = matchedList.Count,
+            TotalTradesInPeriod = periodTrades.Count,
+            WinRate = Math.Round(winRate, 1),
+            TotalPL = Math.Round(totalPL, 2),
+            AverageRRR = Math.Round(avgRRR, 2),
+            AveragePL = Math.Round(avgPL, 2),
+            MaxWin = Math.Round(maxWin, 2),
+            MaxLoss = Math.Round(maxLoss, 2),
+            ProfitFactor = Math.Round(profitFactor, 2),
+            SharpeRatio = Math.Round(sharpe, 2),
+            WinCount = wins.Count,
+            LossCount = losses.Count,
+            AverageLotSize = Math.Round(avgLot, 2),
+            AverageDurationMinutes = Math.Round(avgDuration, 1),
+            BestInstrument = bestInstrument,
+            HasData = true,
+            TradePreview = preview
+        };
+    }
+
+    public async IAsyncEnumerable<string> StreamStrategyInsightAsync(
+        Guid userId, StrategyAnalysisResult result, string originalQuestion,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
+    {
+        var settings = await _settingsRepo.GetByUserIdAsync(userId)
+            ?? throw new InvalidOperationException("Please configure your AI provider in AI Chat settings first.");
+        if (!settings.IsConfigured)
+            throw new InvalidOperationException("Please configure your AI provider in AI Chat settings first.");
+
+        var apiKey = Decrypt(settings.ApiKeyEncrypted!);
+
+        var systemPrompt =
+            "You are an expert trading coach analyzing a trader's historical results. " +
+            "You are given statistical results from their trade data. Provide a clear, honest, specific analysis. " +
+            "Use concrete numbers from the data. Be direct about weaknesses. Mention what the trader is doing well. " +
+            "End with 2-3 specific, actionable recommendations. Keep it under 200 words. " +
+            "Write in a conversational but professional tone — like a trading mentor, not a textbook.";
+
+        var statsBlock = new StringBuilder();
+        statsBlock.AppendLine($"Original question: {originalQuestion}");
+        statsBlock.AppendLine($"Filter applied: {result.Filters.FilterSummary}");
+        statsBlock.AppendLine();
+        statsBlock.AppendLine($"Trades analyzed: {result.MatchedTrades} of {result.TotalTradesInPeriod} in period");
+        statsBlock.AppendLine($"Win Rate: {result.WinRate}%");
+        statsBlock.AppendLine($"Total P&L: ${result.TotalPL}");
+        statsBlock.AppendLine($"Average P&L per trade: ${result.AveragePL}");
+        statsBlock.AppendLine($"Average RRR: {result.AverageRRR}");
+        statsBlock.AppendLine($"Profit Factor: {result.ProfitFactor}");
+        statsBlock.AppendLine($"Sharpe Ratio: {result.SharpeRatio}");
+        statsBlock.AppendLine($"Max Win: ${result.MaxWin} | Max Loss: ${result.MaxLoss}");
+        statsBlock.AppendLine($"Win/Loss split: {result.WinCount}W / {result.LossCount}L");
+        statsBlock.AppendLine($"Best Instrument: {result.BestInstrument ?? "N/A"}");
+        statsBlock.AppendLine($"Average Lot Size: {result.AverageLotSize}");
+        statsBlock.AppendLine($"Average Trade Duration: {result.AverageDurationMinutes} minutes");
+
+        var messages = new List<AiChatMessage>
+        {
+            new() { Role = "user", Content = statsBlock.ToString(), Timestamp = DateTime.UtcNow }
+        };
+
+        await foreach (var token in StreamFromProviderAsync(settings, apiKey, systemPrompt, messages, ct))
+            yield return token;
+    }
 }
 
 public class AiChatMessage

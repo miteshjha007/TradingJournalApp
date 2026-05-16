@@ -4,11 +4,12 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angu
 import { ApiService } from '../../services/api.service';
 import { ToastService } from '../../services/toast.service';
 import { Trade, CreateTrade, TradeFilter, Instrument } from '../../models/models';
+import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
 
 @Component({
   selector: 'app-trades',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DatePipe, DecimalPipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DatePipe, DecimalPipe, InfoTooltipDirective],
   template: `
     <div class="page-wrapper">
       <div class="page-header">
@@ -77,11 +78,11 @@ import { Trade, CreateTrade, TradeFilter, Instrument } from '../../models/models
                 <th>Exit</th>
                 <th>SL</th>
                 <th>TP</th>
-                <th>P&amp;L</th>
-                <th>RRR</th>
+                <th [infoTooltip]="'profit-and-loss'">P&amp;L</th>
+                <th [infoTooltip]="'risk-reward-ratio'">RRR</th>
                 <th>Result</th>
                 <th>Tags</th>
-                <th>Checklist</th>
+                <th [infoTooltip]="'checklist-compliance'">Checklist</th>
                 <th>Actions</th>
               </tr>
             </thead>

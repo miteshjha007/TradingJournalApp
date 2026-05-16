@@ -4,16 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { ToastService } from '../../services/toast.service';
 import { PlaybookRule, CreatePlaybookRule, UpdatePlaybookRule, PlaybookCategory } from '../../models/models';
+import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
 
 @Component({
   selector: 'app-playbook',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, InfoTooltipDirective],
   template: `
     <div class="playbook-page">
       <div class="page-header">
         <div>
-          <h1>Trading Playbook</h1>
+          <h1 [infoTooltip]="'trading-playbook'">Trading Playbook</h1>
           <p class="subtitle">Define your trading rules and track pre-trade checklist compliance</p>
         </div>
         <button class="btn btn-primary" (click)="openAdd()">+ Add Rule</button>
@@ -26,7 +27,7 @@ import { PlaybookRule, CreatePlaybookRule, UpdatePlaybookRule, PlaybookCategory 
             <span class="cat-icon">{{ cat.icon }}</span>
             <div>
               <div class="stat-value">{{ rulesByCategory(cat.value).length }}</div>
-              <div class="stat-label">{{ cat.label }}</div>
+              <div class="stat-label" [infoTooltip]="cat.label.toLowerCase() + '-rule'">{{ cat.label }}</div>
             </div>
           </div>
         }

@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { ToastService } from '../../services/toast.service';
 import { BacktestRequest, BacktestResult, BacktestRuleFilter, BacktestRuleType } from '../../models/models';
+import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
 
 @Component({
   selector: 'app-backtest',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, InfoTooltipDirective],
   template: `
     <div class="backtest-page">
       <div class="page-header">
@@ -102,19 +103,19 @@ import { BacktestRequest, BacktestResult, BacktestRuleFilter, BacktestRuleType }
                 <div class="metric-value">{{ (result()!.winRate * 100) | number:'1.1-1' }}%</div>
               </div>
               <div class="metric-card">
-                <div class="metric-label">Profit Factor</div>
+                <div class="metric-label" [infoTooltip]="'profit-factor'">Profit Factor</div>
                 <div class="metric-value">{{ result()!.profitFactor | number:'1.2-2' }}</div>
               </div>
               <div class="metric-card">
-                <div class="metric-label">Sharpe Ratio</div>
+                <div class="metric-label" [infoTooltip]="'sharpe-ratio'">Sharpe Ratio</div>
                 <div class="metric-value">{{ result()!.sharpeRatio | number:'1.2-2' }}</div>
               </div>
               <div class="metric-card">
-                <div class="metric-label">Sortino Ratio</div>
+                <div class="metric-label" [infoTooltip]="'sortino-ratio'">Sortino Ratio</div>
                 <div class="metric-value">{{ result()!.sortinoRatio | number:'1.2-2' }}</div>
               </div>
               <div class="metric-card">
-                <div class="metric-label">Max Drawdown</div>
+                <div class="metric-label" [infoTooltip]="'max-drawdown'">Max Drawdown</div>
                 <div class="metric-value negative">{{ result()!.maxDrawdownPercent | number:'1.1-1' }}%</div>
               </div>
               <div class="metric-card">
@@ -147,7 +148,7 @@ import { BacktestRequest, BacktestResult, BacktestRuleFilter, BacktestRuleType }
             <!-- Monte Carlo -->
             @if (result()!.monteCarlo) {
               <div class="monte-section">
-                <h4>Monte Carlo (1000 simulations)</h4>
+                <h4 [infoTooltip]="'monte-carlo'">Monte Carlo (1000 simulations)</h4>
                 <div class="monte-grid">
                   <div class="monte-card p5">
                     <div class="monte-label">Worst Case (P5)</div>
@@ -166,7 +167,7 @@ import { BacktestRequest, BacktestResult, BacktestRuleFilter, BacktestRuleType }
                   </div>
                 </div>
                 <div class="ruin-prob" [class.danger]="result()!.monteCarlo!.ruinProbability > 10">
-                  Account Ruin Probability: <strong>{{ result()!.monteCarlo!.ruinProbability | number:'1.1-1' }}%</strong>
+                  <span [infoTooltip]="'ruin-probability'">Account Ruin Probability:</span> <strong>{{ result()!.monteCarlo!.ruinProbability | number:'1.1-1' }}%</strong>
                 </div>
               </div>
             }
