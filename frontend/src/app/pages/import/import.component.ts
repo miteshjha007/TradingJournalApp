@@ -7,6 +7,7 @@ import {
   CsvImportPreview, CsvImportRequest, CsvImportConfirm, ImportResult,
   Mt5WebhookConfig, UpdateMt5Config, ImportLog, Instrument, TradingAccount
 } from '../../models/models';
+import { environment } from '../../../environments/environment';
 
 type ImportStep = 'upload' | 'preview' | 'confirm' | 'done';
 
@@ -519,7 +520,7 @@ export class ImportComponent implements OnInit {
   }
 
   saveDefaultAccount() { this.saveMappings(); }
-  downloadEA() { window.open('/api/import/mt5-ea-download', '_blank'); }
+  downloadEA() { window.open(`${environment.apiUrl}/import/mt5-ea-download`, '_blank'); }
   copyToClipboard(text: string) { navigator.clipboard.writeText(text).then(() => this.toast.success('Copied to clipboard!', 'Copy')); }
 
   loadHistory() {
