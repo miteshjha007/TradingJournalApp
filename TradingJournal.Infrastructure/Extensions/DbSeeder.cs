@@ -12,6 +12,7 @@ public static class DbSeeder
         // ── Prop Firm Presets (always runs — idempotent) ───────────────────────
         // Must be BEFORE the user guard so existing DBs get presets after migration
         await SeedPropFirmPresetsAsync(db);
+        await SeedStrategyTemplatesAsync(db);
 
         // ── Demo users + trades (only on fresh DB) ─────────────────────────────
         if (await db.Users.AnyAsync()) return;
@@ -269,6 +270,105 @@ public static class DbSeeder
         };
 
         db.PropFirmPresets.AddRange(presets);
+        await db.SaveChangesAsync();
+    }
+    private static async Task SeedStrategyTemplatesAsync(ApplicationDbContext db)
+    {
+        if (await db.StrategyTemplates.IgnoreQueryFilters().AnyAsync()) return;
+
+        var templates = new List<StrategyTemplate>
+        {
+            new()
+            {
+                Name = "BOS + Order Block Retest",
+                Methodology = "SMC",
+                Instrument = "GOLD",
+                Description = "A core SMC strategy focused on structural breaks and high-probability retests of institutional supply/demand zones.",
+                Rules = new List<string>
+                {
+                    "Wait for Break of Structure (BOS) on H1 chart",
+                    "Mark the last Order Block formed before the BOS",
+                    "Wait for price to return and retest the Order Block",
+                    "Enter on rejection candle (engulf/pinbar) from OB",
+                    "SL below Order Block low, TP at next liquidity pool",
+                    "Only trade in direction of H4 or D1 trend"
+                },
+                DefaultFilters = "{\"InstrumentName\":\"GOLD\",\"FromHour\":7,\"ToHour\":16,\"MinRRR\":2.0,\"FilterSummary\":\"GOLD — London session — RRR above 2.0\"}",
+                SessionBadge = "London open",
+                TimeframeBadge = "H1 + H4",
+                MinRRR = 2.0m,
+                IsSystemTemplate = true,
+                IsActive = true
+            },
+            new()
+            {
+                Name = "FVG Fill + Continuation",
+                Methodology = "SMC",
+                Instrument = "GOLD",
+                Description = "Capitalizing on market imbalances by entering at the 50% equilibrium of a Fair Value Gap.",
+                Rules = new List<string>
+                {
+                    "Identify a Fair Value Gap (imbalance) on H1",
+                    "Wait for price to return to the 50% level of the FVG",
+                    "Confirm with M15 structure shift in trade direction",
+                    "Enter at 50% of FVG, SL beyond full FVG range",
+                    "TP at next Point of Interest (POI) or liquidity pool",
+                    "Only trade during high-volume sessions (London/NY)"
+                },
+                DefaultFilters = "{\"InstrumentName\":\"GOLD\",\"FromHour\":13,\"ToHour\":22,\"MinRRR\":2.5,\"FilterSummary\":\"GOLD — New York session — RRR above 2.5\"}",
+                SessionBadge = "NY open",
+                TimeframeBadge = "H1 + M15",
+                MinRRR = 2.5m,
+                IsSystemTemplate = true,
+                IsActive = true
+            },
+            new()
+            {
+                Name = "London Open Sweep",
+                Methodology = "Price Action",
+                Instrument = "GOLD",
+                Description = "A momentum-reversal strategy that takes advantage of Asian session liquidity sweeps during the London open volume surge.",
+                Rules = new List<string>
+                {
+                    "Before 07:00 UTC: mark Asian session high and low",
+                    "Wait for price to sweep (break and close beyond) one extreme",
+                    "Enter in opposite direction immediately after sweep candle closes",
+                    "SL beyond the sweep wick (including spread)",
+                    "TP at opposite Asian session extreme",
+                    "Only valid between 07:00–09:30 UTC London open window"
+                },
+                DefaultFilters = "{\"InstrumentName\":\"GOLD\",\"FromHour\":7,\"ToHour\":9,\"MinRRR\":3.0,\"FilterSummary\":\"GOLD — London open 07:00–09:30 UTC — RRR above 3.0\"}",
+                SessionBadge = "07:00–09:30 UTC",
+                TimeframeBadge = "M15 + H1",
+                MinRRR = 3.0m,
+                IsSystemTemplate = true,
+                IsActive = true
+            },
+            new()
+            {
+                Name = "HTF POI Reversal",
+                Methodology = "Price Action",
+                Instrument = "GOLD",
+                Description = "High-timeframe confluence strategy entering at key Weekly or Daily zones with lower-timeframe structural confirmation.",
+                Rules = new List<string>
+                {
+                    "Mark key Weekly or Daily support/resistance levels",
+                    "Wait for price to tap the level precisely on H4",
+                    "Confirm reversal candle on H1 (engulfing or pin bar)",
+                    "Enter after H1 candle closes away from the level",
+                    "SL beyond the key level by 10 pips",
+                    "TP at 50% retracement or next HTF key level"
+                },
+                DefaultFilters = "{\"InstrumentName\":\"GOLD\",\"MinRRR\":2.0,\"FilterSummary\":\"GOLD — Any session — RRR above 2.0 — key level entries\"}",
+                SessionBadge = "Any session",
+                TimeframeBadge = "W1 + D1 + H1",
+                MinRRR = 2.0m,
+                IsSystemTemplate = true,
+                IsActive = true
+            }
+        };
+
+        db.StrategyTemplates.AddRange(templates);
         await db.SaveChangesAsync();
     }
 }

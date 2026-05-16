@@ -32,6 +32,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserAiSettingsRepository, UserAiSettingsRepository>();
         services.AddScoped<IAiChatSessionRepository, AiChatSessionRepository>();
         services.AddScoped<IBacktestRepository, BacktestRepository>();
+        services.AddScoped<IStrategyTemplateRepository, StrategyTemplateRepository>();
 
         // Application Services
         services.AddScoped<IJwtService, JwtService>();
@@ -47,6 +48,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPlaybookService, PlaybookService>();
         services.AddScoped<IAiChatService, AiChatService>();
         services.AddScoped<IBacktestService, BacktestService>();
+        services.AddScoped<IStrategyTemplateService, StrategyTemplateService>();
         services.AddScoped<IStorageService, LocalStorageService>();
 
         return services;

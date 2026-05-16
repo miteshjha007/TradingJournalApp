@@ -15,7 +15,8 @@ import {
   UserAiSettings, SaveAiSettings, AiChatSession, SendAiMessage,
   BacktestRequest, BacktestResult,
   Streak, HeatmapData, ShadowProfile,
-  StrategyQuery, StrategyAnalysisResult
+  StrategyQuery, StrategyAnalysisResult,
+  StrategyTemplate, CreateStrategyTemplate
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -334,5 +335,20 @@ export class ApiService {
       return res.body.getReader();
     });
     return { reader: readerPromise };
+  }
+
+  // Strategy Templates
+  getStrategyTemplates(instrument?: string): Observable<StrategyTemplate[]> {
+    const url = instrument ? `${environment.apiUrl}/strategy-templates?instrument=${instrument}` : `${environment.apiUrl}/strategy-templates`;
+    return this.http.get<StrategyTemplate[]>(url);
+  }
+  createStrategyTemplate(data: CreateStrategyTemplate): Observable<StrategyTemplate> {
+    return this.http.post<StrategyTemplate>(`${environment.apiUrl}/strategy-templates`, data);
+  }
+  updateStrategyTemplate(id: string, data: CreateStrategyTemplate): Observable<void> {
+    return this.http.put<void>(`${environment.apiUrl}/strategy-templates/${id}`, data);
+  }
+  deleteStrategyTemplate(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/strategy-templates/${id}`);
   }
 }

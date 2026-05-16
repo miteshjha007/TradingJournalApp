@@ -517,3 +517,30 @@ export interface StrategyAnalysisResult {
   aiSummary: string;
   tradePreview: StrategyTradePreview[];
 }
+
+export interface StrategyTemplate {
+  id: string;
+  name: string;
+  description: string;
+  methodology: string;
+  instrument: string;
+  rules: string[];
+  defaultFilters: string; // JSON string
+  sessionBadge: string;
+  timeframeBadge: string;
+  minRRR: number;
+  isSystemTemplate: boolean;
+  isActive: boolean;
+}
+
+export interface CreateStrategyTemplate {
+  name: string;
+  description: string;
+  methodology: string;
+  instrument: string;
+  rules: string[];
+  defaultFilters: string;
+  sessionBadge: string;
+  timeframeBadge: string;
+  minRRR: number;
+}

@@ -3628,11 +3628,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.API\\TradingJournal.API.csproj",
+      "projectUniqueName": "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.API\\TradingJournal.API.csproj",
       "projectName": "TradingJournal.API",
-      "projectPath": "d:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.API\\TradingJournal.API.csproj",
+      "projectPath": "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.API\\TradingJournal.API.csproj",
       "packagesPath": "C:\\Users\\coolm\\.nuget\\packages\\",
-      "outputPath": "d:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.API\\obj\\",
+      "outputPath": "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -3653,14 +3653,14 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "d:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.Application\\TradingJournal.Application.csproj": {
-              "projectPath": "d:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.Application\\TradingJournal.Application.csproj"
+            "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.Application\\TradingJournal.Application.csproj": {
+              "projectPath": "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.Application\\TradingJournal.Application.csproj"
             },
-            "d:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.Domain\\TradingJournal.Domain.csproj": {
-              "projectPath": "d:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.Domain\\TradingJournal.Domain.csproj"
+            "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.Domain\\TradingJournal.Domain.csproj": {
+              "projectPath": "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.Domain\\TradingJournal.Domain.csproj"
             },
-            "d:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.Infrastructure\\TradingJournal.Infrastructure.csproj": {
-              "projectPath": "d:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.Infrastructure\\TradingJournal.Infrastructure.csproj"
+            "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.Infrastructure\\TradingJournal.Infrastructure.csproj": {
+              "projectPath": "D:\\Mitesh\\Projects\\TradingJournalApp\\TradingJournal.Infrastructure\\TradingJournal.Infrastructure.csproj"
             }
           }
         }

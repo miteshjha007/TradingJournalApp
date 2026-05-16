@@ -22,6 +22,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserAiSettings> UserAiSettings => Set<UserAiSettings>();
     public DbSet<AiChatSession> AiChatSessions => Set<AiChatSession>();
     public DbSet<BacktestResult> BacktestResults => Set<BacktestResult>();
+    public DbSet<StrategyTemplate> StrategyTemplates => Set<StrategyTemplate>();
 
     protected override void OnModelCreating(ModelBuilder mb)
     {
@@ -39,6 +40,7 @@ public class ApplicationDbContext : DbContext
         mb.Entity<UserAiSettings>().HasQueryFilter(e => !e.IsDeleted);
         mb.Entity<AiChatSession>().HasQueryFilter(e => !e.IsDeleted);
         mb.Entity<BacktestResult>().HasQueryFilter(e => !e.IsDeleted);
+        mb.Entity<StrategyTemplate>().HasQueryFilter(e => !e.IsDeleted);
 
         // User
         mb.Entity<User>(e =>
@@ -228,6 +230,18 @@ public class ApplicationDbContext : DbContext
         {
             e.Property(x => x.ChecklistCompliancePercent).HasColumnType("decimal(5,2)");
             e.Property(x => x.ChartImageUrl).HasMaxLength(500);
+        });
+        
+        // StrategyTemplate
+        mb.Entity<StrategyTemplate>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => x.UserId);
+            e.Property(x => x.Name).HasMaxLength(200).IsRequired();
+            e.Property(x => x.Methodology).HasMaxLength(50);
+            e.Property(x => x.Instrument).HasMaxLength(50);
+            e.Property(x => x.MinRRR).HasColumnType("decimal(5,2)");
+            e.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

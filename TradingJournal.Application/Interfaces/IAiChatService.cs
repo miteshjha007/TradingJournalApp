@@ -14,7 +14,7 @@ public interface IAiChatService
     // Natural Language Strategy Analyzer
     Task<ExtractedStrategyFilters> ExtractFiltersAsync(Guid userId, StrategyQueryDto query);
     Task<StrategyAnalysisResult> AnalyzeStrategyAsync(Guid userId, StrategyQueryDto query);
-    IAsyncEnumerable<string> StreamStrategyInsightAsync(Guid userId, StrategyAnalysisResult result, string originalQuestion);
+    IAsyncEnumerable<string> StreamStrategyInsightAsync(Guid userId, StrategyAnalysisResult result, string originalQuestion, CancellationToken ct = default);
 }
 
 public interface IUserAiSettingsRepository

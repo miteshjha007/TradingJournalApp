@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { ToastService } from '../../services/toast.service';
 import { AuthService } from '../../services/auth.service';
-import { UserAiSettings, SaveAiSettings, AiChatSession, AiChatMessage, AiProvider, StrategyQuery, StrategyAnalysisResult } from '../../models/models';
+import { UserAiSettings, SaveAiSettings, AiChatSession, AiChatMessage, AiProvider, StrategyQuery, StrategyAnalysisResult, StrategyTemplate, CreateStrategyTemplate } from '../../models/models';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -189,6 +189,37 @@ import { environment } from '../../../environments/environment';
 
         <div class="chat-input-area">
           @if (strategyMode()) {
+            <div class="strategy-library">
+              <div class="sl-header">
+                <div class="sl-title">
+                  <span class="sl-icon">📚</span> GOLD Strategy Library
+                </div>
+                <button class="btn-add-custom" (click)="showAddCustom.set(true)">+ Add Custom</button>
+              </div>
+              <div class="sl-grid">
+                @for (s of strategies(); track s.id) {
+                  <div class="sl-card" (click)="testStrategy(s)">
+                    <div class="sl-card-header">
+                      <span class="sl-name">{{ s.name }}</span>
+                      <span class="sl-badge" [class.smc]="s.methodology==='SMC'">{{ s.methodology }}</span>
+                    </div>
+                    <div class="sl-meta">
+                      <span class="sl-info">🕒 {{ s.sessionBadge }}</span>
+                      <span class="sl-info">📊 {{ s.timeframeBadge }}</span>
+                      <span class="sl-info">🎯 Min {{ s.minRRR }}R</span>
+                    </div>
+                    <div class="sl-rules-preview">
+                      @for (rule of s.rules.slice(0, 2); track rule) {
+                        <div class="sl-rule-item">• {{ rule }}</div>
+                      }
+                      @if (s.rules.length > 2) { <div class="sl-rule-more">+ {{ s.rules.length - 2 }} more rules...</div> }
+                    </div>
+                    <button class="sl-test-btn">Test This Strategy</button>
+                  </div>
+                }
+              </div>
+            </div>
+
             <div class="strategy-quick-prompts">
               @for (q of strategyQuickPrompts; track q) {
                 <button class="quick-btn" (click)="inputText=q; analyzeStrategy()">{{ q }}</button>
@@ -214,6 +245,77 @@ import { environment } from '../../../environments/environment';
         </div>
       </div>
     </div>
+
+    <!-- Add Custom Strategy Modal -->
+    @if (showAddCustom()) {
+      <div class="modal-overlay">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3>Add Custom Strategy</h3>
+            <button class="close-btn" (click)="showAddCustom.set(false)">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Strategy Name</label>
+                <input type="text" [(ngModel)]="customStrategyForm.name" placeholder="e.g. My Breakout Strategy" class="form-control-custom" />
+              </div>
+              <div class="form-group full-width">
+                <label>Description</label>
+                <textarea [(ngModel)]="customStrategyForm.description" placeholder="Briefly describe the strategy methodology..." class="form-control-custom" rows="2"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Methodology</label>
+                <select [(ngModel)]="customStrategyForm.methodology" class="form-control-custom">
+                  <option value="SMC">SMC</option>
+                  <option value="Price Action">Price Action</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Instrument</label>
+                <select [(ngModel)]="customStrategyForm.instrument" class="form-control-custom">
+                  @for (i of availableInstruments(); track i) {
+                    <option [value]="i">{{ i }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Min RRR</label>
+                <input type="number" [(ngModel)]="customStrategyForm.minRRR" step="0.1" class="form-control-custom" />
+              </div>
+              <div class="form-group">
+                <label>Session (Badge)</label>
+                <input type="text" [(ngModel)]="customStrategyForm.sessionBadge" placeholder="e.g. London" class="form-control-custom" />
+              </div>
+              <div class="form-group">
+                <label>Timeframe (Badge)</label>
+                <input type="text" [(ngModel)]="customStrategyForm.timeframeBadge" placeholder="e.g. M15" class="form-control-custom" />
+              </div>
+            </div>
+
+            <div class="rules-section">
+              <div class="section-header">
+                <label>Strategy Rules</label>
+                <button class="btn-rule-add" (click)="addRule()">+ Add Rule</button>
+              </div>
+              <div class="rules-list">
+                @for (rule of customStrategyForm.rules; track $index) {
+                  <div class="rule-row">
+                    <input type="text" [(ngModel)]="customStrategyForm.rules[$index]" placeholder="Enter strategy rule..." class="form-control-custom" />
+                    <button class="btn-rule-del" (click)="removeRule($index)">×</button>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-cancel-modal" (click)="showAddCustom.set(false)">Cancel</button>
+            <button class="btn-save-strategy" (click)="saveCustomStrategy()" [disabled]="!customStrategyForm.name">Save to Library</button>
+          </div>
+        </div>
+      </div>
+    }
   `,
   styles: [`
     .ai-chat-page { display: flex; height: calc(100vh - 120px); gap: 0; background: var(--bg-main); border-radius: var(--border-radius); overflow: hidden; border: 1px solid var(--border-color); }
@@ -322,6 +424,59 @@ import { environment } from '../../../environments/environment';
     .strategy-controls { display: flex; gap: 0.75rem; width: 100%; align-items: flex-end; }
     .strategy-side { display: flex; flex-direction: column; gap: 0.5rem; }
     .days-select { padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 0.75rem; cursor: pointer; }
+
+    /* Strategy Library */
+    .strategy-library { margin-bottom: 1.5rem; width: 100%; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; }
+    .sl-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .sl-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem; }
+    .btn-add-custom { padding: 0.35rem 0.75rem; background: var(--bg-hover); border: 1px dashed var(--border-color); border-radius: 6px; font-size: 0.75rem; cursor: pointer; color: var(--primary); font-weight: 600; }
+    .btn-add-custom:hover { background: var(--primary-light); border-style: solid; }
+    
+    .sl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .sl-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; gap: 0.75rem; position: relative; }
+    .sl-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .sl-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .sl-name { font-size: 0.9rem; font-weight: 700; color: var(--text-main); line-height: 1.3; }
+    .sl-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: #f3f4f6; color: #6b7280; font-weight: 700; }
+    .sl-badge.smc { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+    
+    .sl-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .sl-info { font-size: 0.7rem; color: var(--text-muted); background: var(--bg-main); padding: 2px 6px; border-radius: 4px; }
+    .sl-rules-preview { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; display: flex; flex-direction: column; gap: 0.25rem; }
+    .sl-rule-item { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sl-rule-more { font-size: 0.65rem; color: var(--primary); font-weight: 600; margin-top: 2px; }
+    .sl-test-btn { margin-top: auto; width: 100%; padding: 0.5rem; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-main); cursor: pointer; }
+    .sl-card:hover .sl-test-btn { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* Modal Styles */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
+    .modal-card { background: var(--bg-card); width: 100%; max-width: 600px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; animation: modalIn 0.3s ease-out; }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    
+    .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h3 { margin: 0; font-size: 1.1rem; }
+    .close-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }
+    
+    .modal-body { padding: 1.5rem; overflow-y: auto; max-height: 70vh; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    .form-group.full-width { grid-column: span 2; }
+    .form-control-custom { width: 100%; padding: 0.6rem 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-main); color: var(--text-main); font-size: 0.9rem; }
+    .form-control-custom:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1); }
+    
+    .rules-section { border-top: 1px solid var(--border-color); padding-top: 1.25rem; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .section-header label { font-weight: 700; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+    .btn-rule-add { padding: 0.3rem 0.6rem; background: var(--primary-light); color: var(--primary); border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    
+    .rules-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .rule-row { display: flex; gap: 0.5rem; }
+    .btn-rule-del { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; }
+    .btn-rule-del:hover { color: var(--danger); }
+    
+    .modal-footer { padding: 1.25rem 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 0.75rem; background: var(--bg-main); }
+    .btn-cancel-modal { padding: 0.6rem 1.25rem; background: none; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-main); }
+    .btn-save-strategy { padding: 0.6rem 1.5rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-save-strategy:disabled { opacity: 0.6; cursor: not-allowed; }
   `]
 })
 export class AiChatComponent implements OnInit, AfterViewChecked {
@@ -342,6 +497,13 @@ export class AiChatComponent implements OnInit, AfterViewChecked {
   strategyResult = signal<StrategyAnalysisResult | null>(null);
   strategyStreamText = signal('');
   strategyStreamDone = signal(false);
+  strategies = signal<StrategyTemplate[]>([]);
+  showAddCustom = signal(false);
+  customStrategyForm: CreateStrategyTemplate = {
+    name: '', description: '', methodology: 'SMC', instrument: 'GOLD', rules: [''], 
+    defaultFilters: '{}', sessionBadge: '', timeframeBadge: '', minRRR: 2.0
+  };
+  availableInstruments = signal<string[]>([]);
 
   strategyQuickPrompts = [
     'My London session trades last 30 days',
@@ -372,6 +534,12 @@ export class AiChatComponent implements OnInit, AfterViewChecked {
   ngOnInit() {
     this.api.getAiSettings().subscribe({ next: (s) => { this.aiSettings.set(s); this.settingsForm.provider = s.provider; this.settingsForm.modelName = s.modelName ?? ''; } });
     this.api.getAiSessions().subscribe({ next: (s) => this.sessions.set(s) });
+    this.loadStrategies();
+    this.api.getInstruments().subscribe({ next: (list) => this.availableInstruments.set(list.map(i => i.name)) });
+  }
+
+  loadStrategies() {
+    this.api.getStrategyTemplates('GOLD').subscribe({ next: (list) => this.strategies.set(list) });
   }
 
   ngAfterViewChecked() {
@@ -581,6 +749,97 @@ export class AiChatComponent implements OnInit, AfterViewChecked {
         this.strategyLoadingStep.set(null);
         this.toast.error(err?.error?.error || 'Strategy analysis failed');
       }
+    });
+  }
+
+  testStrategy(template: StrategyTemplate) {
+    if (this.strategyLoadingStep()) return;
+
+    // Add user message
+    const userMsg: AiChatMessage = { role: 'user', content: `🔍 Testing Strategy: ${template.name}`, timestamp: new Date().toISOString() };
+    this.messages.update(list => [...list, userMsg]);
+    this.strategyResult.set(null);
+    this.strategyStreamText.set('');
+    this.strategyStreamDone.set(false);
+    this.shouldScroll = true;
+
+    // Skip extraction, go to analyzing
+    this.strategyLoadingStep.set('analyzing');
+    this.strategyDaysBack.set(90);
+
+    const filters = JSON.parse(template.defaultFilters);
+    // Custom heading as requested: Testing: {name} — {summary}
+    filters.filterSummary = `Testing: ${template.name} — ${filters.filterSummary}`;
+
+    setTimeout(() => {
+      this.api.analyzeStrategy({ userMessage: template.name, daysBack: 90 }).subscribe({
+        next: (result) => {
+          // Force use the pre-built filters
+          result.filters = filters;
+          this.strategyResult.set(result);
+          this.strategyLoadingStep.set(null);
+          this.shouldScroll = true;
+
+          if (!result.hasData) return;
+
+          const token = localStorage.getItem('accessToken') ?? '';
+          const { reader } = this.api.streamStrategyInsight(result, `Analyze this ${template.name} strategy performance.`, token);
+          reader.then(r => {
+            const decoder = new TextDecoder();
+            const read = () => r.read().then(({ done, value }) => {
+              if (done) { this.strategyStreamDone.set(true); return; }
+              decoder.decode(value).split('\n').forEach(line => {
+                if (line.startsWith('data: ')) {
+                  const data = line.slice(6);
+                  if (data === '[DONE]') { this.strategyStreamDone.set(true); return; }
+                  if (!data.startsWith('[ERROR]')) {
+                    this.strategyStreamText.update(t => t + data);
+                    this.shouldScroll = true;
+                  }
+                }
+              });
+              read();
+            }).catch(() => this.strategyStreamDone.set(true));
+            read();
+          }).catch(() => this.strategyStreamDone.set(true));
+        },
+        error: (err) => {
+          this.strategyLoadingStep.set(null);
+          this.toast.error(err?.error?.error || 'Strategy analysis failed');
+        }
+      });
+    }, 600);
+  }
+
+  addRule() {
+    this.customStrategyForm.rules.push('');
+  }
+
+  removeRule(index: number) {
+    this.customStrategyForm.rules.splice(index, 1);
+  }
+
+  saveCustomStrategy() {
+    // Construct default filters JSON
+    const filters = {
+      InstrumentName: this.customStrategyForm.instrument,
+      MinRRR: this.customStrategyForm.minRRR,
+      FilterSummary: `${this.customStrategyForm.instrument} — ${this.customStrategyForm.sessionBadge || 'Any session'} — RRR above ${this.customStrategyForm.minRRR}`
+    };
+    this.customStrategyForm.defaultFilters = JSON.stringify(filters);
+
+    this.api.createStrategyTemplate(this.customStrategyForm).subscribe({
+      next: () => {
+        this.toast.success('Custom strategy saved to library');
+        this.showAddCustom.set(false);
+        this.loadStrategies();
+        // Reset form
+        this.customStrategyForm = {
+          name: '', description: '', methodology: 'SMC', instrument: 'GOLD', rules: [''], 
+          defaultFilters: '{}', sessionBadge: '', timeframeBadge: '', minRRR: 2.0
+        };
+      },
+      error: (err) => this.toast.error('Failed to save strategy')
     });
   }
 }
