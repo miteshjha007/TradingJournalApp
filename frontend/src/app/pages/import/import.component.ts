@@ -460,14 +460,34 @@ export class ImportComponent implements OnInit {
   loadMt5Config() {
     this.mt5Loading.set(true);
     this.api.getMt5Config().subscribe({
-      next: (config) => { this.mt5Config.set(config); this.defaultAccountId.set(config.defaultTradingAccountId || ''); this.parseMappings(config.instrumentMappings); this.mt5Loading.set(false); },
-      error: () => this.mt5Loading.set(false)
+      next: (config) => { 
+        if (!config) {
+          this.mt5Loading.set(false);
+          return;
+        }
+        this.mt5Config.set(config); 
+        this.defaultAccountId.set(config.defaultTradingAccountId || ''); 
+        this.parseMappings(config.instrumentMappings || {}); 
+        this.mt5Loading.set(false); 
+      },
+      error: () => {
+        this.mt5Loading.set(false);
+        this.toast.error('Failed to load MT5 configuration. Please check if your API is online.', 'Config Error');
+      }
     });
   }
 
   parseMappings(mappings: { [key: string]: string }) {
     const arr: { mt5Symbol: string; instrumentId: string }[] = [];
-    for (const [mt5, instName] of Object.entries(mappings)) { const inst = this.instruments().find(i => i.name === instName); arr.push({ mt5Symbol: mt5, instrumentId: inst?.id || '' }); }
+    const currentInstruments = this.instruments();
+    
+    if (mappings && typeof mappings === 'object') {
+      for (const [mt5, instName] of Object.entries(mappings)) { 
+        const inst = currentInstruments.find(i => i.name === instName); 
+        arr.push({ mt5Symbol: mt5, instrumentId: inst?.id || '' }); 
+      }
+    }
+    
     if (arr.length === 0) arr.push({ mt5Symbol: '', instrumentId: '' });
     this.instrumentMappings.set(arr);
   }
