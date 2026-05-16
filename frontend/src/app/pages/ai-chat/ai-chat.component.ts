@@ -187,7 +187,7 @@ import { environment } from '../../../environments/environment';
           }
         </div>
 
-        <div class="chat-input-area">
+        <div class="chat-input-area" [class.strategy-active]="strategyMode()">
           @if (strategyMode()) {
             <div class="strategy-library">
               <div class="sl-header">
@@ -379,7 +379,8 @@ import { environment } from '../../../environments/environment';
     .cursor { animation: blink 0.8s infinite; }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-    .chat-input-area { display: flex; gap: 0.75rem; padding: 1rem 1.25rem; border-top: 1px solid var(--border-color); background: var(--bg-card); align-items: flex-end; }
+    .chat-input-area { display: flex; gap: 0.75rem; padding: 1rem 1.25rem; border-top: 1px solid var(--border-color); background: var(--bg-card); align-items: flex-end; transition: var(--transition); }
+    .chat-input-area.strategy-active { flex-direction: column; align-items: stretch; }
     .chat-input { flex: 1; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--border-radius); background: var(--bg-input); color: var(--text-main); font-family: var(--font-family); font-size: 0.9rem; resize: none; line-height: 1.5; }
     .chat-input:focus { outline: none; border-color: var(--primary); }
     .send-btn { width: 44px; height: 44px; background: var(--primary); color: white; border: none; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: var(--transition); }
@@ -426,13 +427,13 @@ import { environment } from '../../../environments/environment';
     .days-select { padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 0.75rem; cursor: pointer; }
 
     /* Strategy Library */
-    .strategy-library { margin-bottom: 1.5rem; width: 100%; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; }
-    .sl-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .strategy-library { margin-bottom: 1rem; width: 100%; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; max-height: 420px; overflow-y: auto; scrollbar-width: thin; }
+    .sl-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; position: sticky; top: 0; background: var(--bg-card); z-index: 10; padding-bottom: 0.5rem; }
     .sl-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem; }
     .btn-add-custom { padding: 0.35rem 0.75rem; background: var(--bg-hover); border: 1px dashed var(--border-color); border-radius: 6px; font-size: 0.75rem; cursor: pointer; color: var(--primary); font-weight: 600; }
     .btn-add-custom:hover { background: var(--primary-light); border-style: solid; }
     
-    .sl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .sl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; padding-right: 0.5rem; }
     .sl-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; gap: 0.75rem; position: relative; }
     .sl-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
     .sl-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -768,8 +769,9 @@ export class AiChatComponent implements OnInit, AfterViewChecked {
     this.strategyDaysBack.set(90);
 
     const filters = JSON.parse(template.defaultFilters);
-    // Custom heading as requested: Testing: {name} — {summary}
-    filters.filterSummary = `Testing: ${template.name} — ${filters.filterSummary}`;
+    // Support both PascalCase (from C# seeder) and camelCase (from frontend save)
+    const summary = filters.FilterSummary || filters.filterSummary || '';
+    filters.filterSummary = `Testing: ${template.name} — ${summary}`;
 
     setTimeout(() => {
       this.api.analyzeStrategy({ userMessage: template.name, daysBack: 90 }).subscribe({
