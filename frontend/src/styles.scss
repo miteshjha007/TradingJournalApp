@@ -1150,6 +1150,22 @@ label {
   vertical-align: middle;
 }
 
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+
+.sub-header {
+  font-size: 0.7rem;
+  font-weight: normal;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.rrr-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
 .data-table tbody tr:hover { background-color: var(--bg-hover); }
 
 .win-row { border-left: 3px solid var(--success); }

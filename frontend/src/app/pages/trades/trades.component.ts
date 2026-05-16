@@ -72,18 +72,20 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
               <tr>
                 <th>Date</th>
                 <th>Instrument</th>
-                <th>Type</th>
-                <th>Lot</th>
-                <th>Entry</th>
-                <th>Exit</th>
-                <th>SL</th>
-                <th>TP</th>
-                <th [infoTooltip]="'profit-and-loss'">P&amp;L</th>
-                <th [infoTooltip]="'risk-reward-ratio'">RRR</th>
-                <th>Result</th>
+                <th class="text-center">Type</th>
+                <th class="text-center">Lot</th>
+                <th class="text-right">Entry</th>
+                <th class="text-right">Exit</th>
+                <th class="text-right">SL</th>
+                <th class="text-right">TP</th>
+                <th class="text-right">
+                  <div [infoTooltip]="'profit-and-loss'">P&amp;L ⓘ</div>
+                  <div [infoTooltip]="'risk-reward-ratio'" class="sub-header">RRR ⓘ</div>
+                </th>
+                <th class="text-center">Result</th>
                 <th>Tags</th>
-                <th [infoTooltip]="'checklist-compliance'">Checklist</th>
-                <th>Actions</th>
+                <th>Checklist</th>
+                <th class="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -91,17 +93,21 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
                 <tr [class.win-row]="trade.result === 'Win'" [class.loss-row]="trade.result === 'Loss'">
                   <td>{{ trade.tradeDate | date:'dd MMM yy' }}</td>
                   <td><span class="badge">{{ trade.instrumentName }}</span></td>
-                  <td><span class="type-badge" [class.buy]="trade.tradeType === 'Buy'" [class.sell]="trade.tradeType === 'Sell'">{{ trade.tradeType }}</span></td>
-                  <td>{{ trade.lotSize }}</td>
-                  <td>{{ trade.entryPrice | number:'1.2-5' }}</td>
-                  <td>{{ trade.exitPrice | number:'1.2-5' }}</td>
-                  <td>{{ trade.stopLoss | number:'1.2-5' }}</td>
-                  <td>{{ trade.takeProfit | number:'1.2-5' }}</td>
-                  <td class="pl-cell" [class.positive-text]="(trade.profitLoss || 0) > 0" [class.negative-text]="(trade.profitLoss || 0) < 0">
-                    {{ trade.profitLoss || 0 | number:'1.2-2' }}
+                  <td class="text-center"><span class="type-badge" [class.buy]="trade.tradeType === 'Buy'" [class.sell]="trade.tradeType === 'Sell'">{{ trade.tradeType }}</span></td>
+                  <td class="text-center">{{ trade.lotSize }}</td>
+                  <td class="text-right">{{ trade.entryPrice | number:'1.2-5' }}</td>
+                  <td class="text-right">{{ trade.exitPrice | number:'1.2-5' }}</td>
+                  <td class="text-right">{{ trade.stopLoss | number:'1.2-5' }}</td>
+                  <td class="text-right">{{ trade.takeProfit | number:'1.2-5' }}</td>
+                  <td class="text-right">
+                    <div class="pl-cell" [class.positive-text]="(trade.profitLoss || 0) > 0" [class.negative-text]="(trade.profitLoss || 0) < 0">
+                      {{ trade.profitLoss || 0 | number:'1.2-2' }}
+                    </div>
+                    <div class="rrr-sub">
+                      {{ trade.riskRewardRatio || 0 | number:'1.2-2' }}
+                    </div>
                   </td>
-                  <td>{{ trade.riskRewardRatio || 0 | number:'1.2-2' }}</td>
-                  <td><span class="result-badge" [class]="'result-' + (trade.result || '').toLowerCase()">{{ trade.result || 'Pending' }}</span></td>
+                  <td class="text-center"><span class="result-badge" [class]="'result-' + (trade.result || '').toLowerCase()">{{ trade.result || 'Pending' }}</span></td>
                   <td class="tags-cell">
                     @if (trade.tags) {
                       @for (tag of trade.tags.split(','); track tag) {
@@ -128,7 +134,7 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
                       <span title="Chart uploaded" style="margin-left:4px">📷</span>
                     }
                   </td>
-                  <td class="actions-cell">
+                  <td class="actions-cell text-right">
                     <button class="btn-icon" (click)="openModal(trade)">✏️</button>
                     @if (trade.id) {
                       <button class="btn-icon danger" (click)="deleteTrade(trade.id)">🗑️</button>
