@@ -109,7 +109,7 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
             </div>
             <div class="form-group">
               <label>Category *</label>
-              <select [(ngModel)]="form.category" class="form-control">
+              <select [(ngModel)]="form.category" class="form-control category-select">
                 @for (cat of categories; track cat.value) {
                   <option [value]="cat.value">{{ cat.icon }} {{ cat.label }}</option>
                 }
@@ -188,6 +188,7 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
     .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
     .form-control { padding: 0.625rem 0.875rem; border: 1px solid var(--border-color); border-radius: var(--border-radius); background: var(--bg-input); color: var(--text-main); font-family: var(--font-family); font-size: 0.9rem; }
     .form-control:focus { outline: none; border-color: var(--primary); }
+    .category-select option { background-color: #1e293b; color: #f8fafc; } /* Force dark background for options */
     textarea.form-control { resize: vertical; }
     .checkbox-label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem; color: var(--text-main); }
 
@@ -212,7 +213,7 @@ export class PlaybookComponent implements OnInit {
 
   categories = [
     { value: PlaybookCategory.Entry, label: 'Entry', icon: '🎯' },
-    { value: PlaybookCategory.Risk, label: 'Risk', icon: '⚖️' },
+    { value: PlaybookCategory.Risk, label: 'Risk', icon: '⚡' },
     { value: PlaybookCategory.Psychology, label: 'Psychology', icon: '🧠' },
     { value: PlaybookCategory.Exit, label: 'Exit', icon: '🚪' },
   ];

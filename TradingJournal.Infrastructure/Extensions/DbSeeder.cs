@@ -13,6 +13,7 @@ public static class DbSeeder
         // Must be BEFORE the user guard so existing DBs get presets after migration
         await SeedPropFirmPresetsAsync(db);
         await SeedStrategyTemplatesAsync(db);
+        await SeedPlaybookRulesAsync(db);
 
         // ── Demo users + trades (only on fresh DB) ─────────────────────────────
         if (await db.Users.AnyAsync()) return;
@@ -369,6 +370,73 @@ public static class DbSeeder
         };
 
         db.StrategyTemplates.AddRange(templates);
+        await db.SaveChangesAsync();
+    }
+
+    private static async Task SeedPlaybookRulesAsync(ApplicationDbContext db)
+    {
+        var traderEmail = "trader@tradingjournal.com";
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == traderEmail);
+        
+        if (user == null) return;
+
+        // Idempotency check: Only seed if user has zero rules
+        if (await db.PlaybookRules.AnyAsync(r => r.UserId == user.Id)) return;
+
+        var rules = new List<PlaybookRule>
+        {
+            // ENTRY RULES (Category = 1)
+            new() { UserId = user.Id, Category = PlaybookCategory.Entry, OrderIndex = 1, IsActive = true,
+                Title = "Is price above 200 EMA on H1?",
+                Description = "Only trade in the direction of the 200 EMA on H1 timeframe" },
+            new() { UserId = user.Id, Category = PlaybookCategory.Entry, OrderIndex = 2, IsActive = true,
+                Title = "Is there a clear Break of Structure (BOS)?",
+                Description = "Confirm BOS or CHoCH before entering — no BOS = no trade" },
+            new() { UserId = user.Id, Category = PlaybookCategory.Entry, OrderIndex = 3, IsActive = true,
+                Title = "Is there an Order Block or FVG at entry zone?",
+                Description = "Price must be retesting a valid OB or Fair Value Gap" },
+            new() { UserId = user.Id, Category = PlaybookCategory.Entry, OrderIndex = 4, IsActive = true,
+                Title = "Is HTF (H4/Daily) trend aligned with entry?",
+                Description = "Trade only in direction of higher timeframe trend" },
+
+            // RISK RULES (Category = 2)
+            new() { UserId = user.Id, Category = PlaybookCategory.Risk, OrderIndex = 1, IsActive = true,
+                Title = "Is Stop Loss set BEFORE entering the trade?",
+                Description = "Never enter without a predetermined stop loss level" },
+            new() { UserId = user.Id, Category = PlaybookCategory.Risk, OrderIndex = 2, IsActive = true,
+                Title = "Is risk below 1% of account balance?",
+                Description = "Max risk per trade is 1% — check Risk Tool before entry" },
+            new() { UserId = user.Id, Category = PlaybookCategory.Risk, OrderIndex = 3, IsActive = true,
+                Title = "Is lot size within instrument Safe Lot Size limit?",
+                Description = "Check instrument configuration — never exceed Max Lot" },
+            new() { UserId = user.Id, Category = PlaybookCategory.Risk, OrderIndex = 4, IsActive = true,
+                Title = "Have I used less than 50% of my daily loss limit today?",
+                Description = "Check dashboard prop firm status card before trading" },
+
+            // PSYCHOLOGY RULES (Category = 3)
+            new() { UserId = user.Id, Category = PlaybookCategory.Psychology, OrderIndex = 1, IsActive = true,
+                Title = "Am I trading out of FOMO or revenge?",
+                Description = "If answer is YES — close the app and come back in 30 minutes" },
+            new() { UserId = user.Id, Category = PlaybookCategory.Psychology, OrderIndex = 2, IsActive = true,
+                Title = "Have I taken more than 3 trades today already?",
+                Description = "More than 3 trades = overtrading risk. Review before continuing." },
+            new() { UserId = user.Id, Category = PlaybookCategory.Psychology, OrderIndex = 3, IsActive = true,
+                Title = "Did I sleep well and am I mentally focused?",
+                Description = "Tired or stressed trading leads to poor decisions" },
+
+            // EXIT RULES (Category = 4)
+            new() { UserId = user.Id, Category = PlaybookCategory.Exit, OrderIndex = 1, IsActive = true,
+                Title = "Is Take Profit at the next key level (S/R or liquidity)?",
+                Description = "TP must be at a logical level — not a random number" },
+            new() { UserId = user.Id, Category = PlaybookCategory.Exit, OrderIndex = 2, IsActive = true,
+                Title = "Will I move SL to break-even when trade is at 1:1?",
+                Description = "Protect capital — move SL to entry when profit = risk" },
+            new() { UserId = user.Id, Category = PlaybookCategory.Exit, OrderIndex = 3, IsActive = true,
+                Title = "Am I planning to let this trade run or will I close manually?",
+                Description = "Decide exit plan before entry — stick to it" }
+        };
+
+        db.PlaybookRules.AddRange(rules);
         await db.SaveChangesAsync();
     }
 }
