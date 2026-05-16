@@ -358,6 +358,7 @@ export class ShellComponent implements OnInit {
     { path: '/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/instruments', label: 'Instruments', icon: '🎯' },
     { path: '/trades', label: 'Trade Journal', icon: '📝' },
+    { path: '/import', label: 'Import', icon: '📥' },
     { path: '/analytics', label: 'Analytics', icon: '🤖' },
     { path: '/learn', label: 'Learn', icon: '📚' },
     { path: '/calendar', label: 'Calendar', icon: '📅' },
@@ -440,7 +441,7 @@ export class ShellComponent implements OnInit {
     if (user.role === 'Admin') return this.navItems;
     // Regular users: Dashboard, Accounts, and Forum always visible; rest by allowedSections
     const allowed = user.allowedSections ?? [];
-    const alwaysVisible = ['Dashboard', 'Accounts', 'Forum', 'Playbook', 'AI Chat', 'Backtest', 'Trade Journal', 'Instruments', 'Analytics', 'Learn'];
+    const alwaysVisible = ['Dashboard', 'Accounts', 'Forum', 'Playbook', 'AI Chat', 'Backtest', 'Trade Journal', 'Instruments', 'Analytics', 'Learn', 'Import'];
     return this.navItems.filter(item =>
       alwaysVisible.includes(item.label) || allowed.includes(item.label)
     );

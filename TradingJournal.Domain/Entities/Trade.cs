@@ -23,6 +23,7 @@ public class Trade : BaseEntity
     public Guid? TradingAccountId { get; set; }
     public decimal? ChecklistCompliancePercent { get; set; }
     public string? ChartImageUrl { get; set; }
+    public long? Mt5TicketNumber { get; set; }
 
     // Navigation
     public User User { get; set; } = null!;

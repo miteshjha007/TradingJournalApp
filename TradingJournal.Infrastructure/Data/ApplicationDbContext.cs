@@ -23,6 +23,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<AiChatSession> AiChatSessions => Set<AiChatSession>();
     public DbSet<BacktestResult> BacktestResults => Set<BacktestResult>();
     public DbSet<StrategyTemplate> StrategyTemplates => Set<StrategyTemplate>();
+    public DbSet<Mt5WebhookConfig> Mt5WebhookConfigs => Set<Mt5WebhookConfig>();
+    public DbSet<TradeImportLog> TradeImportLogs => Set<TradeImportLog>();
 
     protected override void OnModelCreating(ModelBuilder mb)
     {
@@ -41,6 +43,8 @@ public class ApplicationDbContext : DbContext
         mb.Entity<AiChatSession>().HasQueryFilter(e => !e.IsDeleted);
         mb.Entity<BacktestResult>().HasQueryFilter(e => !e.IsDeleted);
         mb.Entity<StrategyTemplate>().HasQueryFilter(e => !e.IsDeleted);
+        mb.Entity<Mt5WebhookConfig>().HasQueryFilter(e => !e.IsDeleted);
+        mb.Entity<TradeImportLog>().HasQueryFilter(e => !e.IsDeleted);
 
         // User
         mb.Entity<User>(e =>
@@ -242,6 +246,35 @@ public class ApplicationDbContext : DbContext
             e.Property(x => x.Instrument).HasMaxLength(50);
             e.Property(x => x.MinRRR).HasColumnType("decimal(5,2)");
             e.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Mt5WebhookConfig
+        mb.Entity<Mt5WebhookConfig>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => x.UserId);
+            e.HasIndex(x => x.WebhookToken).IsUnique();
+            e.Property(x => x.WebhookToken).HasMaxLength(64).IsRequired();
+            e.Property(x => x.Description).HasMaxLength(200);
+            e.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId);
+            e.HasOne(x => x.DefaultTradingAccount).WithMany().HasForeignKey(x => x.DefaultTradingAccountId).IsRequired(false);
+        });
+
+        // TradeImportLog
+        mb.Entity<TradeImportLog>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => x.UserId);
+            e.HasIndex(x => x.CreatedAt);
+            e.Property(x => x.Source).HasConversion<int>();
+            e.Property(x => x.Status).HasConversion<int>();
+            e.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId);
+        });
+
+        // Trade - Mt5TicketNumber
+        mb.Entity<Trade>(e =>
+        {
+            e.Property(x => x.Mt5TicketNumber).HasColumnType("bigint");
         });
     }
 }

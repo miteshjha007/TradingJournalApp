@@ -33,6 +33,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAiChatSessionRepository, AiChatSessionRepository>();
         services.AddScoped<IBacktestRepository, BacktestRepository>();
         services.AddScoped<IStrategyTemplateRepository, StrategyTemplateRepository>();
+        services.AddScoped<ITradeImportRepository, TradeImportRepository>();
 
         // Application Services
         services.AddScoped<IJwtService, JwtService>();
@@ -49,6 +50,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAiChatService, AiChatService>();
         services.AddScoped<IBacktestService, BacktestService>();
         services.AddScoped<IStrategyTemplateService, StrategyTemplateService>();
+        services.AddScoped<ITradeImportService, TradeImportService>();
         services.AddScoped<IStorageService, LocalStorageService>();
 
         return services;

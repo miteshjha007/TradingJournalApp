@@ -544,3 +544,84 @@ export interface CreateStrategyTemplate {
   timeframeBadge: string;
   minRRR: number;
 }
+
+// Import models
+export interface CsvImportRequest {
+  csvContent: string;
+  tradingAccountId?: string;
+  forceInstrumentId?: string;
+}
+export interface ParsedTrade {
+  symbol: string;
+  mappedInstrumentName: string;
+  instrumentId?: string;
+  tradeType: string;
+  lotSize: number;
+  entryPrice: number;
+  exitPrice: number;
+  stopLoss: number;
+  takeProfit: number;
+  profitLoss: number;
+  openTime: string;
+  closeTime: string;
+  durationMinutes: number;
+  comment?: string;
+  isDuplicate: boolean;
+  duplicateReason?: string;
+}
+export interface CsvParseError {
+  rowNumber: number;
+  rawLine: string;
+  error: string;
+}
+export interface CsvImportPreview {
+  validTrades: ParsedTrade[];
+  duplicateTrades: ParsedTrade[];
+  errors: CsvParseError[];
+  totalRows: number;
+  csvFormat: string;
+}
+export interface CsvImportConfirm {
+  csvContent: string;
+  tradingAccountId?: string;
+  forceInstrumentId?: string;
+  skipDuplicates: boolean;
+}
+export interface ImportResult {
+  inserted: number;
+  skipped: number;
+  failed: number;
+  skippedReasons: string[];
+  errors: string[];
+  importLogId: string;
+  summary: string;
+}
+export interface Mt5WebhookConfig {
+  id: string;
+  webhookToken: string;
+  isActive: boolean;
+  description?: string;
+  defaultTradingAccountId?: string;
+  defaultTradingAccountName?: string;
+  instrumentMappings: { [key: string]: string };
+  lastUsedAt?: string;
+  totalTradesImported: number;
+  webhookUrl: string;
+}
+export interface UpdateMt5Config {
+  isActive: boolean;
+  description?: string;
+  defaultTradingAccountId?: string;
+  instrumentMappings: { [key: string]: string };
+}
+export interface ImportLog {
+  id: string;
+  source: string;
+  totalReceived: number;
+  totalInserted: number;
+  totalSkipped: number;
+  totalFailed: number;
+  fileName?: string;
+  status: string;
+  createdAt: string;
+}

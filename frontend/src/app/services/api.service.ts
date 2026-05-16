@@ -16,7 +16,9 @@ import {
   BacktestRequest, BacktestResult,
   Streak, HeatmapData, ShadowProfile,
   StrategyQuery, StrategyAnalysisResult,
-  StrategyTemplate, CreateStrategyTemplate
+  StrategyTemplate, CreateStrategyTemplate,
+  CsvImportRequest, CsvImportPreview, CsvImportConfirm, ImportResult,
+  Mt5WebhookConfig, UpdateMt5Config, ImportLog
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -350,5 +352,30 @@ export class ApiService {
   }
   deleteStrategyTemplate(id: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/strategy-templates/${id}`);
+  }
+
+  // CSV Import
+  previewCsvImport(dto: CsvImportRequest): Observable<CsvImportPreview> {
+    return this.http.post<CsvImportPreview>(`${environment.apiUrl}/import/csv/preview`, dto);
+  }
+  confirmCsvImport(dto: CsvImportConfirm): Observable<ImportResult> {
+    return this.http.post<ImportResult>(`${environment.apiUrl}/import/csv/confirm`, dto);
+  }
+
+  // MT5 Config
+  getMt5Config(): Observable<Mt5WebhookConfig> {
+    return this.http.get<Mt5WebhookConfig>(`${environment.apiUrl}/import/mt5/config`);
+  }
+  updateMt5Config(dto: UpdateMt5Config): Observable<Mt5WebhookConfig> {
+    return this.http.put<Mt5WebhookConfig>(`${environment.apiUrl}/import/mt5/config`, dto);
+  }
+  regenerateMt5Token(): Observable<Mt5WebhookConfig> {
+    return this.http.post<Mt5WebhookConfig>(`${environment.apiUrl}/import/mt5/regenerate-token`, {});
+  }
+
+  // History
+  getImportHistory(page: number, pageSize: number): Observable<ImportLog[]> {
+    return this.http.get<ImportLog[]>(
+      `${environment.apiUrl}/import/history?page=${page}&pageSize=${pageSize}`);
   }
 }
