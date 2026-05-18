@@ -48,7 +48,8 @@ public class TradeService : ITradeService
 
     public async Task<TradeDto> CreateAsync(CreateTradeDto dto, Guid userId)
     {
-        var pl = CalculatePL(dto.TradeType, dto.EntryPrice, dto.ExitPrice, dto.LotSize);
+        var instrument = await _instrumentRepository.GetByIdAsync(dto.InstrumentId, userId);
+        var pl = CalculatePL(dto.TradeType, dto.EntryPrice, dto.ExitPrice, dto.LotSize, instrument?.Name);
         var result = pl > 0 ? TradeResult.Win : pl < 0 ? TradeResult.Loss : TradeResult.BreakEven;
         var rrr = CalculateRRR(dto.EntryPrice, dto.StopLoss, dto.TakeProfit, dto.TradeType);
 
@@ -82,7 +83,7 @@ public class TradeService : ITradeService
         var trade = await _tradeRepository.GetByIdAsync(id, userId)
             ?? throw new KeyNotFoundException("Trade not found.");
 
-        var pl = CalculatePL(dto.TradeType, dto.EntryPrice, dto.ExitPrice, dto.LotSize);
+        var pl = CalculatePL(dto.TradeType, dto.EntryPrice, dto.ExitPrice, dto.LotSize, trade.Instrument?.Name);
         var result = pl > 0 ? TradeResult.Win : pl < 0 ? TradeResult.Loss : TradeResult.BreakEven;
         var rrr = CalculateRRR(dto.EntryPrice, dto.StopLoss, dto.TakeProfit, dto.TradeType);
 
@@ -138,10 +139,28 @@ public class TradeService : ITradeService
         return Encoding.UTF8.GetBytes(sb.ToString());
     }
 
-    private decimal CalculatePL(TradeType type, decimal entry, decimal exit, decimal lotSize)
+    private decimal CalculatePL(TradeType type, decimal entry, decimal exit, decimal lotSize, string? instrumentSymbol)
     {
         var pips = type == TradeType.Buy ? exit - entry : entry - exit;
-        return Math.Round(pips * lotSize * 100000, 2); // Standard forex calculation
+        
+        decimal multiplier = 100000; // Standard forex
+
+        if (!string.IsNullOrEmpty(instrumentSymbol))
+        {
+            var symbol = instrumentSymbol.ToUpper();
+            if (symbol.Contains("XAU") || symbol.Contains("GOLD"))
+                multiplier = 100;
+            else if (symbol.Contains("XAG") || symbol.Contains("SILVER"))
+                multiplier = 5000;
+            else if (symbol.Contains("BTC") || symbol.Contains("BITCOIN"))
+                multiplier = 1;
+            else if (symbol.Contains("US30") || symbol.Contains("DOW"))
+                multiplier = 10;
+            else if (symbol.Contains("NAS100") || symbol.Contains("NASDAQ"))
+                multiplier = 20; 
+        }
+
+        return Math.Round(pips * lotSize * multiplier, 2);
     }
 
     private decimal CalculateRRR(decimal entry, decimal sl, decimal tp, TradeType type)
