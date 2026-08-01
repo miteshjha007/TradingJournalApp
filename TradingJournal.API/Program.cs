@@ -18,7 +18,11 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // Services
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSignalR();
 
@@ -110,7 +114,7 @@ var app = builder.Build();
 await app.Services.MigrateAndSeedAsync();
 
 // Pipeline
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>(); //Custom Middleware for global error handling
 app.UseSerilogRequestLogging();
 
 

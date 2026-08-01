@@ -100,9 +100,9 @@ import { Instrument, CreateInstrument } from '../../models/models';
               <div class="form-group">
                 <label>Volatility Level</label>
                 <select formControlName="volatilityLevel" class="form-input">
-                  <option value="1">Low</option>
-                  <option value="2">Medium</option>
-                  <option value="3">High</option>
+                  <option [ngValue]="1">Low</option>
+                  <option [ngValue]="2">Medium</option>
+                  <option [ngValue]="3">High</option>
                 </select>
               </div>
               <div class="form-group">

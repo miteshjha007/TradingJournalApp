@@ -181,8 +181,8 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
                 <div class="form-group">
                   <label [infoTooltip]="'daily-loss-limit'">Daily Loss Limit Basis</label>
                   <select formControlName="maxDailyLossType" class="form-input">
-                    <option [value]="1">Balance-Based (% of starting balance)</option>
-                    <option [value]="2">Equity-Based (% of current equity)</option>
+                    <option [ngValue]="1">Balance-Based (% of starting balance)</option>
+                    <option [ngValue]="2">Equity-Based (% of current equity)</option>
                   </select>
                 </div>
               </div>

@@ -188,8 +188,8 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
                 <div class="form-group">
                   <label>Trade Type *</label>
                   <select formControlName="tradeType" class="form-input">
-                    <option value="1">Buy</option>
-                    <option value="2">Sell</option>
+                    <option [ngValue]="1">Buy</option>
+                    <option [ngValue]="2">Sell</option>
                   </select>
                 </div>
                 <div class="form-group">

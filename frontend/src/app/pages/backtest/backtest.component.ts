@@ -54,12 +54,12 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
             @for (filter of form.rules; track $index; let i = $index) {
               <div class="filter-row">
                 <select [(ngModel)]="filter.ruleType" class="form-control-sm" (change)="onRuleTypeChange(i)">
-                  <option [value]="1">Min RRR</option>
-                  <option [value]="2">Max Daily Trades</option>
-                  <option [value]="3">Checklist Compliance %</option>
-                  <option [value]="4">Trade Type (Long/Short)</option>
-                  <option [value]="5">Time of Day (Hour)</option>
-                  <option [value]="6">Max Risk %</option>
+                  <option [ngValue]="1">Min RRR</option>
+                  <option [ngValue]="2">Max Daily Trades</option>
+                  <option [ngValue]="3">Checklist Compliance %</option>
+                  <option [ngValue]="4">Trade Type (Long/Short)</option>
+                  <option [ngValue]="5">Time of Day (Hour)</option>
+                  <option [ngValue]="6">Max Risk %</option>
                 </select>
                 @if (filter.ruleType === 4) {
                   <input [(ngModel)]="filter.stringValue" placeholder="Long or Short" class="form-control-sm" />

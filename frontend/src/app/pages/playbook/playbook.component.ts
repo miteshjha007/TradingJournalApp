@@ -111,7 +111,7 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
               <label>Category *</label>
               <select [(ngModel)]="form.category" class="form-control category-select">
                 @for (cat of categories; track cat.value) {
-                  <option [value]="cat.value">{{ cat.icon }} {{ cat.label }}</option>
+                  <option [ngValue]="cat.value">{{ cat.icon }} {{ cat.label }}</option>
                 }
               </select>
             </div>
