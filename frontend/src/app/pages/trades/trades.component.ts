@@ -11,7 +11,7 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, DatePipe, DecimalPipe, InfoTooltipDirective],
   template: `
-    <div class="page-wrapper">
+    <div class="page-wrapper full-height-layout">
       <div class="page-header">
         <div>
           <h1 class="page-title-h1">Trade Journal</h1>
@@ -66,7 +66,7 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
       @if (loading()) {
         <div class="loading-state"><div class="loading-spinner"></div></div>
       } @else {
-        <div class="table-card">
+        <div class="table-card table-scroll-area">
           <table class="data-table">
             <thead>
               <tr>

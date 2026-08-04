@@ -279,6 +279,29 @@ label {
   margin: 0 auto;
 }
 
+.full-height-layout {
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.instruments-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 0.25rem;
+  padding-bottom: 2rem;
+}
+
+.table-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -1052,6 +1075,94 @@ label {
   border-radius: 4px;
 }
 
+.inst-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.inst-note-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.inst-note-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.inst-note-badge:hover {
+  background: rgba(168, 85, 247, 0.3);
+  border-color: #c084fc;
+  transform: translateY(-1px);
+}
+
+.inst-note-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  background: #18181b;
+  color: #f4f4f5;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 15px rgba(168, 85, 247, 0.2);
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  font-size: 0.825rem;
+  line-height: 1.45;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  white-space: pre-wrap;
+}
+
+.inst-note-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 20px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: #18181b transparent transparent transparent;
+}
+
+.inst-note-wrapper:hover .inst-note-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.tooltip-header {
+  font-weight: 700;
+  color: #c084fc;
+  font-size: 0.8rem;
+  margin-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.tooltip-content {
+  color: #e4e4e7;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
 .inst-badge {
   font-size: 0.75rem;
   font-weight: 600;
@@ -1142,6 +1253,10 @@ label {
   color: var(--text-muted);
   font-weight: 600;
   white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: var(--bg-card);
 }
 
 .data-table td {

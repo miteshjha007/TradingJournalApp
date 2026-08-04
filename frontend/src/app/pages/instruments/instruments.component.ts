@@ -10,7 +10,7 @@ import { Instrument, CreateInstrument } from '../../models/models';
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   template: `
-    <div class="page-wrapper">
+    <div class="page-wrapper full-height-layout">
       <div class="page-header">
         <div>
           <h1 class="page-title-h1">Instruments</h1>
@@ -22,49 +22,65 @@ import { Instrument, CreateInstrument } from '../../models/models';
       @if (loading()) {
         <div class="loading-state"><div class="loading-spinner"></div></div>
       } @else {
-        <div class="instruments-grid">
-          @for (inst of instruments(); track inst.id) {
-            <div class="instrument-card" [class]="getVolatilityClass(inst.volatilityLevel)" (click)="selectInstrument(inst)">
-              <div class="inst-header">
-                <div class="inst-symbol">{{ inst.symbol || inst.name.slice(0,4).toUpperCase() }}</div>
-                <div class="inst-badge" [class]="'vol-' + inst.volatilityLevel.toLowerCase()">{{ inst.volatilityLevel }}</div>
-              </div>
-              <h3 class="inst-name">{{ inst.name }}</h3>
-              @if (inst.description) { <p class="inst-desc">{{ inst.description }}</p> }
-              <div class="inst-stats">
-                <div class="stat-item">
-                  <span class="stat-label">P&amp;L</span>
-                  <span class="stat-value" [class.positive-text]="inst.totalPL > 0" [class.negative-text]="inst.totalPL < 0">
-                    {{ inst.totalPL | number:'1.2-2' }}
-                  </span>
+        <div class="instruments-scroll-area">
+          <div class="instruments-grid">
+            @for (inst of instruments(); track inst.id) {
+              <div class="instrument-card" [class]="getVolatilityClass(inst.volatilityLevel)" (click)="selectInstrument(inst)">
+                <div class="inst-header">
+                  <div class="inst-symbol">{{ inst.symbol || inst.name.slice(0,4).toUpperCase() }}</div>
+                  <div class="inst-header-right">
+                    @if (inst.notes && inst.notes.trim().length > 0) {
+                      <div class="inst-note-wrapper" (click)="$event.stopPropagation()">
+                        <span class="inst-note-badge" [title]="inst.notes">
+                          <span class="note-icon">📝</span>
+                          <span class="note-label">Notes</span>
+                        </span>
+                        <div class="inst-note-tooltip">
+                          <div class="tooltip-header">📝 Instrument Notes</div>
+                          <div class="tooltip-content">{{ inst.notes }}</div>
+                        </div>
+                      </div>
+                    }
+                    <div class="inst-badge" [class]="'vol-' + inst.volatilityLevel.toLowerCase()">{{ inst.volatilityLevel }}</div>
+                  </div>
                 </div>
-                <div class="stat-item">
-                  <span class="stat-label">Win Rate</span>
-                  <span class="stat-value">{{ inst.winRate | number:'1.1-1' }}%</span>
+                <h3 class="inst-name">{{ inst.name }}</h3>
+                @if (inst.description) { <p class="inst-desc">{{ inst.description }}</p> }
+                <div class="inst-stats">
+                  <div class="stat-item">
+                    <span class="stat-label">P&amp;L</span>
+                    <span class="stat-value" [class.positive-text]="inst.totalPL > 0" [class.negative-text]="inst.totalPL < 0">
+                      {{ inst.totalPL | number:'1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Win Rate</span>
+                    <span class="stat-value">{{ inst.winRate | number:'1.1-1' }}%</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Trades</span>
+                    <span class="stat-value">{{ inst.totalTrades }}</span>
+                  </div>
                 </div>
-                <div class="stat-item">
-                  <span class="stat-label">Trades</span>
-                  <span class="stat-value">{{ inst.totalTrades }}</span>
+                <div class="inst-lots">
+                  <span>Safe Lot: <strong>{{ inst.safeLotSize }}</strong></span>
+                  <span>Max Lot: <strong>{{ inst.maxLot }}</strong></span>
+                </div>
+                <div class="inst-actions" (click)="$event.stopPropagation()">
+                  <button class="btn-icon" (click)="openModal(inst)" title="Edit">✏️</button>
+                  <button class="btn-icon danger" (click)="deleteInstrument(inst.id)" title="Delete">🗑️</button>
                 </div>
               </div>
-              <div class="inst-lots">
-                <span>Safe Lot: <strong>{{ inst.safeLotSize }}</strong></span>
-                <span>Max Lot: <strong>{{ inst.maxLot }}</strong></span>
+            }
+            @empty {
+              <div class="empty-state">
+                <span class="empty-icon">🎯</span>
+                <h3>No instruments yet</h3>
+                <p>Add your first trading instrument to get started</p>
+                <button class="btn btn-primary" (click)="openModal()">Add Instrument</button>
               </div>
-              <div class="inst-actions" (click)="$event.stopPropagation()">
-                <button class="btn-icon" (click)="openModal(inst)" title="Edit">✏️</button>
-                <button class="btn-icon danger" (click)="deleteInstrument(inst.id)" title="Delete">🗑️</button>
-              </div>
-            </div>
-          }
-          @empty {
-            <div class="empty-state">
-              <span class="empty-icon">🎯</span>
-              <h3>No instruments yet</h3>
-              <p>Add your first trading instrument to get started</p>
-              <button class="btn btn-primary" (click)="openModal()">Add Instrument</button>
-            </div>
-          }
+            }
+          </div>
         </div>
       }
 
