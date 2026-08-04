@@ -49,7 +49,8 @@ public class TradeService : ITradeService
     public async Task<TradeDto> CreateAsync(CreateTradeDto dto, Guid userId)
     {
         var instrument = await _instrumentRepository.GetByIdAsync(dto.InstrumentId, userId);
-        var pl = CalculatePL(dto.TradeType, dto.EntryPrice, dto.ExitPrice, dto.LotSize, instrument?.Name);
+        var symbolStr = instrument?.Symbol ?? instrument?.Name;
+        var pl = CalculatePL(dto.TradeType, dto.EntryPrice, dto.ExitPrice, dto.LotSize, symbolStr);
         var result = pl > 0 ? TradeResult.Win : pl < 0 ? TradeResult.Loss : TradeResult.BreakEven;
         var rrr = CalculateRRR(dto.EntryPrice, dto.StopLoss, dto.TakeProfit, dto.TradeType);
 
@@ -83,7 +84,8 @@ public class TradeService : ITradeService
         var trade = await _tradeRepository.GetByIdAsync(id, userId)
             ?? throw new KeyNotFoundException("Trade not found.");
 
-        var pl = CalculatePL(dto.TradeType, dto.EntryPrice, dto.ExitPrice, dto.LotSize, trade.Instrument?.Name);
+        var symbolStr = trade.Instrument?.Symbol ?? trade.Instrument?.Name;
+        var pl = CalculatePL(dto.TradeType, dto.EntryPrice, dto.ExitPrice, dto.LotSize, symbolStr);
         var result = pl > 0 ? TradeResult.Win : pl < 0 ? TradeResult.Loss : TradeResult.BreakEven;
         var rrr = CalculateRRR(dto.EntryPrice, dto.StopLoss, dto.TakeProfit, dto.TradeType);
 
@@ -144,10 +146,10 @@ public class TradeService : ITradeService
         var pips = type == TradeType.Buy ? exit - entry : entry - exit;
         
         decimal multiplier = 100000; // Standard forex
+        var symbol = instrumentSymbol?.ToUpper().Replace("/", "").Replace("-", "").Trim() ?? string.Empty;
 
-        if (!string.IsNullOrEmpty(instrumentSymbol))
+        if (!string.IsNullOrEmpty(symbol))
         {
-            var symbol = instrumentSymbol.ToUpper();
             if (symbol.Contains("XAU") || symbol.Contains("GOLD"))
                 multiplier = 100;
             else if (symbol.Contains("XAG") || symbol.Contains("SILVER"))
@@ -160,7 +162,38 @@ public class TradeService : ITradeService
                 multiplier = 20; 
         }
 
-        return Math.Round(pips * lotSize * multiplier, 2);
+        var rawPL = pips * lotSize * multiplier;
+
+        // Perform currency conversion to Account Currency (USD) for non-USD Quote pairs
+        if (!string.IsNullOrEmpty(symbol))
+        {
+            // Base currency is USD, Quote currency is Non-USD (e.g., USDJPY, USDCAD, USDCHF)
+            if (symbol.StartsWith("USD") && symbol.Length >= 6 && !symbol.EndsWith("USD"))
+            {
+                var rate = exit != 0 ? exit : entry;
+                if (rate != 0)
+                {
+                    rawPL /= rate;
+                }
+            }
+            // Cross pairs where Quote currency is JPY (e.g., GBPJPY, EURJPY, AUDJPY, CADJPY, CHFJPY)
+            else if (symbol.EndsWith("JPY") && !symbol.StartsWith("USD"))
+            {
+                rawPL /= 155.0m;
+            }
+            // Cross pairs where Quote currency is CAD (e.g., EURCAD, GBPCAD, AUDCAD)
+            else if (symbol.EndsWith("CAD") && !symbol.StartsWith("USD"))
+            {
+                rawPL /= 1.35m;
+            }
+            // Cross pairs where Quote currency is CHF (e.g., EURCHF, GBPCHF)
+            else if (symbol.EndsWith("CHF") && !symbol.StartsWith("USD"))
+            {
+                rawPL /= 0.90m;
+            }
+        }
+
+        return Math.Round(rawPL, 2);
     }
 
     private decimal CalculateRRR(decimal entry, decimal sl, decimal tp, TradeType type)
