@@ -1089,7 +1089,7 @@ label {
 }
 
 .inst-note-wrapper:hover {
-  z-index: 100;
+  z-index: 1000;
 }
 
 .inst-note-badge {
@@ -1115,40 +1115,50 @@ label {
 
 .inst-note-tooltip {
   position: absolute;
-  bottom: calc(100% + 10px);
+  top: calc(100% + 8px);
   right: 0;
-  width: 300px;
-  background: rgba(20, 20, 26, 0.96);
+  width: 320px;
+  background: rgba(18, 18, 24, 0.98);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   color: #f4f4f5;
   border: 1px solid rgba(168, 85, 247, 0.45);
-  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.85), 0 0 20px rgba(168, 85, 247, 0.25);
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.95), 0 0 25px rgba(168, 85, 247, 0.25);
   border-radius: 12px;
   padding: 0.85rem 1rem;
   font-size: 0.825rem;
   line-height: 1.5;
-  z-index: 1000;
-  pointer-events: none;
+  z-index: 10000;
+  pointer-events: auto;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(6px);
+  transform: translateY(-6px);
   transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
+.inst-note-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  height: 12px;
+}
+
 .inst-note-tooltip::after {
   content: '';
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   right: 24px;
   border-width: 6px;
   border-style: solid;
-  border-color: rgba(20, 20, 26, 0.96) transparent transparent transparent;
+  border-color: transparent transparent rgba(18, 18, 24, 0.98) transparent;
 }
 
-.inst-note-wrapper:hover .inst-note-tooltip {
+.inst-note-wrapper:hover .inst-note-tooltip,
+.inst-note-tooltip:hover {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -1169,9 +1179,28 @@ label {
 
 .tooltip-content {
   color: #e4e4e7;
-  max-height: 180px;
+  max-height: 200px;
   overflow-y: auto;
   font-weight: 400;
+  padding-right: 0.3rem;
+}
+
+.tooltip-content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.tooltip-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.tooltip-content::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.5);
+  border-radius: 4px;
+}
+
+.tooltip-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.8);
 }
 
 .inst-badge {
