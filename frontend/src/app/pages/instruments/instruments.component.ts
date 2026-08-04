@@ -31,7 +31,7 @@ import { Instrument, CreateInstrument } from '../../models/models';
                   <div class="inst-header-right">
                     @if (inst.notes && inst.notes.trim().length > 0) {
                       <div class="inst-note-wrapper" (click)="$event.stopPropagation()">
-                        <span class="inst-note-badge" [title]="inst.notes">
+                        <span class="inst-note-badge">
                           <span class="note-icon">📝</span>
                           <span class="note-label">Notes</span>
                         </span>

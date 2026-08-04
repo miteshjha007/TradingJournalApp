@@ -59,6 +59,15 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
             <option value="Sell">Sell</option>
           </select>
         </div>
+        <div class="filter-group">
+          <label>Rows</label>
+          <select [(ngModel)]="filter.pageSize" class="form-input sm" (change)="onPageSizeChange()">
+            <option [ngValue]="10">10</option>
+            <option [ngValue]="20">20</option>
+            <option [ngValue]="50">50</option>
+            <option [ngValue]="100">100</option>
+          </select>
+        </div>
         <button class="btn btn-ghost sm" (click)="clearFilter()">Clear</button>
       </div>
 
@@ -152,11 +161,27 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
         </div>
 
         <!-- Pagination -->
-        @if (pagedTrades().totalPages > 1) {
-          <div class="pagination">
-            <button class="btn btn-ghost" [disabled]="filter.page <= 1" (click)="goToPage(filter.page - 1)">← Prev</button>
-            <span class="page-info">Page {{ filter.page }} of {{ pagedTrades().totalPages }}</span>
-            <button class="btn btn-ghost" [disabled]="filter.page >= pagedTrades().totalPages" (click)="goToPage(filter.page + 1)">Next →</button>
+        @if (pagedTrades().totalCount > 0) {
+          <div class="pagination-container">
+            <div class="pagination-info">
+              Showing <strong>{{ startRow() }}</strong> – <strong>{{ endRow() }}</strong> of <strong>{{ pagedTrades().totalCount }}</strong> trades
+            </div>
+            <div class="pagination-controls">
+              <div class="page-size-selector">
+                <label>Rows per page:</label>
+                <select [(ngModel)]="filter.pageSize" class="form-input sm" (change)="onPageSizeChange()">
+                  <option [ngValue]="10">10</option>
+                  <option [ngValue]="20">20</option>
+                  <option [ngValue]="50">50</option>
+                  <option [ngValue]="100">100</option>
+                </select>
+              </div>
+              <div class="page-buttons">
+                <button class="btn btn-ghost sm" [disabled]="filter.page <= 1" (click)="goToPage(filter.page - 1)">← Prev</button>
+                <span class="page-info">Page {{ filter.page }} of {{ pagedTrades().totalPages || 1 }}</span>
+                <button class="btn btn-ghost sm" [disabled]="filter.page >= pagedTrades().totalPages" (click)="goToPage(filter.page + 1)">Next →</button>
+              </div>
+            </div>
           </div>
         }
       }
@@ -248,14 +273,14 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
   `
 })
 export class TradesComponent implements OnInit {
-  pagedTrades = signal({ trades: [] as Trade[], totalCount: 0, page: 1, pageSize: 20, totalPages: 0 });
+  pagedTrades = signal({ trades: [] as Trade[], totalCount: 0, page: 1, pageSize: 10, totalPages: 0 });
   instruments = signal<Instrument[]>([]);
   loading = signal(true);
   showModal = signal(false);
   editingId = signal<string | null>(null);
   saving = signal(false);
 
-  filter: TradeFilter = { page: 1, pageSize: 20 };
+  filter: TradeFilter = { page: 1, pageSize: 10 };
   form;
 
   constructor(private api: ApiService, private fb: FormBuilder, private toast: ToastService) {
@@ -289,8 +314,22 @@ export class TradesComponent implements OnInit {
   }
 
   applyFilter(): void { this.filter.page = 1; this.load(); }
-  clearFilter(): void { this.filter = { page: 1, pageSize: 20 }; this.load(); }
+  clearFilter(): void { this.filter = { page: 1, pageSize: 10 }; this.load(); }
   goToPage(page: number): void { this.filter.page = page; this.load(); }
+
+  onPageSizeChange(): void {
+    this.filter.page = 1;
+    this.load();
+  }
+
+  startRow(): number {
+    if (this.pagedTrades().totalCount === 0) return 0;
+    return (this.filter.page - 1) * (this.filter.pageSize || 10) + 1;
+  }
+
+  endRow(): number {
+    return Math.min(this.filter.page * (this.filter.pageSize || 10), this.pagedTrades().totalCount);
+  }
 
   exportUrl(): string { return this.api.exportTrades(this.filter); }
 
