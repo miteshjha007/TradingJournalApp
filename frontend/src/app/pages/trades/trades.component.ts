@@ -1,15 +1,16 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/common';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { ToastService } from '../../services/toast.service';
 import { Trade, CreateTrade, TradeFilter, Instrument } from '../../models/models';
 import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
+import { SearchableSelectComponent, SelectOption } from '../../components/searchable-select/searchable-select.component';
 
 @Component({
   selector: 'app-trades',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DatePipe, DecimalPipe, InfoTooltipDirective],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DatePipe, DecimalPipe, InfoTooltipDirective, SearchableSelectComponent],
   template: `
     <div class="page-wrapper full-height-layout">
       <div class="page-header">
@@ -35,12 +36,14 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
         </div>
         <div class="filter-group">
           <label>Instrument</label>
-          <select [(ngModel)]="filter.instrumentId" class="form-input sm" (change)="applyFilter()">
-            <option value="">All</option>
-            @for (inst of instruments(); track inst.id) {
-              <option [value]="inst.id">{{ inst.name }}</option>
-            }
-          </select>
+          <app-searchable-select
+            [options]="instrumentOptions()"
+            [value]="filter.instrumentId || ''"
+            [showAllOption]="true"
+            allOptionLabel="All Instruments"
+            placeholder="All Instruments"
+            (valueChange)="onInstrumentFilterChange($event)"
+          ></app-searchable-select>
         </div>
         <div class="filter-group">
           <label>Result</label>
@@ -92,7 +95,7 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
                   <div [infoTooltip]="'risk-reward-ratio'" class="sub-header">RRR ⓘ</div>
                 </th>
                 <th class="text-center">Result</th>
-                <th>Tags</th>
+                <th>Tags &amp; Notes</th>
                 <th>Checklist</th>
                 <th class="text-right">Actions</th>
               </tr>
@@ -118,11 +121,25 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
                   </td>
                   <td class="text-center"><span class="result-badge" [class]="'result-' + (trade.result || '').toLowerCase()">{{ trade.result || 'Pending' }}</span></td>
                   <td class="tags-cell">
-                    @if (trade.tags) {
-                      @for (tag of trade.tags.split(','); track tag) {
-                        <span class="tag">{{ tag.trim() }}</span>
+                    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.3rem;">
+                      @if (trade.notes && trade.notes.trim().length > 0) {
+                        <div class="inst-note-wrapper trade-note-wrapper" (click)="$event.stopPropagation()">
+                          <span class="inst-note-badge trade-note-badge">
+                            <span>📝</span>
+                            <span>Notes</span>
+                          </span>
+                          <div class="inst-note-tooltip trade-note-tooltip">
+                            <div class="tooltip-header">📝 Trade Notes</div>
+                            <div class="tooltip-content">{{ trade.notes }}</div>
+                          </div>
+                        </div>
                       }
-                    }
+                      @if (trade.tags) {
+                        @for (tag of trade.tags.split(','); track tag) {
+                          <span class="tag">{{ tag.trim() }}</span>
+                        }
+                      }
+                    </div>
                     @if (trade.ruleViolations && trade.ruleViolations.length > 0) {
                       <div style="margin-top:0.4rem; display:flex; flex-direction:column; gap:0.2rem;">
                         @for (violation of trade.ruleViolations; track violation) {
@@ -198,11 +215,12 @@ import { InfoTooltipDirective } from '../../directives/info-tooltip.directive';
               <div class="form-row">
                 <div class="form-group">
                   <label>Instrument *</label>
-                  <select formControlName="instrumentId" class="form-input">
-                    @for (inst of instruments(); track inst.id) {
-                      <option [value]="inst.id">{{ inst.name }}</option>
-                    }
-                  </select>
+                  <app-searchable-select
+                    [options]="instrumentOptions()"
+                    [value]="form.get('instrumentId')?.value || ''"
+                    placeholder="Select Instrument..."
+                    (valueChange)="form.get('instrumentId')?.setValue($event)"
+                  ></app-searchable-select>
                 </div>
                 <div class="form-group">
                   <label>Trade Date *</label>
@@ -283,6 +301,14 @@ export class TradesComponent implements OnInit {
   filter: TradeFilter = { page: 1, pageSize: 10 };
   form;
 
+  instrumentOptions = computed<SelectOption[]>(() => {
+    return this.instruments().map(inst => ({
+      value: inst.id,
+      label: inst.name,
+      subLabel: inst.symbol
+    }));
+  });
+
   constructor(private api: ApiService, private fb: FormBuilder, private toast: ToastService) {
     this.form = this.fb.group({
       instrumentId: ['', Validators.required],
@@ -316,6 +342,11 @@ export class TradesComponent implements OnInit {
   applyFilter(): void { this.filter.page = 1; this.load(); }
   clearFilter(): void { this.filter = { page: 1, pageSize: 10 }; this.load(); }
   goToPage(page: number): void { this.filter.page = page; this.load(); }
+
+  onInstrumentFilterChange(instId: string): void {
+    this.filter.instrumentId = instId;
+    this.applyFilter();
+  }
 
   onPageSizeChange(): void {
     this.filter.page = 1;
