@@ -84,7 +84,8 @@ public class TradeService : ITradeService
         var trade = await _tradeRepository.GetByIdAsync(id, userId)
             ?? throw new KeyNotFoundException("Trade not found.");
 
-        var symbolStr = trade.Instrument?.Symbol ?? trade.Instrument?.Name;
+        var instrument = await _instrumentRepository.GetByIdAsync(trade.InstrumentId, userId);
+        var symbolStr = instrument?.Symbol ?? instrument?.Name ?? trade.Instrument?.Symbol ?? trade.Instrument?.Name;
         var pl = CalculatePL(dto.TradeType, dto.EntryPrice, dto.ExitPrice, dto.LotSize, symbolStr);
         var result = pl > 0 ? TradeResult.Win : pl < 0 ? TradeResult.Loss : TradeResult.BreakEven;
         var rrr = CalculateRRR(dto.EntryPrice, dto.StopLoss, dto.TakeProfit, dto.TradeType);
@@ -141,12 +142,62 @@ public class TradeService : ITradeService
         return Encoding.UTF8.GetBytes(sb.ToString());
     }
 
+    private static string NormalizeSymbol(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
+
+        var s = raw.Trim();
+        var upper = s.ToUpper();
+        
+        // Quick 6-char forex symbol (e.g. AUDCHF, AUDNZD, USDJPY, EURUSD, GBPCAD)
+        var cleanNoPunct = upper.Replace("/", "").Replace("-", "").Replace(" ", "").Trim();
+        if (cleanNoPunct.Length == 6 && !cleanNoPunct.Contains("GOLD"))
+        {
+            return cleanNoPunct;
+        }
+
+        // Full instrument names parsing (e.g. "Australian Dollar / Swiss Franc")
+        string baseC = "", quoteC = "";
+        var lower = s.ToLower();
+
+        if (lower.Contains("gold") || lower.Contains("xau")) return "XAUUSD";
+
+        // Base currency matching
+        if (lower.Contains("australian dollar") || lower.StartsWith("aud")) baseC = "AUD";
+        else if (lower.Contains("euro") || lower.StartsWith("eur")) baseC = "EUR";
+        else if (lower.Contains("british pound") || lower.StartsWith("gbp")) baseC = "GBP";
+        else if (lower.Contains("new zealand dollar") || lower.StartsWith("nzd")) baseC = "NZD";
+        else if (lower.Contains("us dollar") || lower.StartsWith("usd")) baseC = "USD";
+        else if (lower.Contains("canadian dollar") || lower.StartsWith("cad")) baseC = "CAD";
+        else if (lower.Contains("swiss franc") || lower.StartsWith("chf")) baseC = "CHF";
+        else if (lower.Contains("japanese yen") || lower.StartsWith("jpy")) baseC = "JPY";
+
+        // Quote currency matching (after slash or in second half of name)
+        var slashIdx = s.IndexOf('/');
+        var searchQuoteIn = slashIdx >= 0 ? s.Substring(slashIdx + 1).ToLower() : lower;
+
+        if (searchQuoteIn.Contains("swiss franc") || searchQuoteIn.EndsWith("chf")) quoteC = "CHF";
+        else if (searchQuoteIn.Contains("new zealand dollar") || searchQuoteIn.EndsWith("nzd")) quoteC = "NZD";
+        else if (searchQuoteIn.Contains("us dollar") || searchQuoteIn.EndsWith("usd")) quoteC = "USD";
+        else if (searchQuoteIn.Contains("canadian dollar") || searchQuoteIn.EndsWith("cad")) quoteC = "CAD";
+        else if (searchQuoteIn.Contains("japanese yen") || searchQuoteIn.EndsWith("jpy")) quoteC = "JPY";
+        else if (searchQuoteIn.Contains("australian dollar") || searchQuoteIn.EndsWith("aud")) quoteC = "AUD";
+        else if (searchQuoteIn.Contains("british pound") || searchQuoteIn.EndsWith("gbp")) quoteC = "GBP";
+
+        if (!string.IsNullOrEmpty(baseC) && !string.IsNullOrEmpty(quoteC))
+        {
+            return baseC + quoteC;
+        }
+
+        return cleanNoPunct;
+    }
+
     private decimal CalculatePL(TradeType type, decimal entry, decimal exit, decimal lotSize, string? instrumentSymbol)
     {
         var pips = type == TradeType.Buy ? exit - entry : entry - exit;
         
-        decimal multiplier = 100000; // Standard forex
-        var symbol = instrumentSymbol?.ToUpper().Replace("/", "").Replace("-", "").Trim() ?? string.Empty;
+        decimal multiplier = 100000; // Standard forex lot multiplier
+        var symbol = NormalizeSymbol(instrumentSymbol ?? string.Empty);
 
         if (!string.IsNullOrEmpty(symbol))
         {
@@ -164,32 +215,48 @@ public class TradeService : ITradeService
 
         var rawPL = pips * lotSize * multiplier;
 
-        // Perform currency conversion to Account Currency (USD) for non-USD Quote pairs
-        if (!string.IsNullOrEmpty(symbol))
+        // Convert raw P&L (in Quote Currency) to Account Currency (USD)
+        if (!string.IsNullOrEmpty(symbol) && symbol.Length >= 6)
         {
-            // Base currency is USD, Quote currency is Non-USD (e.g., USDJPY, USDCAD, USDCHF)
-            if (symbol.StartsWith("USD") && symbol.Length >= 6 && !symbol.EndsWith("USD"))
+            var baseCurr = symbol.Substring(0, 3);
+            var quoteCurr = symbol.Substring(3, 3);
+
+            if (baseCurr == "USD" && quoteCurr != "USD")
             {
+                // Base is USD, Quote is non-USD (e.g., USDJPY, USDCAD, USDCHF)
                 var rate = exit != 0 ? exit : entry;
                 if (rate != 0)
                 {
                     rawPL /= rate;
                 }
             }
-            // Cross pairs where Quote currency is JPY (e.g., GBPJPY, EURJPY, AUDJPY, CADJPY, CHFJPY)
-            else if (symbol.EndsWith("JPY") && !symbol.StartsWith("USD"))
+            else if (quoteCurr != "USD")
             {
-                rawPL /= 155.0m;
-            }
-            // Cross pairs where Quote currency is CAD (e.g., EURCAD, GBPCAD, AUDCAD)
-            else if (symbol.EndsWith("CAD") && !symbol.StartsWith("USD"))
-            {
-                rawPL /= 1.35m;
-            }
-            // Cross pairs where Quote currency is CHF (e.g., EURCHF, GBPCHF)
-            else if (symbol.EndsWith("CHF") && !symbol.StartsWith("USD"))
-            {
-                rawPL /= 0.90m;
+                // Cross Pairs where Quote Currency is non-USD (e.g. AUDNZD, AUDCHF, GBPCAD, GBPJPY)
+                switch (quoteCurr)
+                {
+                    case "NZD":
+                        rawPL *= 0.587m; // 1 NZD = ~0.587 USD (NZDUSD rate)
+                        break;
+                    case "CHF":
+                        rawPL /= 0.89m;  // 1 USD = ~0.89 CHF (USDCHF rate)
+                        break;
+                    case "CAD":
+                        rawPL /= 1.37m;  // 1 USD = ~1.37 CAD (USDCAD rate)
+                        break;
+                    case "JPY":
+                        rawPL /= 157.0m; // 1 USD = ~157 JPY (USDJPY rate)
+                        break;
+                    case "AUD":
+                        rawPL *= 0.65m;  // 1 AUD = ~0.65 USD (AUDUSD rate)
+                        break;
+                    case "GBP":
+                        rawPL *= 1.28m;  // 1 GBP = ~1.28 USD (GBPUSD rate)
+                        break;
+                    case "EUR":
+                        rawPL *= 1.09m;  // 1 EUR = ~1.09 USD (EURUSD rate)
+                        break;
+                }
             }
         }
 
