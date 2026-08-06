@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/common';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -302,7 +302,7 @@ export class TradesComponent implements OnInit {
   form;
 
   instrumentOptions = computed<SelectOption[]>(() => {
-    return this.instruments().map(inst => ({
+    return this.instruments().map((inst: Instrument) => ({
       value: inst.id,
       label: inst.name,
       subLabel: inst.symbol
