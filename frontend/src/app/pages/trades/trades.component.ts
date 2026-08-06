@@ -40,6 +40,7 @@ import { SearchableSelectComponent, SelectOption } from '../../components/search
             [options]="instrumentOptions()"
             [value]="filter.instrumentId || ''"
             [showAllOption]="true"
+            [isSmall]="true"
             allOptionLabel="All Instruments"
             placeholder="All Instruments"
             (valueChange)="onInstrumentFilterChange($event)"

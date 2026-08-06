@@ -13,7 +13,7 @@ export interface SelectOption {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="searchable-select-container" [class.open]="isOpen()">
+    <div class="searchable-select-container" [class.open]="isOpen()" [class.sm]="isSmall">
       <div class="select-trigger" (click)="toggleOpen()">
         <span class="selected-text" [class.placeholder]="!selectedOption() && (!showAllOption || value !== '')">
           {{ displayText() }}
@@ -67,33 +67,42 @@ export interface SelectOption {
       position: relative;
       display: inline-block;
       width: 100%;
-      min-width: 160px;
     }
 
     .select-trigger {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--bg-card, #18181b);
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: var(--border-radius-sm, 6px);
       border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
-      border-radius: 6px;
-      padding: 0.4rem 0.75rem;
-      font-size: 0.85rem;
-      cursor: pointer;
+      background-color: var(--input-bg, #0c101d);
       color: var(--text-main, #f4f4f5);
-      height: 32px;
+      font-family: inherit;
+      font-size: 0.95rem;
       box-sizing: border-box;
+      cursor: pointer;
       user-select: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      min-height: 42px;
+      transition: var(--transition, all 0.2s ease);
     }
 
     .select-trigger:hover {
-      border-color: #c084fc;
+      border-color: var(--primary, #c084fc);
     }
 
     .searchable-select-container.open .select-trigger {
-      border-color: #c084fc;
-      box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.25);
+      border-color: var(--primary, #c084fc);
+      box-shadow: 0 0 0 3px var(--primary-light, rgba(168, 85, 247, 0.25));
+    }
+
+    /* Small variant for filter bar */
+    .searchable-select-container.sm .select-trigger {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.85rem;
+      min-height: 32px;
+      height: 32px;
     }
 
     .selected-text {
@@ -107,7 +116,7 @@ export interface SelectOption {
     }
 
     .arrow-icon {
-      font-size: 0.6rem;
+      font-size: 0.65rem;
       color: var(--text-muted, #a1a1aa);
       margin-left: 0.5rem;
       transition: transform 0.2s ease;
@@ -116,19 +125,19 @@ export interface SelectOption {
 
     .searchable-select-container.open .arrow-icon {
       transform: rotate(180deg);
-      color: #c084fc;
+      color: var(--primary, #c084fc);
     }
 
     .select-dropdown {
       position: absolute;
-      top: calc(100% + 4px);
+      top: calc(100% + 6px);
       left: 0;
       right: 0;
       min-width: 220px;
-      background: #18181b;
+      background: var(--bg-card, #18181b);
       border: 1px solid rgba(168, 85, 247, 0.4);
       box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.9), 0 0 15px rgba(168, 85, 247, 0.15);
-      border-radius: 8px;
+      border-radius: var(--border-radius-sm, 8px);
       z-index: 99999;
       padding: 0.5rem;
       box-sizing: border-box;
@@ -142,11 +151,11 @@ export interface SelectOption {
 
     .search-input {
       width: 100%;
-      background: #09090b;
+      background: var(--input-bg, #09090b);
       border: 1px solid rgba(255, 255, 255, 0.18);
-      color: #f4f4f5;
-      padding: 0.35rem 0.6rem;
-      font-size: 0.8rem;
+      color: var(--text-main, #f4f4f5);
+      padding: 0.4rem 0.65rem;
+      font-size: 0.85rem;
       border-radius: 5px;
       box-sizing: border-box;
       outline: none;
@@ -154,12 +163,12 @@ export interface SelectOption {
     }
 
     .search-input:focus {
-      border-color: #c084fc;
+      border-color: var(--primary, #c084fc);
       box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
     }
 
     .options-list {
-      max-height: 210px;
+      max-height: 220px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -186,8 +195,8 @@ export interface SelectOption {
     }
 
     .option-item {
-      padding: 0.45rem 0.6rem;
-      font-size: 0.825rem;
+      padding: 0.5rem 0.65rem;
+      font-size: 0.85rem;
       border-radius: 5px;
       cursor: pointer;
       color: #e4e4e7;
@@ -204,7 +213,7 @@ export interface SelectOption {
 
     .option-item.selected {
       background: rgba(168, 85, 247, 0.3);
-      color: #c084fc;
+      color: var(--primary, #c084fc);
       font-weight: 600;
     }
 
@@ -215,8 +224,8 @@ export interface SelectOption {
     }
 
     .opt-sub {
-      font-size: 0.725rem;
-      color: #a1a1aa;
+      font-size: 0.75rem;
+      color: var(--text-muted, #a1a1aa);
       margin-left: 0.5rem;
       background: rgba(255, 255, 255, 0.06);
       padding: 0.1rem 0.35rem;
@@ -226,18 +235,34 @@ export interface SelectOption {
     .no-options {
       padding: 0.75rem;
       font-size: 0.8rem;
-      color: #a1a1aa;
+      color: var(--text-muted, #a1a1aa);
       text-align: center;
     }
   `]
 })
 export class SearchableSelectComponent {
-  @Input() options: SelectOption[] = [];
-  @Input() value: string = '';
+  private _value = signal<string>('');
+  private _options = signal<SelectOption[]>([]);
+
+  @Input() set value(v: string) {
+    this._value.set(v || '');
+  }
+  get value(): string {
+    return this._value();
+  }
+
+  @Input() set options(opts: SelectOption[]) {
+    this._options.set(opts || []);
+  }
+  get options(): SelectOption[] {
+    return this._options();
+  }
+
   @Input() placeholder: string = 'Select...';
   @Input() searchPlaceholder: string = '🔍 Search instruments...';
   @Input() showAllOption: boolean = false;
   @Input() allOptionLabel: string = 'All';
+  @Input() isSmall: boolean = false;
 
   @Output() valueChange = new EventEmitter<string>();
 
@@ -247,9 +272,10 @@ export class SearchableSelectComponent {
   constructor(private elementRef: ElementRef) {}
 
   filteredOptions = computed(() => {
+    const opts = this._options();
     const query = this.searchQuery().toLowerCase().trim();
-    if (!query) return this.options;
-    return this.options.filter(opt => 
+    if (!query) return opts;
+    return opts.filter(opt => 
       opt.label.toLowerCase().includes(query) || 
       (opt.subLabel && opt.subLabel.toLowerCase().includes(query)) ||
       opt.value.toLowerCase().includes(query)
@@ -257,13 +283,15 @@ export class SearchableSelectComponent {
   });
 
   selectedOption = computed(() => {
-    return this.options.find(opt => opt.value === this.value);
+    const val = this._value();
+    const opts = this._options();
+    return opts.find(opt => opt.value === val);
   });
 
   displayText = computed(() => {
     const sel = this.selectedOption();
     if (sel) return sel.label;
-    if (this.showAllOption && (!this.value || this.value === '')) return this.allOptionLabel;
+    if (this.showAllOption && (!this._value() || this._value() === '')) return this.allOptionLabel;
     return this.placeholder;
   });
 
@@ -276,7 +304,7 @@ export class SearchableSelectComponent {
   }
 
   selectOption(val: string, label: string): void {
-    this.value = val;
+    this._value.set(val);
     this.valueChange.emit(val);
     this.isOpen.set(false);
     this.searchQuery.set('');
